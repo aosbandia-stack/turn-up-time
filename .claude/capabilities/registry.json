@@ -1,0 +1,74 @@
+{
+  "$schema": "../schemas/capability-registry.schema.json",
+  "schema_version": 2,
+  "capabilities": {
+    "frontend-operate": {
+      "provider": "impeccable",
+      "bundled": false,
+      "stages": ["BUILD", "CLOSEOUT"],
+      "mode": "operate",
+      "authority": "production",
+      "consumes": ["definition-of-good", "frontend-evidence", "ticket"],
+      "produces": ["frontend-code", "ui-receipt"],
+      "conflicts": ["provider:taste-skill", "provider:ui-ux-pro-max", "provider:design-review"],
+      "eval": "critical-journey-e2e",
+      "uninstall": "Remove this provider mapping; do not delete product files."
+    },
+    "frontend-marketing": {
+      "provider": "impeccable",
+      "bundled": false,
+      "stages": ["BUILD", "CLOSEOUT"],
+      "mode": "persuade",
+      "authority": "production",
+      "consumes": ["definition-of-good", "frontend-evidence", "ticket"],
+      "produces": ["frontend-code", "ui-receipt"],
+      "conflicts": ["provider:ui-ux-pro-max", "provider:design-review"],
+      "eval": "visual-and-conversion-contract",
+      "uninstall": "Remove this provider mapping."
+    },
+    "browser-e2e": {
+      "provider": "e2e-testing",
+      "bundled": false,
+      "stages": ["BUILD", "INTEGRATION", "CLOSEOUT", "RELEASE"],
+      "authority": "assurance",
+      "consumes": ["critical-journeys", "running-build"],
+      "produces": ["e2e-results", "screenshots", "trace"],
+      "conflicts": [],
+      "eval": "seeded-broken-journey-must-fail",
+      "uninstall": "Remove this provider mapping; remove generated project tests only with approval."
+    },
+    "ai-regression": {
+      "provider": "ai-regression-testing",
+      "bundled": false,
+      "stages": ["BUILD", "INTEGRATION", "CLOSEOUT"],
+      "authority": "assurance",
+      "consumes": ["ai-behavior-contract", "test-cases"],
+      "produces": ["baseline", "regression-report"],
+      "conflicts": [],
+      "eval": "known-regression-must-fail",
+      "uninstall": "Remove this provider mapping; preserve baselines unless separately approved."
+    },
+    "workflow-evals": {
+      "provider": "eval-harness",
+      "bundled": true,
+      "stages": ["ANY"],
+      "authority": "assurance",
+      "consumes": ["behavior-contract"],
+      "produces": ["eval-definition", "eval-report"],
+      "conflicts": [],
+      "eval": "grader-control-must-fail",
+      "uninstall": "Not removable while the core workflow is active."
+    },
+    "irreversible-write": {
+      "provider": "guard-before-write",
+      "bundled": true,
+      "stages": ["ANY"],
+      "authority": "control",
+      "consumes": ["proposed-action"],
+      "produces": ["guard-receipt"],
+      "conflicts": [],
+      "eval": "missing-backup-must-block",
+      "uninstall": "Not removable while auto-accept is enabled."
+    }
+  }
+}
