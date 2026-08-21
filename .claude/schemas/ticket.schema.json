@@ -3,37 +3,53 @@
   "title": "Executable Ticket",
   "type": "object",
   "additionalProperties": false,
-  "required": [
-    "ticket_id",
-    "requirement_ids",
-    "user_outcome",
-    "scope",
-    "non_scope",
-    "inputs",
-    "outputs",
-    "dependencies",
-    "shared_contracts",
-    "acceptance_checks",
-    "required_capabilities",
-    "risk_class",
-    "rollback",
-    "owner_role"
-  ],
+  "required": ["schema_version", "project_id", "ticket_id", "status", "requirement_ids", "evidence_refs", "user_outcome", "scope", "non_scope", "inputs", "outputs", "dependencies", "shared_contracts", "owned_files", "shared_files", "acceptance_checks", "required_capabilities", "risk_class", "rollback", "owner_role", "build_receipt"],
   "properties": {
-    "ticket_id": {"type": "string"},
-    "requirement_ids": {"type": "array", "minItems": 1, "items": {"type": "string"}},
-    "evidence_refs": {"type": "array", "items": {"type": "string"}},
+    "schema_version": {"const": 2},
+    "project_id": {"type": "string"},
+    "ticket_id": {"type": "string", "minLength": 1},
+    "status": {"enum": ["DRAFT", "APPROVED", "IN_PROGRESS", "EVIDENCE_GREEN", "BLOCKED", "SUPERSEDED"]},
+    "requirement_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}},
+    "evidence_refs": {"type": "array", "minItems": 1, "items": {"type": "string"}},
     "user_outcome": {"type": "string"},
-    "scope": {"type": "array", "items": {"type": "string"}},
+    "scope": {"type": "array", "minItems": 1, "items": {"type": "string"}},
     "non_scope": {"type": "array", "items": {"type": "string"}},
-    "inputs": {"type": "array"},
-    "outputs": {"type": "array"},
-    "dependencies": {"type": "array", "items": {"type": "string"}},
-    "shared_contracts": {"type": "array"},
-    "acceptance_checks": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["id", "check", "expected"], "properties": {"id": {"type": "string"}, "check": {"type": "string"}, "expected": {"type": "string"}, "evidence": {"type": ["string", "null"]}}, "additionalProperties": false}},
-    "required_capabilities": {"type": "array", "items": {"type": "string"}},
+    "inputs": {"type": "array", "items": {"type": "string"}},
+    "outputs": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+    "dependencies": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+    "shared_contracts": {"type": "array", "items": {"type": "string"}},
+    "owned_files": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+    "shared_files": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+    "acceptance_checks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "type", "check", "expected", "evidence"],
+        "properties": {
+          "id": {"type": "string"},
+          "type": {"enum": ["deterministic", "live", "experiential", "human_gate"]},
+          "check": {"type": "string"},
+          "expected": {"type": "string"},
+          "evidence": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "required_capabilities": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
     "risk_class": {"enum": ["low", "medium", "high", "critical"]},
-    "rollback": {"type": "string"},
-    "owner_role": {"type": "string"}
+    "rollback": {"type": "string", "minLength": 1},
+    "owner_role": {"const": "implementation-engineer"},
+    "build_receipt": {
+      "type": ["object", "null"],
+      "properties": {
+        "build_identity": {"type": "string"},
+        "changed_files": {"type": "array", "items": {"type": "string"}},
+        "check_results": {"type": "array", "items": {"type": "string"}},
+        "completed_at": {"type": "string", "format": "date-time"}
+      },
+      "required": ["build_identity", "changed_files", "check_results", "completed_at"],
+      "additionalProperties": false
+    }
   }
 }
