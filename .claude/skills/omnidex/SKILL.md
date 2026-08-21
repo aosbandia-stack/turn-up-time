@@ -6,74 +6,93 @@ disable-model-invocation: true
 
 # /omnidex
 
+OmniDex begins only after the Premise Auditor returns `EVIDENCE_READY` or the human explicitly accepts
+a named deferred risk.
+
 ## Inputs
 
-- ratified Intake Readiness Card;
-- current-state receipts;
-- approved product, frontend, backend, and security evidence packs;
-- Premise Auditor verdict;
-- project ledger and constraints.
+- validated `intake-readiness.json`;
+- current-state receipts and artifact hashes;
+- validated product, frontend/backend or lite engineering, and security evidence packs;
+- `evidence/premise-verdict.json`;
+- authoritative project ledger;
+- existing architecture and tickets when this is a revision.
 
-If evidence is not ready, stop. Do not fill gaps with first-principles confidence.
+If any required artifact is missing, stale, or invalid, return `DEFINITION_BLOCKED`. Do not fill a gap
+with first-principles confidence.
 
-## 1. Compile the Definition of Good
+## 1. Compile `definition-of-good.json`
 
-For every requirement record:
+Validate against `definition-of-good.schema.json`. Each requirement contains:
 
-```text
-id
-source/evidence
-priority: MUST|SHOULD|OPTIONAL
-acceptance condition
-verification method
-owner surface
-```
+- stable ID and statement;
+- MUST, SHOULD, or OPTIONAL;
+- evidence references;
+- observable acceptance condition;
+- verification method;
+- owner surface and lifecycle status.
 
-A requirement may use a number only when the number is meaningful and sourced or measured.
+Use a numeric threshold only when a source or measured baseline makes it meaningful. Preserve human
+gates and non-goals. Record source artifact SHA-256 values.
 
-## 2. Architecture
+## 2. Dispatch the architect
 
-Dispatch the read-only `architect`. It proposes one coherent architecture and shows how each MUST is
-satisfied. Product, scope, permission, cost, and risk forks go to the human. Technical coherence stays
-with the architect.
+Give the read-only `architect` the validated evidence, draft Definition of Good, current-state receipts,
+and constraints. The architect returns one coherent design, requirement mapping, interfaces, failure
+behavior, operations, alternatives, risks, and human-owned forks.
 
-## 3. Tickets
+The human decides product scope, permissions, cost, sensitive-data handling, and risk posture. The
+architect decides technical coherence within the ratified boundary. OmniDex records the result; it
+does not break the tie itself.
 
-Create one ticket per coherent work package using `ticket.schema.json`. Every ticket must carry:
+Write the approved technical result to `architecture.md`.
 
-- requirement IDs and evidence references;
-- user outcome;
-- scope and explicit non-scope;
-- inputs, outputs, dependencies, and shared contracts;
-- required capabilities;
-- deterministic and/or experiential acceptance checks;
-- risk, rollback, and owner role.
+## 3. Build `traceability.json`
 
-Builders never receive the original vague prompt as their work order.
+Trace:
 
-## 4. Traceability
+- every active MUST to architecture elements, ticket IDs, or an explicit human gate;
+- every ticket back to requirements and evidence;
+- frontend states to backend/data ownership;
+- security requirements to implementation and verification owners;
+- shared contracts to every ticket that reads or changes them.
 
-Prove:
+A missing owner or unresolved decision is a blocker, not a ticket.
 
-- every MUST maps to one or more tickets or an explicit human gate;
-- every ticket maps back to approved requirements;
-- security requirements have owners;
-- frontend states have backend ownership;
-- no unresolved decision is disguised as an implementation ticket.
+## 4. Create executable tickets
 
-## 5. Revision limit
+Write one coherent work package per `tickets/<ticket-id>.json`, validating each against
+`ticket.schema.json`. Tickets must include requirement/evidence references, user outcome, scope,
+non-scope, files/surfaces, inputs, outputs, dependencies, shared contracts, acceptance checks,
+capabilities, risk, rollback, owner, and human gates.
 
-Run one premise/traceability review. Repair once. If the same defect survives, stop and reframe the
-architecture or evidence; do not begin a debate loop.
+Builders never receive the original vague prompt as their work order. `required_capabilities` names
+capabilities, not skill files.
+
+## 5. Review and approval
+
+Run one independent traceability/decomposition review. Repair once. If the same defect survives, return
+`DEFINITION_REFRAME_REQUIRED`; do not start another consensus round.
+
+Before build:
+
+1. validate the project and every artifact;
+2. set `definition-of-good.json` status to `AWAITING_HUMAN`;
+3. set ledger stage `TICKETING`, status `AWAITING_HUMAN`;
+4. present product/risk forks, Definition of Good, architecture, and tickets to the human;
+5. after approval, set Definition status and ticket statuses to `APPROVED` and record the approval;
+6. use `advance_stage.py` to enter `SEAM_REVIEW`.
+
+`TICKETS_AWAITING_HUMAN_APPROVAL` is not a valid ledger stage and must never be written.
 
 ## Outputs
 
 ```text
-definition-of-good.yaml
+definition-of-good.json
 architecture.md
-traceability.yaml
-tickets/*.yaml
+traceability.json
+tickets/*.json
 ```
 
-Set ledger stage to `TICKETS_AWAITING_HUMAN_APPROVAL`. Build begins only after approval and
-`SEAMS_SOUND` from the Integration Lead.
+Hash and record each artifact with `record_artifact.py`. The next owner is the read-only Integration
+Lead, not a builder.
