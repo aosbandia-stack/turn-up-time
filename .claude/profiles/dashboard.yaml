@@ -1,19 +1,32 @@
+profile_version: 2
 name: dashboard
-required_capabilities:
-  - frontend-operate
-  - browser-e2e
+applies_when:
+  - the product is an operational dashboard, admin surface, data table, or multi-step internal tool
+  - the primary user completes recurring tasks rather than consuming a marketing page
+recommended_profile: standard
 required_discovery:
   - product-domain-researcher
   - frontend-experience-researcher
   - backend-systems-researcher
   - security-privacy-researcher
+  - premise-auditor
+required_capabilities:
+  - frontend-operate
+  - browser-e2e
 required_closeout:
   - irritated-domain-user
   - functional-qa
   - ux-accessibility-reviewer
 conditional_closeout:
   - security-performance-reviewer
+required_frontend_evidence:
+  - critical journeys
+  - information hierarchy and action priority
+  - first-use, empty, loading, partial, success, validation, permission, error, and recovery states
+  - keyboard, screen-reader, responsive, and performance requirements
+  - backend ownership for every visible state
 notes:
-  - Use Impeccable in Operate mode.
+  - Resolve Impeccable in Operate mode through the capability registry.
   - Do not load marketing-page Taste rules by default.
-  - Critical journeys and state matrices must be defined before tickets.
+  - Data accuracy, density, scanning, filtering, export, and recovery outrank novelty.
+  - Browser E2E must exercise the real task, not only a visual screenshot.
