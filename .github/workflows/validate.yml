@@ -7,19 +7,21 @@ jobs:
   static:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
-      - run: pip install pyyaml jsonschema
+      - run: python -m pip install -r requirements-dev.txt
       - run: python .claude/scripts/validate_repo.py
       - run: python .claude/scripts/run_seeded_evals.py
       - run: python .claude/scripts/fresh_review.py
+      - name: Validators do not mutate the repository
+        run: git diff --exit-code
 
   powershell-51:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Parse PowerShell files with Windows PowerShell 5.1
         shell: powershell
         run: |
@@ -41,8 +43,30 @@ jobs:
         run: |
           $build = '{"prompt":"Build a budgeting app"}' | powershell.exe -NoProfile -ExecutionPolicy Bypass -File .claude/hooks/skill-router.ps1
           if ($build -notmatch 'turn-up-time') { throw 'Build prompt did not route to turn-up-time' }
-          if ($build -match 'engineering-loop') { throw 'Retired engineering-loop leaked into routing' }
+          if ($build -match 'engineering-loop|route = .omnidex.|route = .boil-the-ocean.') { throw 'A retired or downstream workflow leaked into routing' }
           $skill = '{"prompt":"Add this dashboard skill to my workflow"}' | powershell.exe -NoProfile -ExecutionPolicy Bypass -File .claude/hooks/skill-router.ps1
           if ($skill -notmatch 'plug-it-in') { throw 'Skill prompt did not route to plug-it-in' }
           $guard = '{"tool_input":{"command":"git reset --hard HEAD~1"}}' | powershell.exe -NoProfile -ExecutionPolicy Bypass -File .claude/hooks/destructive-command-guard.ps1
           if ($guard -notmatch 'deny') { throw 'Destructive guard did not deny reset --hard' }
+      - name: Exercise dry-run, install, and modified-file-safe uninstall
+        shell: powershell
+        run: |
+          .\scripts\install.ps1
+          $realHome = $env:USERPROFILE
+          $testHome = Join-Path $env:RUNNER_TEMP 'turn-up-time-home'
+          New-Item -ItemType Directory -Force -Path $testHome | Out-Null
+          try {
+            $env:USERPROFILE = $testHome
+            .\scripts\install.ps1 -Apply -EnableNotifications -EnableAutoAccept -ReplaceGlobalConstitution
+            $settings = Get-Content (Join-Path $testHome '.claude\settings.json') -Raw
+            if ($settings -notmatch 'skill-router.ps1') { throw 'Installer did not register router' }
+            if ($settings -notmatch 'destructive-command-guard.ps1') { throw 'Installer did not register destructive guard' }
+            $modified = Join-Path $testHome '.claude\skills\turn-up-time\SKILL.md'
+            Add-Content -Path $modified -Value "`n# user change"
+            $output = .\scripts\uninstall.ps1 -Apply | Out-String
+            if ($output -notmatch 'SKIP MODIFIED') { throw 'Uninstaller did not preserve modified file' }
+            if (-not (Test-Path (Join-Path $testHome '.claude\turn-up-time-install-manifest.json'))) { throw 'Manifest was removed despite skipped file' }
+            .\scripts\uninstall.ps1 -Apply -ForceModified
+          } finally {
+            $env:USERPROFILE = $realHome
+          }
