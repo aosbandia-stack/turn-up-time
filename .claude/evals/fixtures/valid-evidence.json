@@ -1,0 +1,32 @@
+{
+  "$schema": "../../schemas/evidence-pack.schema.json",
+  "schema_version": 2,
+  "project_id": "eval-project",
+  "lane": "product",
+  "status": "EVIDENCE_READY",
+  "summary": "The critical product question is supported.",
+  "coverage": [
+    {
+      "id": "PRODUCT-001",
+      "question": "Who is the primary user?",
+      "answer": "A household budget owner",
+      "evidence_state": "SUPPORTED",
+      "priority": "MUST",
+      "applicability": "Defines the product boundary.",
+      "verification_method": "Human-ratified intake and usability scenario.",
+      "source_ids": ["SRC-001"]
+    }
+  ],
+  "open_questions": [],
+  "human_decisions": [],
+  "sources": [
+    {
+      "id": "SRC-001",
+      "title": "Ratified intake",
+      "location": ".claude/projects/eval-project/intake-readiness.json",
+      "authority": "internal-current-state",
+      "retrieved_at": "2026-08-21T00:00:00Z",
+      "supports": ["PRODUCT-001"]
+    }
+  ]
+}
