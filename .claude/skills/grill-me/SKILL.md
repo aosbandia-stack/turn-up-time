@@ -1,31 +1,50 @@
 ---
 name: grill-me
-description: Resolve human-owned product ambiguity before research. Ask one decision at a time, recommend an answer, and stop when the Intake Readiness Card is complete, deferred, or blocked. Do not ask questions the repository or research can answer.
+description: Resolve only human-owned product ambiguity before discovery. Ask one decision at a time, recommend a path and its tradeoff, record the answer in the Intake Readiness Card, and stop when the card is ready, deferred with risk, or blocked.
 disable-model-invocation: true
 ---
 
 # /grill-me
 
-## Use only for human-owned unknowns
+This is an intake control, not a general interview ritual.
 
-Ask when the answer changes product scope, intended user, permitted behavior, accepted risk, sensitive
-data, or a material product tradeoff.
+## Preconditions
 
-Do not ask about facts the codebase, official documentation, or external research can resolve.
+Turn Up Time has already inspected the repository/conversation and identified a required answer that
+cannot be resolved by current-state evidence or research.
 
-## Method
+## Human-owned questions
 
-1. State the unresolved field and why it changes the project.
+Use only when the answer changes:
+
+- primary user, job, or product boundary;
+- what users may do;
+- sensitive data or external/model egress;
+- cost/risk posture;
+- irreversible behavior;
+- a material tradeoff among different product outcomes.
+
+Do not ask about framework choice, current code, official standards, or facts research can establish.
+
+## Loop
+
+1. Name the unresolved field and why it is load-bearing.
 2. Ask exactly one question.
-3. Offer a recommended answer and the consequence of alternatives.
-4. Record the human answer in `intake-readiness.yaml`.
-5. Continue only while a required human-owned field remains unresolved.
+3. Give a recommended answer, the strongest alternative, and the consequence of each.
+4. Record the human answer in `intake-readiness.json` and the decision in the project ledger.
+5. Validate the Intake Card.
+6. Repeat only while a required human-owned decision remains open.
 
-After six questions in one intake, summarize remaining ambiguity and ask whether to continue, defer,
-or block.
+After six questions in one intake, summarize remaining forks and ask the human to continue, defer with
+named risk, or block. Do not exhaust the human into arbitrary answers.
 
 ## Exit
 
 - `INTAKE_READY`
 - `INTAKE_READY_WITH_DEFERRED_RISK`
 - `BLOCKED_BY_PRODUCT_DECISION`
+
+## Boundaries
+
+Do not conduct discovery, choose architecture, write code, or silently answer the human's side of a
+fork. A deferred risk must be visible in both intake and ledger.
