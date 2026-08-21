@@ -1,0 +1,21 @@
+{
+  "$schema": "../schemas/improvement-proposal.schema.json",
+  "improvement_id": "IMPROVEMENT-EXAMPLE-001",
+  "observed_failure": "Replace with the evidenced workflow failure.",
+  "evidence": ["Replace with a receipt, finding, correction, or incident reference."],
+  "frequency": "one high-severity incident or repeated pattern",
+  "workflow_stage": "replace-me",
+  "root_cause": "replace-me",
+  "existing_control": "replace-me",
+  "proposed_change": "replace-me",
+  "scope": "project",
+  "expected_effect": "replace-me",
+  "measurement": "replace-me",
+  "seeded_failure_eval": "replace-me",
+  "cost": "replace-me",
+  "new_risks": [],
+  "rollback": "replace-me",
+  "warrant": "incident",
+  "review_date": "2026-12-31",
+  "status": "OBSERVED"
+}
