@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Intake Readiness Card",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "project_id", "primary_user", "primary_job", "desired_outcome", "product_boundary", "critical_constraints", "human_owned_decisions", "non_goals", "status"],
+  "properties": {
+    "$schema": {"type": "string"},
+    "schema_version": {"const": 1},
+    "project_id": {"type": "string", "minLength": 1},
+    "primary_user": {"type": ["string", "null"]},
+    "primary_job": {"type": ["string", "null"]},
+    "desired_outcome": {"type": ["string", "null"]},
+    "product_boundary": {"type": ["string", "null"]},
+    "critical_constraints": {"type": "array", "items": {"type": "string"}},
+    "human_owned_decisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "question", "status", "owner", "decision"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "question": {"type": "string", "minLength": 1},
+          "status": {"enum": ["OPEN", "DECIDED", "DEFERRED", "BLOCKED"]},
+          "decision": {"type": ["string", "null"]},
+          "owner": {"enum": ["human", "research", "architecture"]}
+        }
+      }
+    },
+    "non_goals": {"type": "array", "items": {"type": "string"}},
+    "status": {"enum": ["DRAFT", "INTAKE_READY", "INTAKE_READY_WITH_DEFERRED_RISK", "BLOCKED_BY_PRODUCT_DECISION"]}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"status": {"enum": ["INTAKE_READY", "INTAKE_READY_WITH_DEFERRED_RISK"]}}},
+      "then": {
+        "properties": {
+          "primary_user": {"type": "string", "minLength": 1},
+          "primary_job": {"type": "string", "minLength": 1},
+          "desired_outcome": {"type": "string", "minLength": 1},
+          "product_boundary": {"type": "string", "minLength": 1}
+        }
+      }
+    }
+  ]
+}
