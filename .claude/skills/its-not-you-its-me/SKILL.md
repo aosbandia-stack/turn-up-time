@@ -7,31 +7,63 @@ disable-model-invocation: true
 # /its-not-you-its-me
 
 Improve the workflow that produced the product. Do not duplicate Easily Irritated's product audit.
+Observation systems nominate evidence; they are not policy writers.
 
-## Sources
+## Inputs
 
-Collect candidates from human corrections, discovery gaps, ticket churn, integration defects, judge
-REDs, EI findings, runtime incidents, wasted spawns, repeated permissions, skill conflicts, and controls
-that never fired.
+Collect from the completed project's ledger and artifacts:
 
-## Loop
+- human corrections and product misunderstandings;
+- discovery gaps and premise blockers;
+- ticket churn, scope changes, capability failures, and repair attempts;
+- integration defects and repeated seams;
+- judge REDs, EI findings, runtime incidents, and rollback events;
+- wasted or missing spawns, permissions friction, skill conflicts, and controls that never fired;
+- elapsed time and evidence of downstream rework where available.
 
-1. **Collect** candidate evidence.
-2. **Validate** recurring process defect versus one-off noise.
-3. **Locate** the earliest stage that should have prevented it.
-4. **Research** established remedies and counterevidence.
-5. **Propose** the smallest reversible workflow change.
-6. **Human decides:** approve, reject, defer, or project-only pilot.
-7. **Implement** approved change as its own ticket.
-8. **Seed and run** the original failure as an eval.
-9. **Promote or retire** based on measured benefit and ceremony cost.
+## Improvement loop
+
+1. **Collect:** create candidate observations; do not call them failures yet.
+2. **Validate:** separate recurring process defect, high-severity incident, product-specific exception,
+   and noise.
+3. **Locate:** identify the earliest stage that should have prevented or exposed the issue.
+4. **Research:** find applicable established remedies and counterevidence. Do not invent a control from
+   the same failure story alone.
+5. **Propose:** write the smallest reversible change, expected effect, cost, new risks, rollback, and
+   review date.
+6. **Seed:** define an eval that is RED before the control and GREEN after it, plus a negative control.
+7. **Human decision:** approve, reject, defer, or authorize a project-only pilot.
+8. **Implement:** approved change becomes its own Turn Up Time ticket; never patch the constitution as a
+   side effect of closeout.
+9. **Evaluate:** measure whether the control catches the failure without unacceptable ceremony.
+10. **Promote or retire:** global promotion requires the human and a GREEN eval; remove predictions that
+    do not prove useful by their review date.
+
+## Artifact contract
+
+Write each proposal under `.claude/improvement-queue/` or the project's `closeout/` directory as JSON
+conforming to `improvement-proposal.schema.json`. Use these states only:
+
+```text
+OBSERVED → VALIDATED → RESEARCHED → PROPOSED → APPROVED/REJECTED/DEFERRED
+→ IMPLEMENTED → EVAL_GREEN/EVAL_RED → RETIRED
+```
+
+Record evidence references, root cause, intervention stage, seeded eval, cost, new risk, rollback,
+warrant (`incident` or `prediction`), human approval, and review date.
 
 ## Promotion gate
 
-A global workflow change requires a high-severity incident or recurrence across more than one project,
-a named root cause, seeded-failure eval, expected benefit, cost, new risks, rollback, human approval,
-and a review date.
+A global workflow change requires:
 
-Observation or continuous-learning systems may nominate candidates only. They are not policy writers.
+- one high-severity incident or recurrence across more than one project;
+- a specific process root cause and earliest intervention stage;
+- evidence that an existing control did not already cover it;
+- researched remedy and counterevidence;
+- seeded-failure and control evals;
+- measurable expected benefit and ceremony cost;
+- human approval and rollback;
+- post-pilot review.
 
-Store proposals under `.claude/improvement-queue/` using `improvement-proposal.schema.json`.
+After writing proposals, run `validate_repo.py` for workflow changes and `validate_project.py` for the
+project record. No candidate changes the upstream workflow automatically.
