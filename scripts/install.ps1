@@ -7,25 +7,81 @@ param(
     [switch]$ReplaceGlobalConstitution
 )
 $ErrorActionPreference = 'Stop'
+
 $RepoRoot = Split-Path -Parent $PSScriptRoot
-$ClaudeHome = Join-Path $env:USERPROFILE '.claude'
+$ClaudeHome = if ($env:TURN_UP_TIME_CLAUDE_HOME) { $env:TURN_UP_TIME_CLAUDE_HOME } else { Join-Path $env:USERPROFILE '.claude' }
 $Stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
 $BackupRoot = Join-Path $ClaudeHome ("turn-up-time-backup-$Stamp")
-$Plan = New-Object System.Collections.Generic.List[string]
-$InstalledFiles = New-Object System.Collections.Generic.List[string]
+$ManifestPath = Join-Path $ClaudeHome 'turn-up-time-install-manifest.json'
+$Plan = New-Object 'System.Collections.Generic.List[string]'
+$FileRecords = New-Object 'System.Collections.Generic.List[object]'
 
 function Ensure-Directory {
     param([string]$Path)
-    if (-not (Test-Path $Path)) { New-Item -ItemType Directory -Force -Path $Path | Out-Null }
+    if (-not [string]::IsNullOrWhiteSpace($Path) -and -not (Test-Path -LiteralPath $Path)) {
+        New-Item -ItemType Directory -Force -Path $Path | Out-Null
+    }
 }
 
-function Backup-File {
+function Get-Sha256 {
+    param([string]$Path)
+    if (-not (Test-Path -LiteralPath $Path)) { return $null }
+    return (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant()
+}
+
+function Get-RelativeToHome {
+    param([string]$Path)
+    return $Path.Substring($ClaudeHome.Length).TrimStart('\\','/')
+}
+
+function Backup-Target {
     param([string]$Target)
-    if (-not (Test-Path $Target)) { return }
-    $relative = $Target.Substring($ClaudeHome.Length).TrimStart('\\','/')
+    if (-not (Test-Path -LiteralPath $Target)) { return $null }
+    $relative = Get-RelativeToHome $Target
     $backup = Join-Path $BackupRoot $relative
     Ensure-Directory (Split-Path -Parent $backup)
-    Copy-Item $Target $backup -Force
+    Copy-Item -LiteralPath $Target -Destination $backup -Force
+    return $backup
+}
+
+function Ensure-Property {
+    param($Object, [string]$Name, $Value)
+    if ($null -eq $Object.PSObject.Properties[$Name]) {
+        $Object | Add-Member -MemberType NoteProperty -Name $Name -Value $Value
+    }
+}
+
+function Remove-HookCommand {
+    param($Groups, [string]$Needle)
+    $result = @()
+    foreach ($group in @($Groups)) {
+        if ($null -eq $group) { continue }
+        $kept = @()
+        foreach ($hook in @($group.hooks)) {
+            $command = "$($hook.command)"
+            if ($command.IndexOf($Needle, [System.StringComparison]::OrdinalIgnoreCase) -lt 0) {
+                $kept += $hook
+            }
+        }
+        if ($kept.Count -gt 0) {
+            $copy = [ordered]@{}
+            foreach ($property in $group.PSObject.Properties) {
+                if ($property.Name -ne 'hooks') { $copy[$property.Name] = $property.Value }
+            }
+            $copy['hooks'] = @($kept)
+            $result += [pscustomobject]$copy
+        }
+    }
+    return ,$result
+}
+
+function Add-HookGroup {
+    param($Groups, [string]$Matcher, [string]$Command, [int]$Timeout, [bool]$Async = $false)
+    $hook = [ordered]@{ type = 'command'; command = $Command; timeout = $Timeout }
+    if ($Async) { $hook['async'] = $true }
+    $group = [ordered]@{ hooks = @([pscustomobject]$hook) }
+    if (-not [string]::IsNullOrWhiteSpace($Matcher)) { $group['matcher'] = $Matcher }
+    return @($Groups) + @([pscustomobject]$group)
 }
 
 $copySpecs = @(
@@ -41,93 +97,131 @@ $copySpecs = @(
 )
 
 foreach ($entry in $copySpecs) {
-    $files = @(Get-ChildItem -Path $entry.Source -Recurse -File)
-    foreach ($file in $files) {
+    foreach ($file in @(Get-ChildItem -Path $entry.Source -Recurse -File)) {
         $relative = $file.FullName.Substring($entry.Source.Length).TrimStart('\\','/')
         $target = Join-Path $entry.Target $relative
-
-        if ($entry.Source -like '*\.claude\scripts' -and $relative -ieq 'fresh_review.py') {
-            $Plan.Add("SKIP source-repository-only reviewer $target") | Out-Null
+        if ($relative -ieq 'fresh_review.py') {
+            $Plan.Add("SKIP source-only cold reviewer $target") | Out-Null
             continue
         }
         if ($relative -ieq 'notify.ps1' -and -not $EnableNotifications) {
-            $Plan.Add("SKIP notification provider $target") | Out-Null
+            $Plan.Add("SKIP optional notification provider $target") | Out-Null
             continue
         }
-        if ($relative -ieq 'notify.ps1' -and (Test-Path $target)) {
+        if ($relative -ieq 'notify.ps1' -and (Test-Path -LiteralPath $target)) {
             $Plan.Add("KEEP existing notification provider $target") | Out-Null
             continue
         }
 
-        $Plan.Add("COPY $($file.FullName) -> $target") | Out-Null
+        $preexisting = Test-Path -LiteralPath $target
+        $Plan.Add("COPY $($file.FullName) -> $target" + $(if ($preexisting) { ' (backup first)' } else { '' })) | Out-Null
         if ($Apply) {
             Ensure-Directory (Split-Path -Parent $target)
-            Backup-File $target
-            Copy-Item $file.FullName $target -Force
-            $InstalledFiles.Add($target) | Out-Null
+            $backup = Backup-Target $target
+            Copy-Item -LiteralPath $file.FullName -Destination $target -Force
+            $FileRecords.Add([pscustomobject][ordered]@{
+                path = $target
+                installed_sha256 = Get-Sha256 $target
+                preexisting = [bool]$preexisting
+                backup_path = $backup
+            }) | Out-Null
         }
     }
 }
 
-$Plan.Add('MERGE UserPromptSubmit skill-router hook into ~/.claude/settings.json') | Out-Null
-if ($EnableNotifications) { $Plan.Add('MERGE Stop notification hook without replacing an existing notify.ps1') | Out-Null }
-if ($EnableAutoAccept) { $Plan.Add('SET permissions.defaultMode=acceptEdits while preserving deny rules') | Out-Null }
-if ($ReplaceGlobalConstitution) { $Plan.Add('BACKUP and replace ~/.claude/CLAUDE.md with the canonical Turn Up Time constitution') | Out-Null }
+$SettingsPath = Join-Path $ClaudeHome 'settings.json'
+$RouterCommand = 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$env:USERPROFILE\.claude\hooks\skill-router.ps1"'
+$GuardCommand = 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$env:USERPROFILE\.claude\hooks\destructive-command-guard.ps1"'
+$NotifyCommand = 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$env:USERPROFILE\.claude\hooks\notify.ps1"'
+$Plan.Add('REPLACE any existing skill-router.ps1 hook row with the Turn Up Time router; preserve unrelated prompt hooks') | Out-Null
+$Plan.Add('REPLACE any existing destructive-command-guard.ps1 hook row; preserve unrelated Bash guards') | Out-Null
+if ($EnableNotifications) { $Plan.Add('ADD notification Stop hook only when no notify.ps1 hook already exists') | Out-Null }
+if ($EnableAutoAccept) { $Plan.Add('SET permissions.defaultMode=acceptEdits; preserve deny rules') | Out-Null }
+if ($ReplaceGlobalConstitution) { $Plan.Add('BACKUP and replace ~/.claude/CLAUDE.md') | Out-Null }
 
 if (-not $Apply) {
-    Write-Host 'DRY RUN — no files changed. Re-run with -Apply after reviewing:'
+    Write-Host 'DRY RUN - no files changed. Re-run with -Apply after reviewing:'
     $Plan | ForEach-Object { Write-Host $_ }
     exit 0
 }
 
 Ensure-Directory $ClaudeHome
-$settingsPath = Join-Path $ClaudeHome 'settings.json'
-if (Test-Path $settingsPath) {
-    Ensure-Directory $BackupRoot
-    Copy-Item $settingsPath (Join-Path $BackupRoot 'settings.json') -Force
-    $settings = Get-Content $settingsPath -Raw | ConvertFrom-Json
+$SettingsBackup = Backup-Target $SettingsPath
+if (Test-Path -LiteralPath $SettingsPath) {
+    $settings = Get-Content -LiteralPath $SettingsPath -Raw | ConvertFrom-Json
 } else {
     $settings = [pscustomobject]@{}
 }
-if (-not $settings.PSObject.Properties['hooks']) { $settings | Add-Member NoteProperty hooks ([pscustomobject]@{}) }
-if (-not $settings.hooks.PSObject.Properties['UserPromptSubmit']) { $settings.hooks | Add-Member NoteProperty UserPromptSubmit @() }
-$routerCommand = 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$env:USERPROFILE\.claude\hooks\skill-router.ps1"'
-$existingRouter = $settings.hooks.UserPromptSubmit | ConvertTo-Json -Depth 20 -Compress
-if ($existingRouter -notlike '*skill-router.ps1*') {
-    $settings.hooks.UserPromptSubmit = @($settings.hooks.UserPromptSubmit) + @([pscustomobject]@{ hooks = @([pscustomobject]@{ type='command'; command=$routerCommand; timeout=20 }) })
-}
+Ensure-Property $settings 'hooks' ([pscustomobject]@{})
+Ensure-Property $settings.hooks 'UserPromptSubmit' @()
+Ensure-Property $settings.hooks 'PreToolUse' @()
+Ensure-Property $settings.hooks 'Stop' @()
+
+$settings.hooks.UserPromptSubmit = Remove-HookCommand $settings.hooks.UserPromptSubmit 'skill-router.ps1'
+$settings.hooks.UserPromptSubmit = Add-HookGroup $settings.hooks.UserPromptSubmit '' $RouterCommand 20
+$settings.hooks.PreToolUse = Remove-HookCommand $settings.hooks.PreToolUse 'destructive-command-guard.ps1'
+$settings.hooks.PreToolUse = Add-HookGroup $settings.hooks.PreToolUse 'Bash' $GuardCommand 20
+
+$NotificationAdded = $false
 if ($EnableNotifications) {
-    if (-not $settings.hooks.PSObject.Properties['Stop']) { $settings.hooks | Add-Member NoteProperty Stop @() }
-    $notifyCommand = 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$env:USERPROFILE\.claude\hooks\notify.ps1"'
-    $existingStop = $settings.hooks.Stop | ConvertTo-Json -Depth 20 -Compress
-    if ($existingStop -notlike '*notify.ps1*') {
-        $settings.hooks.Stop = @($settings.hooks.Stop) + @([pscustomobject]@{ hooks = @([pscustomobject]@{ type='command'; command=$notifyCommand; timeout=10; async=$true }) })
+    $existingStop = ($settings.hooks.Stop | ConvertTo-Json -Depth 30 -Compress)
+    if ($existingStop.IndexOf('notify.ps1', [System.StringComparison]::OrdinalIgnoreCase) -lt 0) {
+        $settings.hooks.Stop = Add-HookGroup $settings.hooks.Stop '' $NotifyCommand 10 $true
+        $NotificationAdded = $true
     }
 }
-if ($EnableAutoAccept) {
-    if (-not $settings.PSObject.Properties['permissions']) { $settings | Add-Member NoteProperty permissions ([pscustomobject]@{}) }
-    if ($settings.permissions.PSObject.Properties['defaultMode']) { $settings.permissions.defaultMode = 'acceptEdits' }
-    else { $settings.permissions | Add-Member NoteProperty defaultMode 'acceptEdits' }
-}
-$settings | ConvertTo-Json -Depth 30 | Set-Content -Path $settingsPath -Encoding UTF8
 
+Ensure-Property $settings 'permissions' ([pscustomobject]@{})
+$PreviousDefaultMode = $null
+if ($null -ne $settings.permissions.PSObject.Properties['defaultMode']) {
+    $PreviousDefaultMode = "$($settings.permissions.defaultMode)"
+}
+$DefaultModeChanged = $false
+if ($EnableAutoAccept) {
+    if ($null -eq $settings.permissions.PSObject.Properties['defaultMode']) {
+        $settings.permissions | Add-Member -MemberType NoteProperty -Name defaultMode -Value 'acceptEdits'
+    } else {
+        $settings.permissions.defaultMode = 'acceptEdits'
+    }
+    $DefaultModeChanged = $true
+}
+$settings | ConvertTo-Json -Depth 50 | Set-Content -LiteralPath $SettingsPath -Encoding UTF8
+
+$Constitution = [ordered]@{ replaced = $false; path = $null; installed_sha256 = $null; preexisting = $false; backup_path = $null }
 if ($ReplaceGlobalConstitution) {
     $globalClaude = Join-Path $ClaudeHome 'CLAUDE.md'
-    Backup-File $globalClaude
-    Copy-Item (Join-Path $RepoRoot 'CLAUDE.md') $globalClaude -Force
+    $preexisting = Test-Path -LiteralPath $globalClaude
+    $backup = Backup-Target $globalClaude
+    Copy-Item -LiteralPath (Join-Path $RepoRoot 'CLAUDE.md') -Destination $globalClaude -Force
+    $Constitution = [ordered]@{
+        replaced = $true
+        path = $globalClaude
+        installed_sha256 = Get-Sha256 $globalClaude
+        preexisting = [bool]$preexisting
+        backup_path = $backup
+    }
 }
 
 $manifest = [ordered]@{
-    installedAt = (Get-Date).ToUniversalTime().ToString('o')
+    schema_version = 2
+    installed_at = (Get-Date).ToUniversalTime().ToString('o')
     source = $RepoRoot
-    backupRoot = $BackupRoot
-    files = @($InstalledFiles)
-    settingsPath = $settingsPath
-    constitutionReplaced = [bool]$ReplaceGlobalConstitution
+    backup_root = $BackupRoot
+    files = @($FileRecords)
+    settings = [ordered]@{
+        path = $SettingsPath
+        backup_path = $SettingsBackup
+        router_command = $RouterCommand
+        guard_command = $GuardCommand
+        notification_command = $NotifyCommand
+        notification_added = $NotificationAdded
+        default_mode_before = $PreviousDefaultMode
+        default_mode_changed = $DefaultModeChanged
+    }
+    constitution = $Constitution
 }
-$manifestPath = Join-Path $ClaudeHome 'turn-up-time-install-manifest.json'
-$manifest | ConvertTo-Json -Depth 10 | Set-Content -Path $manifestPath -Encoding UTF8
+$manifest | ConvertTo-Json -Depth 30 | Set-Content -LiteralPath $ManifestPath -Encoding UTF8
 
-Write-Host "Applied. Backup: $BackupRoot"
-Write-Host "Install manifest: $manifestPath"
+Write-Host "Applied Turn Up Time. Backup: $BackupRoot"
+Write-Host "Install manifest: $ManifestPath"
 $Plan | ForEach-Object { Write-Host $_ }
