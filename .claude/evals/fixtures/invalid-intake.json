@@ -1,0 +1,13 @@
+{
+  "$schema": "../../schemas/intake-readiness.schema.json",
+  "schema_version": 1,
+  "project_id": "eval-project",
+  "primary_user": null,
+  "primary_job": null,
+  "desired_outcome": null,
+  "product_boundary": null,
+  "critical_constraints": [],
+  "human_owned_decisions": [],
+  "non_goals": [],
+  "status": "INTAKE_READY"
+}
