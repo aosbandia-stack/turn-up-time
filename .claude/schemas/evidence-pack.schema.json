@@ -1,78 +1,74 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Evidence Pack",
+  "title": "Discovery Evidence Pack",
   "type": "object",
   "additionalProperties": false,
-  "required": [
-    "lane",
-    "claims",
-    "open_questions",
-    "sources"
-  ],
+  "required": ["schema_version", "project_id", "lane", "status", "summary", "coverage", "open_questions", "human_decisions", "sources"],
   "properties": {
-    "lane": {
-      "enum": [
-        "product",
-        "frontend",
-        "backend",
-        "security"
-      ]
+    "$schema": {"type": "string"},
+    "schema_version": {"const": 2},
+    "project_id": {"type": "string", "minLength": 1},
+    "lane": {"enum": ["product", "frontend", "backend", "security", "engineering"]},
+    "status": {"enum": ["EVIDENCE_DRAFT", "EVIDENCE_READY", "EVIDENCE_BLOCKED"]},
+    "summary": {"type": "string"},
+    "coverage": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "question", "answer", "evidence_state", "priority", "applicability", "verification_method", "source_ids"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "question": {"type": "string", "minLength": 1},
+          "answer": {"type": ["string", "null"]},
+          "evidence_state": {"enum": ["SUPPORTED", "CONFLICTED", "UNKNOWN", "NOT_APPLICABLE"]},
+          "priority": {"enum": ["MUST", "SHOULD", "OPTIONAL"]},
+          "applicability": {"type": "string"},
+          "verification_method": {"type": "string"},
+          "source_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string"}}
+        }
+      }
     },
-    "claims": {
+    "open_questions": {"type": "array", "items": {"type": "string"}},
+    "human_decisions": {"type": "array", "items": {"type": "string"}},
+    "sources": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": [
-          "id",
-          "claim",
-          "evidence_state",
-          "priority",
-          "applicability",
-          "verification_method"
-        ],
+        "additionalProperties": false,
+        "required": ["id", "title", "location", "authority", "retrieved_at", "supports"],
         "properties": {
-          "id": {
-            "type": "string"
-          },
-          "claim": {
-            "type": "string"
-          },
-          "evidence_state": {
-            "enum": [
-              "SUPPORTED",
-              "CONFLICTED",
-              "UNKNOWN",
-              "NOT_APPLICABLE"
-            ]
-          },
-          "priority": {
-            "enum": [
-              "MUST",
-              "SHOULD",
-              "OPTIONAL"
-            ]
-          },
-          "applicability": {
-            "type": "string"
-          },
-          "verification_method": {
-            "type": "string"
-          },
-          "source_ids": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        },
-        "additionalProperties": false
+          "id": {"type": "string", "minLength": 1},
+          "title": {"type": "string", "minLength": 1},
+          "location": {"type": "string", "minLength": 1},
+          "authority": {"enum": ["primary", "authoritative-secondary", "reference-implementation", "market-example", "internal-current-state"]},
+          "retrieved_at": {"type": "string", "format": "date-time"},
+          "supports": {"type": "array", "items": {"type": "string"}}
+        }
       }
-    },
-    "open_questions": {
-      "type": "array"
-    },
-    "sources": {
-      "type": "array"
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"status": {"const": "EVIDENCE_READY"}}},
+      "then": {
+        "not": {
+          "properties": {
+            "coverage": {
+              "contains": {
+                "type": "object",
+                "properties": {
+                  "priority": {"const": "MUST"},
+                  "evidence_state": {"enum": ["UNKNOWN", "CONFLICTED"]}
+                },
+                "required": ["priority", "evidence_state"]
+              }
+            }
+          },
+          "required": ["coverage"]
+        }
+      }
+    }
+  ]
 }
