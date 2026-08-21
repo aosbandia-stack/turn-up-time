@@ -1,0 +1,31 @@
+{
+  "schema_version": 2,
+  "project_id": "example-project",
+  "ticket_id": "EXAMPLE-001",
+  "status": "APPROVED",
+  "requirement_ids": ["REQ-001"],
+  "evidence_refs": ["product:EVIDENCE-001"],
+  "user_outcome": "The primary user completes the approved critical task.",
+  "scope": ["Implement the approved vertical behavior."],
+  "non_scope": ["Unrelated redesign."],
+  "inputs": ["Approved input"],
+  "outputs": ["Observable persisted result"],
+  "dependencies": [],
+  "shared_contracts": [],
+  "owned_files": ["src/example.ts"],
+  "shared_files": [],
+  "acceptance_checks": [
+    {
+      "id": "CHK-001",
+      "type": "deterministic",
+      "check": "Run the targeted test.",
+      "expected": "Exit code 0.",
+      "evidence": null
+    }
+  ],
+  "required_capabilities": [],
+  "risk_class": "medium",
+  "rollback": "Revert the ticket commit.",
+  "owner_role": "implementation-engineer",
+  "build_receipt": null
+}
