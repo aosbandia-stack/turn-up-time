@@ -1,79 +1,101 @@
 ---
 name: omnidex
-description: Evidence compiler and ticket factory. Consumes approved discovery packs and current-state receipts, produces one Definition of Good, a coherent architecture, a traceability matrix, and executable tickets. It does not conduct discovery, build code, or converge by multi-round consensus.
+description: Evidence compiler and ticket factory. Consumes approved intake, audited discovery evidence, and current-state receipts; produces the Definition of Good, one coherent architecture, traceability, and executable tickets. It does not conduct discovery, build code, or converge through a multi-round opinion panel.
 disable-model-invocation: true
 ---
 
 # /omnidex
 
-## Inputs
+OmniDex begins only after `EVIDENCE_READY`. Its job is compilation, architecture handoff, and ticket
+quality—not research theater.
 
-- ratified Intake Readiness Card;
-- current-state receipts;
-- approved product, frontend, backend, and security evidence packs;
-- Premise Auditor verdict;
-- project ledger and constraints.
+## Preconditions
 
-If evidence is not ready, stop. Do not fill gaps with first-principles confidence.
+Require:
 
-## 1. Compile the Definition of Good
+- `intake-readiness.json` with READY status;
+- all profile-required evidence packs;
+- `evidence/premise-verdict.json` with `EVIDENCE_READY`;
+- current-state receipts and ledger artifact hashes;
+- no unresolved human-owned decision required by a MUST.
+
+## 1. Compile `definition-of-good.json`
 
 For every requirement record:
 
 ```text
 id
-source/evidence
-priority: MUST|SHOULD|OPTIONAL
-acceptance condition
-verification method
-owner surface
+statement
+priority: MUST | SHOULD | OPTIONAL
+evidence_refs
+acceptance: type + check + expected
+owner_surface
+ticket_ids
 ```
 
-A requirement may use a number only when the number is meaningful and sourced or measured.
+Also preserve critical journeys, non-goals, and human gates. A number is used only when sourced or
+measured and meaningful. Otherwise use an observable check, calibrated rubric, or human gate.
 
-## 2. Architecture
+The human approves the Definition of Good before architecture is treated as final.
 
-Dispatch the read-only `architect`. It proposes one coherent architecture and shows how each MUST is
-satisfied. Product, scope, permission, cost, and risk forks go to the human. Technical coherence stays
-with the architect.
+## 2. Dispatch the Architect
 
-## 3. Tickets
+The read-only Architect receives the approved Definition of Good, evidence, constraints, and current
+system. It returns `architecture.md` and `ARCHITECTURE_READY` or `ARCHITECTURE_BLOCKED`.
 
-Create one ticket per coherent work package using `ticket.schema.json`. Every ticket must carry:
+Human owns product scope, permitted behavior, sensitive data, cost, risk posture, and material product
+tradeoffs. Architect owns technical coherence inside those boundaries. Turn Up Time records decisions;
+it cannot overrule either authority.
 
-- requirement IDs and evidence references;
-- user outcome;
-- scope and explicit non-scope;
-- inputs, outputs, dependencies, and shared contracts;
-- required capabilities;
-- deterministic and/or experiential acceptance checks;
-- risk, rollback, and owner role.
-
-Builders never receive the original vague prompt as their work order.
-
-## 4. Traceability
+## 3. Produce `traceability.json`
 
 Prove:
 
-- every MUST maps to one or more tickets or an explicit human gate;
-- every ticket maps back to approved requirements;
-- security requirements have owners;
-- frontend states have backend ownership;
-- no unresolved decision is disguised as an implementation ticket.
+- every MUST maps to design and at least one ticket or explicit human gate;
+- every ticket maps to approved requirements and evidence;
+- every critical journey has frontend, backend, test, and recovery ownership where applicable;
+- every security/privacy requirement has an owner and proof;
+- no unresolved decision is disguised as implementation.
 
-## 5. Revision limit
+## 4. Produce executable tickets
 
-Run one premise/traceability review. Repair once. If the same defect survives, stop and reframe the
-architecture or evidence; do not begin a debate loop.
+Each `tickets/<ticket-id>.json` must validate against `ticket.schema.json` and declare requirement/evidence
+refs, user outcome, scope/non-scope, inputs/outputs, dependencies, shared contracts, owned/shared files,
+acceptance checks, capabilities, risk, rollback, and production owner.
+
+Builders receive the ticket and controlling artifacts, not the original vague prompt or OmniDex
+conversation.
+
+## 5. Ticket approval and seam review
+
+The human approves tickets. Then the read-only Integration Lead performs PRE_BUILD review and writes
+`integration/pre-build-verdict.json`.
+
+No build begins until:
+
+```text
+Definition of Good: APPROVED
+Tickets: APPROVED
+Traceability: complete
+Pre-build seam verdict: SEAMS_SOUND
+validate_project.py --stage BUILD: GREEN
+```
+
+## Revision loop
+
+One premise/traceability/seam repair pass is allowed because it receives a concrete finding. If the
+same structural defect survives, return `OMNIDEX_REFRAME_REQUIRED`; do not restart multi-round consensus.
 
 ## Outputs
 
-```text
-definition-of-good.yaml
-architecture.md
-traceability.yaml
-tickets/*.yaml
-```
+- `definition-of-good.json`
+- `architecture.md`
+- `traceability.json`
+- `tickets/*.json`
+- `integration/pre-build-verdict.json`
+- ledger artifact hashes, approvals, and stage receipt
 
-Set ledger stage to `TICKETS_AWAITING_HUMAN_APPROVAL`. Build begins only after approval and
-`SEAMS_SOUND` from the Integration Lead.
+## Boundaries
+
+Do not research broadly, implement code, run product closeout, or certify release. Do not force
+consensus when the correct result is a human fork or architecture block.
