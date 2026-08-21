@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "project_id": "example-project",
+  "status": "DRAFT",
+  "requirements": [
+    {
+      "id": "REQ-001",
+      "statement": "The primary user can complete the critical task.",
+      "priority": "MUST",
+      "evidence_refs": ["product:EVIDENCE-001"],
+      "acceptance": {
+        "type": "experiential",
+        "check": "Run critical journey JRN-001 from a clean state.",
+        "expected": "The user reaches the declared success state without an undocumented workaround."
+      },
+      "owner_surface": "product",
+      "ticket_ids": []
+    }
+  ],
+  "critical_journeys": [
+    {
+      "id": "JRN-001",
+      "persona": "primary-user",
+      "start_state": "clean first-use state",
+      "steps": ["Open the product", "Complete the primary action"],
+      "success": "The intended result is visible and persisted.",
+      "failure_and_recovery": "A failed action explains what happened and offers a valid recovery path.",
+      "verification": "Browser or equivalent live end-to-end test."
+    }
+  ],
+  "non_goals": [],
+  "human_gates": [],
+  "approved_by": null,
+  "approved_at": null
+}
