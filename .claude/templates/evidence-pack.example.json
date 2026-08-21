@@ -1,0 +1,31 @@
+{
+  "schema_version": 2,
+  "project_id": "example-project",
+  "lane": "product",
+  "generated_by": "product-domain-researcher",
+  "generated_at": "2026-08-21T00:00:00Z",
+  "claims": [
+    {
+      "id": "EVIDENCE-001",
+      "claim": "The primary journey must support recovery from a failed save.",
+      "evidence_state": "SUPPORTED",
+      "priority": "MUST",
+      "source_ids": ["SRC-001"],
+      "applicability": "Applies because the product persists user-created state.",
+      "counterevidence": [],
+      "verification_method": "Seed a failed save and verify that state is preserved and recovery is offered."
+    }
+  ],
+  "open_questions": [],
+  "sources": [
+    {
+      "id": "SRC-001",
+      "title": "Example authoritative source",
+      "url": "https://example.com/source",
+      "type": "official-doc",
+      "authority": "primary",
+      "freshness_checked_at": "2026-08-21T00:00:00Z",
+      "supports_claims": ["EVIDENCE-001"]
+    }
+  ]
+}
