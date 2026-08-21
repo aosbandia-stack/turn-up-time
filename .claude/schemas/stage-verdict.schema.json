@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Stage Verdict",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "kind", "status", "project_id", "build_identity", "evidence", "blockers", "created_at", "reviewer"],
+  "properties": {
+    "$schema": {"type": "string"},
+    "schema_version": {"const": 1},
+    "kind": {"enum": ["premise", "prebuild-integration", "postbuild-integration", "product-closeout", "production-audit", "fresh-release-judge", "guard", "release"]},
+    "status": {
+      "enum": [
+        "EVIDENCE_READY", "EVIDENCE_BLOCKED",
+        "SEAMS_SOUND", "SEAMS_BLOCKED",
+        "RELEASE_READY", "YELLOW_ACCEPTANCE_REQUIRED", "BLOCKED_BY_DECISION", "BLOCKED_BY_ENVIRONMENT", "MAX_ROUNDS_REACHED", "AUDIT_ONLY_COMPLETE",
+        "SHIP", "SHIP_WITH_ACCEPTED_RISK", "BLOCK",
+        "GREEN", "RED",
+        "GUARD_GREEN", "GUARD_BLOCKED",
+        "RELEASED", "NOT_RELEASED"
+      ]
+    },
+    "project_id": {"type": "string", "minLength": 1},
+    "build_identity": {"type": ["string", "null"]},
+    "evidence": {"type": "array", "items": {"type": "string"}},
+    "blockers": {"type": "array", "items": {"type": "string"}},
+    "accepted_risks": {"type": "array", "items": {"type": "string"}},
+    "created_at": {"type": "string", "format": "date-time"},
+    "reviewer": {"type": "string", "minLength": 1}
+  }
+}
