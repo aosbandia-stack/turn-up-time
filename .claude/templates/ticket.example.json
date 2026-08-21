@@ -1,0 +1,29 @@
+{
+  "$schema": "../schemas/ticket.schema.json",
+  "schema_version": 2,
+  "ticket_id": "EXAMPLE-001",
+  "status": "DRAFT",
+  "requirement_ids": ["REQ-EXAMPLE-001"],
+  "evidence_refs": ["EVIDENCE-EXAMPLE-001"],
+  "user_outcome": "Replace with the observable user outcome this ticket delivers.",
+  "scope": ["Replace with the complete vertical scope."],
+  "non_scope": ["Replace with adjacent work this ticket must not absorb."],
+  "files_or_surfaces": ["replace-me"],
+  "inputs": ["replace-me"],
+  "outputs": ["replace-me"],
+  "dependencies": [],
+  "shared_contracts": [],
+  "acceptance_checks": [
+    {
+      "id": "CHK-EXAMPLE-001",
+      "check": "Replace with a runnable or experiential check.",
+      "expected": "Replace with the decisive result.",
+      "evidence": null
+    }
+  ],
+  "required_capabilities": [],
+  "risk_class": "medium",
+  "rollback": "Replace with the exact rollback path.",
+  "owner_role": "implementation-engineer",
+  "human_gates": []
+}
