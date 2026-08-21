@@ -1,0 +1,23 @@
+{
+  "$schema": "../schemas/evidence-pack.schema.json",
+  "schema_version": 2,
+  "project_id": "replace-me",
+  "lane": "product",
+  "status": "EVIDENCE_DRAFT",
+  "summary": "Replace this example with researched evidence.",
+  "coverage": [
+    {
+      "id": "QUESTION-001",
+      "question": "Replace with a required discovery question.",
+      "answer": null,
+      "evidence_state": "UNKNOWN",
+      "priority": "MUST",
+      "applicability": "Explain why this question applies.",
+      "verification_method": "Explain how the resulting requirement will be checked.",
+      "source_ids": []
+    }
+  ],
+  "open_questions": [],
+  "human_decisions": [],
+  "sources": []
+}
