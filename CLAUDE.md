@@ -1,108 +1,148 @@
 # Turn Up Time — Canonical Operating Contract
 
-This file is the one constitution for this repository. Skills elaborate it; they do not contradict
-or supersede it.
+This is the one constitution for this repository. Skills elaborate a stage; schemas and scripts
+enforce it. No skill, hook, agent, README, or provider may silently create a competing workflow.
 
-## 1. Route through one control plane
+## 1. One funnel
 
-For software build, design, implementation, automation, refactor, or fix requests, invoke or adopt
-`/turn-up-time`. The root session classifies the task and selects the smallest valid process.
+Software build, design, implementation, automation, refactor, and fix requests enter
+`/turn-up-time`. The root session classifies the task and loads the smallest valid process.
 
-Do not route ordinary prompts directly to OmniDex, Boil, Impeccable, E2E, or reviewer fleets.
-`/turn-up-time` loads those only when the project or ticket requires their capability.
+The prompt router may also signal `/guard-before-write`, `/plug-it-in`, or
+`/its-not-you-its-me` for their narrow purposes. It must not route ordinary work directly to
+OmniDex, Boil, frontend providers, or reviewer fleets.
 
 ## 2. Task tiers
 
-- **Tier A — Answer:** read and answer. No planning, files, or agents.
+- **Tier A — Answer:** read and answer. No project artifacts or agents.
 - **Tier B — Fix:** bounded known change. Read, edit, verify, report. No discovery panel.
-- **Tier C — Build:** coordination is work, the destination is materially unclear, a new capability
-  is requested, or a product/business fork must be ratified.
+- **Tier C — Build:** a new capability, material product/business fork, or coordination is itself
+  work.
 
-File count is not the Tier C trigger. A one-file product-policy fork may be Tier C. A ten-file
-mechanical rename may remain Tier B.
+File count does not select Tier C. Risk selects assurance and human gates. Start low; Tier B may
+escalate in place when a real fork appears. Existing work is preserved but remains provisional until
+labeled `KEEP`, `ADAPT`, or `REPLACE`.
 
-Risk does not automatically create Tier C. Risk selects assurance and human gates.
+## 3. Conveyor and ownership
 
-## 3. Loop contract
+```text
+/turn-up-time             control plane and ledger
+  → /grill-me             human-owned ambiguity only
+  → discovery agents      independent evidence packs
+  → premise-auditor       EVIDENCE_READY / EVIDENCE_BLOCKED
+  → /omnidex + architect  Definition of Good, architecture, tickets
+  → integration-lead      PRE_BUILD SEAMS_SOUND
+  → /boil-the-ocean       ticket execution and build receipts
+  → integration-lead      POST_BUILD SEAMS_SOUND
+  → /easily-irritated     independent product closeout
+  → /production-audit     operational release evidence
+  → fresh-release-judge   independent final judgment
+  → /guard-before-write   consequential action gate
+  → /its-not-you-its-me   workflow improvement proposals
+```
 
-A loop may repeat only after new evidence, a changed artifact, a fresh independent evaluator, or a
-human decision. Each loop has an exit condition and an escalation condition.
+The root session is the only project-ledger writer.
 
-- Clarification ends when the Intake Readiness Card is complete or blocked.
-- Discovery ends at `EVIDENCE_READY` or `EVIDENCE_BLOCKED`.
-- OmniDex gets one repair cycle; repeated failure means reframe.
-- Ticket implementation repeats deterministic checks; the same failure after two materially
-  different repairs escalates to ticket/architecture review.
+## 4. Loop contract
+
+A loop repeats only when the next pass receives new evidence, a changed artifact, a fresh independent
+evaluator, or a human decision.
+
+- Clarification exits when intake is ready/deferred-with-risk/blocked.
+- Discovery exits at `EVIDENCE_READY` or `EVIDENCE_BLOCKED`; repeats target named gaps only.
+- OmniDex gets one structural repair; repeated failure means reframe.
+- Ticket implementation repeats concrete checks; the same failure after two materially different
+  repairs escalates.
 - Integration gets at most two repair waves before architecture escalation.
-- Easily Irritated uses its explicit `max_rounds` and terminal states.
-- Visual polish uses one batched pass and at most one confirmation pass.
+- Easily Irritated obeys `max_rounds` and explicit terminal states.
+- Visual polish gets one batched pass and at most one confirmation.
 - Release is a gate, not a design loop.
+- Workflow improvements are promoted, rejected, deferred, piloted, or retired—never accumulated by
+  default.
 
-## 4. Separation of duties
+Re-reading the same prompt with the same evidence is rumination, not loop engineering.
 
-Roles are enforced by tool access, not good intentions.
+## 5. Separation of duties
 
-- **Control roles** stay in the root session: Turn Up Time, Grill Me, release coordination.
-- **Production roles** may receive Edit/Write for a narrow approved ticket.
-- **Assurance roles** have no Edit or Write: researchers, premise auditor, architect, integration
-  lead, auditors, ticket verifier, and release judge.
+Role class is enforced by agent tools:
 
-The PM does not research, architect, implement, or certify its own project. The architect does not
-make business-policy decisions. Auditors do not repair. Builders do not verify their own material
-changes as the sole evidence.
+- **Control:** root-session skills. Coordinate; no specialist production or self-certification.
+- **Production:** `implementation-engineer` may Edit/Write only an approved ticket's owned scope.
+- **Assurance:** researchers, architect, premise auditor, integration lead, auditors, triage,
+  verifiers, and judges have no Edit/Write.
 
-## 5. Human-owned decisions
+The PM does not research, architect, implement, triage, or certify. The architect does not make
+product policy. Auditors do not repair. Builders do not independently verify themselves.
 
-Escalate to the human when a choice changes:
+## 6. Human-owned decisions
 
-- product scope or primary user;
+Escalate when a choice changes:
+
+- primary user, product scope, or desired outcome;
 - what users are permitted to do;
 - cost or risk posture;
-- sensitive data handled or sent to a model;
+- sensitive data, retention, or model/external egress;
 - irreversible behavior;
-- accepted tradeoffs among materially different product outcomes.
+- acceptance of a material product tradeoff or release risk.
 
-Technical coherence within a ratified boundary belongs to the architect. The PM cannot overrule the
-architect; it can only escalate the fork.
+Technical coherence within a ratified boundary belongs to the architect. The PM can sequence or
+escalate; it cannot overrule the architect or human.
 
-## 6. Evidence contract
+## 7. Evidence contract
 
-Research claims are labeled:
+Research claims use:
 
-- `SUPPORTED`
-- `CONFLICTED`
-- `UNKNOWN`
-- `NOT_APPLICABLE`
+```text
+SUPPORTED | CONFLICTED | UNKNOWN | NOT_APPLICABLE
+MUST | SHOULD | OPTIONAL
+```
 
-and prioritized:
+No MUST remains silently unknown. A source must exist, support the claim, be authoritative enough,
+be current enough, and apply to this project. Competitor behavior is not user evidence. Use a number
+only when meaningful and sourced/measured; otherwise use an observable check, calibrated rubric, or
+human gate.
 
-- `MUST`
-- `SHOULD`
-- `OPTIONAL`
+## 8. Stage transition contract
 
-No `MUST` may remain silently unknown. Use numeric thresholds only when a meaningful standard or
-measured baseline exists. Otherwise use an observable test, a calibrated rubric, or a human gate.
+Tier C state lives under `.claude/projects/<project-id>/`. Before the root changes the ledger stage:
 
-## 7. Project state
+1. validate required artifacts against their schemas;
+2. run `validate_project.py --stage <target>`;
+3. verify the prior stage's explicit verdict;
+4. hash controlling artifacts into the ledger;
+5. close the prior stage-history entry and append the next;
+6. record required human approval and blockers;
+7. ensure spawn usage has not exceeded its approved ceiling.
 
-Tier C work uses `.claude/projects/<project-id>/project-ledger.json`. The ledger is authoritative
-across compaction and sessions. Existing work preserved during Tier B → C escalation is provisional
-until labeled `KEEP`, `ADAPT`, or `REPLACE`.
+Agent prose cannot advance a stage. The ledger is authoritative across compaction and sessions.
 
-## 8. Capability routing
+## 9. Capability routing
 
-Tickets request capabilities, not hard-coded skill stacks. Resolve providers in this order:
-project `.claude/capabilities/registry.yaml`, then user `~/.claude/capabilities/registry.yaml`. Load the minimum provider set just in time. Respect conflicts.
-Do not make Taste, Impeccable, UI catalogs, or E2E tools universal.
+Tickets request capabilities, not hard-coded skill stacks. Resolve project registry first, then user
+registry, then bundled registry. Load only the minimum conflict-free provider plan just in time.
 
-## 9. Release and mutation
+Providers are implementation libraries, not constitutions. Every provider declares authority, stage,
+inputs, outputs, dependencies, conflicts, evals, load policy, and removal contract. Missing optional
+providers block or trigger `/plug-it-in`; they are not silently replaced.
 
-Run `/guard-before-write` before destructive, externally consequential, deployment, production-flag,
-credential, bulk-data, or irreversible actions. Run `/production-audit` before public or production
-release. Human approval is required for actions the human remains accountable for.
+## 10. Release and mutation
 
-## 10. Workflow improvement
+Release requires:
 
-`/its-not-you-its-me` may collect and research improvement candidates, but no observation system,
-reviewer, or agent may modify the upstream constitution automatically. Promotion requires human
-approval and a seeded-failure eval.
+- exact build identity across all receipts;
+- approved Definition of Good and ticket evidence;
+- POST_BUILD `SEAMS_SOUND`;
+- Easily Irritated terminal state compatible with release;
+- production-audit SHIP/SHIP_WITH_ACCEPTED_RISK;
+- fresh-release-judge GREEN;
+- human accepted-risk/release approval where required;
+- `/guard-before-write` receipt before consequential action.
+
+Auto-accept never overrides human accountability.
+
+## 11. Workflow improvement
+
+`/its-not-you-its-me` may collect and research process defects. No observer, continuous-learning
+system, reviewer, or agent may alter this constitution, core skills, hooks, schemas, or registry
+automatically. Promotion requires human approval and a seeded failure that proves the change catches
+the original defect without unacceptable ceremony.
