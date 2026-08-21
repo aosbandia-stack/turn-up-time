@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "project_id": "example-project",
+  "tier": "C",
+  "profile": "standard",
+  "stage": "INTAKE",
+  "status": "ACTIVE",
+  "objective": "",
+  "spawn_budget": {"limit": 5, "used": 0},
+  "spawn_log": [],
+  "decisions": [],
+  "risks": [],
+  "blockers": [],
+  "artifacts": {},
+  "approvals": [],
+  "stage_history": [
+    {
+      "stage": "INTAKE",
+      "entered_at": "2026-08-21T00:00:00Z",
+      "exited_at": null,
+      "verdict": null,
+      "receipt_refs": []
+    }
+  ],
+  "build_identity": null
+}
