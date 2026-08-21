@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "project_id": "example-project",
+  "phase": "POST_BUILD",
+  "status": "SEAMS_SOUND",
+  "ticket_refs": ["tickets/EXAMPLE-001.json"],
+  "findings": [],
+  "checked_at": "2026-08-21T00:00:00Z",
+  "reviewer": "integration-lead"
+}
