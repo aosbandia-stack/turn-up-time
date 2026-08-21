@@ -3,115 +3,67 @@
   "title": "Turn Up Time Project Ledger",
   "type": "object",
   "additionalProperties": false,
-  "required": [
-    "project_id",
-    "tier",
-    "profile",
-    "stage",
-    "status",
-    "objective",
-    "spawn_budget",
-    "spawn_log",
-    "decisions",
-    "risks",
-    "artifacts"
-  ],
+  "required": ["schema_version", "project_id", "repository", "tier", "profile", "stage", "status", "objective", "created_at", "updated_at", "spawn_budget", "spawn_count", "spawn_log", "decisions", "risks", "blocked_by", "human_approvals", "artifacts", "build_identity"],
   "properties": {
-    "project_id": {
-      "type": "string",
-      "minLength": 1
+    "$schema": {"type": "string"},
+    "schema_version": {"const": 2},
+    "project_id": {"type": "string", "minLength": 1},
+    "repository": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["root", "branch", "base_sha"],
+      "properties": {
+        "root": {"type": "string"},
+        "branch": {"type": "string"},
+        "base_sha": {"type": ["string", "null"]}
+      }
     },
-    "tier": {
-      "enum": [
-        "A",
-        "B",
-        "C"
-      ]
-    },
-    "profile": {
-      "enum": [
-        "none",
-        "lite",
-        "standard",
-        "full"
-      ]
-    },
-    "stage": {
-      "enum": [
-        "INTAKE",
-        "DISCOVERY",
-        "EVIDENCE_REVIEW",
-        "DEFINITION",
-        "TICKETING",
-        "SEAM_REVIEW",
-        "BUILD",
-        "INTEGRATION",
-        "CLOSEOUT",
-        "RELEASE",
-        "WORKFLOW_CLOSEOUT",
-        "DONE",
-        "BLOCKED"
-      ]
-    },
-    "status": {
-      "enum": [
-        "ACTIVE",
-        "AWAITING_HUMAN",
-        "BLOCKED",
-        "COMPLETE",
-        "CANCELLED"
-      ]
-    },
-    "objective": {
-      "type": "string"
-    },
-    "spawn_budget": {
-      "type": "integer",
-      "minimum": 0
-    },
+    "tier": {"enum": ["A", "B", "C"]},
+    "profile": {"enum": ["none", "lite", "standard", "full"]},
+    "stage": {"enum": ["INTAKE", "DISCOVERY", "EVIDENCE_REVIEW", "DEFINITION", "TICKETING", "SEAM_REVIEW", "BUILD", "INTEGRATION", "CLOSEOUT", "RELEASE", "WORKFLOW_CLOSEOUT", "DONE", "BLOCKED"]},
+    "status": {"enum": ["ACTIVE", "AWAITING_HUMAN", "BLOCKED", "COMPLETE", "CANCELLED"]},
+    "objective": {"type": "string"},
+    "created_at": {"type": "string", "format": "date-time"},
+    "updated_at": {"type": "string", "format": "date-time"},
+    "spawn_budget": {"type": "integer", "minimum": 0},
+    "spawn_count": {"type": "integer", "minimum": 0},
     "spawn_log": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": [
-          "role",
-          "stage",
-          "reason"
-        ],
+        "additionalProperties": false,
+        "required": ["role", "stage", "reason", "started_at", "result"],
         "properties": {
-          "role": {
-            "type": "string"
-          },
-          "stage": {
-            "type": "string"
-          },
-          "reason": {
-            "type": "string"
-          },
-          "result": {
-            "type": [
-              "string",
-              "null"
-            ]
-          }
+          "role": {"type": "string"},
+          "stage": {"type": "string"},
+          "reason": {"type": "string"},
+          "started_at": {"type": "string", "format": "date-time"},
+          "result": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "decisions": {"type": "array"},
+    "risks": {"type": "array"},
+    "blocked_by": {"type": "array"},
+    "human_approvals": {"type": "array"},
+    "artifacts": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["path", "sha256"],
+        "properties": {
+          "path": {"type": "string"},
+          "sha256": {"type": ["string", "null"], "pattern": "^[a-fA-F0-9]{64}$"}
         },
         "additionalProperties": false
       }
     },
-    "decisions": {
-      "type": "array"
-    },
-    "risks": {
-      "type": "array"
-    },
-    "artifacts": {
-      "type": "object"
-    },
-    "build_identity": {
-      "type": [
-        "string",
-        "null"
-      ]
+    "build_identity": {"type": ["string", "null"]}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"stage": {"enum": ["BUILD", "INTEGRATION", "CLOSEOUT", "RELEASE", "WORKFLOW_CLOSEOUT", "DONE"]}}},
+      "then": {"properties": {"build_identity": {"type": "string", "minLength": 1}}}
     }
-  }
+  ]
 }
