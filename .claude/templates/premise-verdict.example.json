@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "project_id": "example-project",
+  "status": "EVIDENCE_READY",
+  "reviewed_pack_refs": ["evidence/product.json", "evidence/frontend.json"],
+  "must_unknowns": [],
+  "conflicts": [],
+  "invalid_sources": [],
+  "human_escalations": [],
+  "checked_at": "2026-08-21T00:00:00Z",
+  "reviewer": "premise-auditor"
+}
