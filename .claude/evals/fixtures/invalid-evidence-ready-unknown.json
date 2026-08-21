@@ -1,0 +1,23 @@
+{
+  "$schema": "../../schemas/evidence-pack.schema.json",
+  "schema_version": 2,
+  "project_id": "eval-project",
+  "lane": "security",
+  "status": "EVIDENCE_READY",
+  "summary": "Incorrectly claims readiness.",
+  "coverage": [
+    {
+      "id": "SEC-001",
+      "question": "What sensitive data leaves the trust boundary?",
+      "answer": null,
+      "evidence_state": "UNKNOWN",
+      "priority": "MUST",
+      "applicability": "The app handles financial data.",
+      "verification_method": "Inspect data-flow design.",
+      "source_ids": []
+    }
+  ],
+  "open_questions": ["Resolve SEC-001"],
+  "human_decisions": [],
+  "sources": []
+}
