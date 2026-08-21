@@ -3,115 +3,121 @@
   "title": "Turn Up Time Project Ledger",
   "type": "object",
   "additionalProperties": false,
-  "required": [
-    "project_id",
-    "tier",
-    "profile",
-    "stage",
-    "status",
-    "objective",
-    "spawn_budget",
-    "spawn_log",
-    "decisions",
-    "risks",
-    "artifacts"
-  ],
+  "required": ["schema_version", "project_id", "tier", "profile", "stage", "status", "objective", "spawn_budget", "spawn_log", "decisions", "risks", "blockers", "artifacts", "approvals", "stage_history", "build_identity"],
   "properties": {
-    "project_id": {
-      "type": "string",
-      "minLength": 1
-    },
-    "tier": {
-      "enum": [
-        "A",
-        "B",
-        "C"
-      ]
-    },
-    "profile": {
-      "enum": [
-        "none",
-        "lite",
-        "standard",
-        "full"
-      ]
-    },
-    "stage": {
-      "enum": [
-        "INTAKE",
-        "DISCOVERY",
-        "EVIDENCE_REVIEW",
-        "DEFINITION",
-        "TICKETING",
-        "SEAM_REVIEW",
-        "BUILD",
-        "INTEGRATION",
-        "CLOSEOUT",
-        "RELEASE",
-        "WORKFLOW_CLOSEOUT",
-        "DONE",
-        "BLOCKED"
-      ]
-    },
-    "status": {
-      "enum": [
-        "ACTIVE",
-        "AWAITING_HUMAN",
-        "BLOCKED",
-        "COMPLETE",
-        "CANCELLED"
-      ]
-    },
-    "objective": {
-      "type": "string"
-    },
+    "schema_version": {"const": 2},
+    "project_id": {"type": "string", "minLength": 1},
+    "tier": {"enum": ["A", "B", "C"]},
+    "profile": {"enum": ["none", "lite", "standard", "full"]},
+    "stage": {"enum": ["INTAKE", "DISCOVERY", "EVIDENCE_REVIEW", "DEFINITION", "TICKETING", "SEAM_REVIEW", "BUILD", "INTEGRATION", "CLOSEOUT", "RELEASE", "WORKFLOW_CLOSEOUT", "DONE", "BLOCKED"]},
+    "status": {"enum": ["ACTIVE", "AWAITING_HUMAN", "BLOCKED", "COMPLETE", "CANCELLED"]},
+    "objective": {"type": "string"},
     "spawn_budget": {
-      "type": "integer",
-      "minimum": 0
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["limit", "used"],
+      "properties": {
+        "limit": {"type": "integer", "minimum": 0},
+        "used": {"type": "integer", "minimum": 0}
+      }
     },
     "spawn_log": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": [
-          "role",
-          "stage",
-          "reason"
-        ],
+        "additionalProperties": false,
+        "required": ["id", "role", "role_class", "stage", "reason", "started_at", "completed_at", "outcome", "artifact_refs"],
         "properties": {
-          "role": {
-            "type": "string"
-          },
-          "stage": {
-            "type": "string"
-          },
-          "reason": {
-            "type": "string"
-          },
-          "result": {
-            "type": [
-              "string",
-              "null"
-            ]
-          }
-        },
-        "additionalProperties": false
+          "id": {"type": "string"},
+          "role": {"type": "string"},
+          "role_class": {"enum": ["control", "production", "assurance"]},
+          "stage": {"type": "string"},
+          "reason": {"type": "string"},
+          "started_at": {"type": ["string", "null"], "format": "date-time"},
+          "completed_at": {"type": ["string", "null"], "format": "date-time"},
+          "outcome": {"type": ["string", "null"]},
+          "artifact_refs": {"type": "array", "items": {"type": "string"}}
+        }
       }
     },
     "decisions": {
-      "type": "array"
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "owner", "question", "status", "resolution", "decided_at", "artifact_refs"],
+        "properties": {
+          "id": {"type": "string"},
+          "owner": {"enum": ["human", "architect", "pm"]},
+          "question": {"type": "string"},
+          "status": {"enum": ["OPEN", "RESOLVED", "DEFERRED"]},
+          "resolution": {"type": ["string", "null"]},
+          "decided_at": {"type": ["string", "null"], "format": "date-time"},
+          "artifact_refs": {"type": "array", "items": {"type": "string"}}
+        }
+      }
     },
     "risks": {
-      "type": "array"
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "description", "severity", "owner", "status", "mitigation"],
+        "properties": {
+          "id": {"type": "string"},
+          "description": {"type": "string"},
+          "severity": {"enum": ["low", "medium", "high", "critical"]},
+          "owner": {"type": "string"},
+          "status": {"enum": ["OPEN", "ACCEPTED", "MITIGATED", "CLOSED"]},
+          "mitigation": {"type": ["string", "null"]}
+        }
+      }
     },
+    "blockers": {"type": "array", "items": {"type": "string"}},
     "artifacts": {
-      "type": "object"
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "sha256", "status", "schema"],
+        "properties": {
+          "path": {"type": "string"},
+          "sha256": {"type": "string"},
+          "status": {"enum": ["DRAFT", "APPROVED", "CURRENT", "SUPERSEDED", "REJECTED"]},
+          "schema": {"type": ["string", "null"]}
+        }
+      }
     },
-    "build_identity": {
-      "type": [
-        "string",
-        "null"
-      ]
-    }
+    "approvals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["gate", "status", "by", "at", "notes"],
+        "properties": {
+          "gate": {"enum": ["INTAKE", "DEFINITION", "TICKETS", "ACCEPTED_RISK", "RELEASE"]},
+          "status": {"enum": ["PENDING", "APPROVED", "REJECTED", "NOT_REQUIRED"]},
+          "by": {"type": ["string", "null"]},
+          "at": {"type": ["string", "null"], "format": "date-time"},
+          "notes": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "stage_history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["stage", "entered_at", "exited_at", "verdict", "receipt_refs"],
+        "properties": {
+          "stage": {"type": "string"},
+          "entered_at": {"type": "string", "format": "date-time"},
+          "exited_at": {"type": ["string", "null"], "format": "date-time"},
+          "verdict": {"type": ["string", "null"]},
+          "receipt_refs": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "build_identity": {"type": ["string", "null"]}
   }
 }
