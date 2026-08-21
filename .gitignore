@@ -1,0 +1,9 @@
+.claude/projects/
+.claude/audit-runs/
+.claude/review-output/
+*.log
+*.tmp
+*.bak*
+__pycache__/
+.pytest_cache/
+.DS_Store

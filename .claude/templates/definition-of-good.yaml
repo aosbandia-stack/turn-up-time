@@ -1,0 +1,12 @@
+project_id:
+requirements:
+  - id:
+    statement:
+    priority: MUST
+    evidence_refs: []
+    acceptance_condition:
+    verification_method:
+    owner_surface:
+human_gates: []
+approved_by:
+approved_at:

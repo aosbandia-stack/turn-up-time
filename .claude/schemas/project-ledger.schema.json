@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Turn Up Time Project Ledger",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "project_id",
+    "tier",
+    "profile",
+    "stage",
+    "status",
+    "objective",
+    "spawn_budget",
+    "spawn_log",
+    "decisions",
+    "risks",
+    "artifacts"
+  ],
+  "properties": {
+    "project_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "tier": {
+      "enum": [
+        "A",
+        "B",
+        "C"
+      ]
+    },
+    "profile": {
+      "enum": [
+        "none",
+        "lite",
+        "standard",
+        "full"
+      ]
+    },
+    "stage": {
+      "enum": [
+        "INTAKE",
+        "DISCOVERY",
+        "EVIDENCE_REVIEW",
+        "DEFINITION",
+        "TICKETING",
+        "SEAM_REVIEW",
+        "BUILD",
+        "INTEGRATION",
+        "CLOSEOUT",
+        "RELEASE",
+        "WORKFLOW_CLOSEOUT",
+        "DONE",
+        "BLOCKED"
+      ]
+    },
+    "status": {
+      "enum": [
+        "ACTIVE",
+        "AWAITING_HUMAN",
+        "BLOCKED",
+        "COMPLETE",
+        "CANCELLED"
+      ]
+    },
+    "objective": {
+      "type": "string"
+    },
+    "spawn_budget": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "spawn_log": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "role",
+          "stage",
+          "reason"
+        ],
+        "properties": {
+          "role": {
+            "type": "string"
+          },
+          "stage": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "result": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "decisions": {
+      "type": "array"
+    },
+    "risks": {
+      "type": "array"
+    },
+    "artifacts": {
+      "type": "object"
+    },
+    "build_identity": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  }
+}

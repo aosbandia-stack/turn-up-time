@@ -1,0 +1,18 @@
+improvement_id:
+observed_failure:
+evidence: []
+frequency:
+workflow_stage:
+root_cause:
+existing_control:
+proposed_change:
+scope: project
+expected_effect:
+measurement:
+seeded_failure_eval:
+cost:
+new_risks: []
+rollback:
+warrant: incident
+review_date:
+status: OBSERVED

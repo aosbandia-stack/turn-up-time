@@ -1,0 +1,19 @@
+name: dashboard
+required_capabilities:
+  - frontend-operate
+  - browser-e2e
+required_discovery:
+  - product-domain-researcher
+  - frontend-experience-researcher
+  - backend-systems-researcher
+  - security-privacy-researcher
+required_closeout:
+  - irritated-domain-user
+  - functional-qa
+  - ux-accessibility-reviewer
+conditional_closeout:
+  - security-performance-reviewer
+notes:
+  - Use Impeccable in Operate mode.
+  - Do not load marketing-page Taste rules by default.
+  - Critical journeys and state matrices must be defined before tickets.

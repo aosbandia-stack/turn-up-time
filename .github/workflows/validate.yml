@@ -1,0 +1,48 @@
+name: Validate workflow
+on:
+  push:
+  pull_request:
+
+jobs:
+  static:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install pyyaml jsonschema
+      - run: python .claude/scripts/validate_repo.py
+      - run: python .claude/scripts/run_seeded_evals.py
+      - run: python .claude/scripts/fresh_review.py
+
+  powershell-51:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Parse PowerShell files with Windows PowerShell 5.1
+        shell: powershell
+        run: |
+          $failed = $false
+          Get-ChildItem -Recurse -Filter *.ps1 | ForEach-Object {
+            $tokens = $null
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile($_.FullName, [ref]$tokens, [ref]$errors) | Out-Null
+            if ($errors.Count -gt 0) {
+              $failed = $true
+              Write-Host "PARSE RED: $($_.FullName)"
+              $errors | ForEach-Object { Write-Host $_.Message }
+            }
+          }
+          if ($failed) { exit 1 }
+          Write-Host 'PowerShell 5.1 parse: GREEN'
+      - name: Exercise router and destructive guard
+        shell: powershell
+        run: |
+          $build = '{"prompt":"Build a budgeting app"}' | powershell.exe -NoProfile -ExecutionPolicy Bypass -File .claude/hooks/skill-router.ps1
+          if ($build -notmatch 'turn-up-time') { throw 'Build prompt did not route to turn-up-time' }
+          if ($build -match 'engineering-loop') { throw 'Retired engineering-loop leaked into routing' }
+          $skill = '{"prompt":"Add this dashboard skill to my workflow"}' | powershell.exe -NoProfile -ExecutionPolicy Bypass -File .claude/hooks/skill-router.ps1
+          if ($skill -notmatch 'plug-it-in') { throw 'Skill prompt did not route to plug-it-in' }
+          $guard = '{"tool_input":{"command":"git reset --hard HEAD~1"}}' | powershell.exe -NoProfile -ExecutionPolicy Bypass -File .claude/hooks/destructive-command-guard.ps1
+          if ($guard -notmatch 'deny') { throw 'Destructive guard did not deny reset --hard' }

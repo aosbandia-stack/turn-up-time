@@ -1,0 +1,15 @@
+{
+  "ticket_id": "BROKEN-001",
+  "user_outcome": "Vague outcome",
+  "scope": [],
+  "non_scope": [],
+  "inputs": [],
+  "outputs": [],
+  "dependencies": [],
+  "shared_contracts": [],
+  "acceptance_checks": [],
+  "required_capabilities": [],
+  "risk_class": "medium",
+  "rollback": "none",
+  "owner_role": "implementation-engineer"
+}

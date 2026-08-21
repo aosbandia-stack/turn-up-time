@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Evidence Pack",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "lane",
+    "claims",
+    "open_questions",
+    "sources"
+  ],
+  "properties": {
+    "lane": {
+      "enum": [
+        "product",
+        "frontend",
+        "backend",
+        "security"
+      ]
+    },
+    "claims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "claim",
+          "evidence_state",
+          "priority",
+          "applicability",
+          "verification_method"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "claim": {
+            "type": "string"
+          },
+          "evidence_state": {
+            "enum": [
+              "SUPPORTED",
+              "CONFLICTED",
+              "UNKNOWN",
+              "NOT_APPLICABLE"
+            ]
+          },
+          "priority": {
+            "enum": [
+              "MUST",
+              "SHOULD",
+              "OPTIONAL"
+            ]
+          },
+          "applicability": {
+            "type": "string"
+          },
+          "verification_method": {
+            "type": "string"
+          },
+          "source_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "open_questions": {
+      "type": "array"
+    },
+    "sources": {
+      "type": "array"
+    }
+  }
+}
