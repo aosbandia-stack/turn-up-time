@@ -1,0 +1,13 @@
+{
+  "$schema": "../../schemas/intake-readiness.schema.json",
+  "schema_version": 1,
+  "project_id": "eval-project",
+  "primary_user": "A household budget owner",
+  "primary_job": "Plan monthly cash flow",
+  "desired_outcome": "Know what can be safely spent and saved",
+  "product_boundary": "Manual planning and CSV import; no bank credential storage",
+  "critical_constraints": ["Private financial data"],
+  "human_owned_decisions": [],
+  "non_goals": ["Investment advice"],
+  "status": "INTAKE_READY"
+}
