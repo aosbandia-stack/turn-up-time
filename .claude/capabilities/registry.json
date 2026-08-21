@@ -1,0 +1,89 @@
+{
+  "schema_version": 2,
+  "capabilities": {
+    "frontend-operate": {
+      "provider": "impeccable",
+      "bundled": false,
+      "authority": "production",
+      "stages": ["BUILD", "CLOSEOUT"],
+      "mode": "operate",
+      "load_policy": "conditional",
+      "consumes": ["definition-of-good", "frontend-evidence", "ticket"],
+      "produces": ["frontend-code", "ui-receipt"],
+      "requires": ["browser-e2e"],
+      "conflicts": ["taste-skill", "ui-ux-pro-max", "design-review"],
+      "evals": ["critical-journey-e2e", "seeded-broken-state-must-fail"],
+      "uninstall": "Remove the provider mapping. Do not delete product files."
+    },
+    "frontend-marketing": {
+      "provider": "impeccable",
+      "bundled": false,
+      "authority": "production",
+      "stages": ["BUILD", "CLOSEOUT"],
+      "mode": "persuade",
+      "load_policy": "conditional",
+      "consumes": ["definition-of-good", "frontend-evidence", "ticket"],
+      "produces": ["frontend-code", "ui-receipt"],
+      "requires": ["browser-e2e"],
+      "conflicts": ["ui-ux-pro-max", "design-review"],
+      "evals": ["visual-and-conversion-contract"],
+      "uninstall": "Remove the provider mapping."
+    },
+    "browser-e2e": {
+      "provider": "e2e-testing",
+      "bundled": false,
+      "authority": "assurance",
+      "stages": ["BUILD", "INTEGRATION", "CLOSEOUT", "RELEASE"],
+      "mode": "default",
+      "load_policy": "conditional",
+      "consumes": ["critical-journeys", "running-build"],
+      "produces": ["e2e-results", "screenshots", "trace"],
+      "requires": [],
+      "conflicts": [],
+      "evals": ["seeded-broken-journey-must-fail"],
+      "uninstall": "Remove the provider mapping. Preserve generated evidence unless the human approves deletion."
+    },
+    "ai-regression": {
+      "provider": "ai-regression-testing",
+      "bundled": false,
+      "authority": "assurance",
+      "stages": ["BUILD", "INTEGRATION", "RELEASE"],
+      "mode": "default",
+      "load_policy": "conditional",
+      "consumes": ["ai-behavior-contract", "test-cases"],
+      "produces": ["baseline", "regression-report"],
+      "requires": [],
+      "conflicts": [],
+      "evals": ["known-regression-must-fail"],
+      "uninstall": "Remove the provider mapping. Preserve baselines."
+    },
+    "workflow-evals": {
+      "provider": "eval-harness",
+      "bundled": true,
+      "authority": "assurance",
+      "stages": ["DISCOVERY", "DEFINITION", "BUILD", "INTEGRATION", "CLOSEOUT", "RELEASE", "WORKFLOW_CLOSEOUT"],
+      "mode": "default",
+      "load_policy": "core",
+      "consumes": ["behavior-contract"],
+      "produces": ["eval-definition", "eval-report"],
+      "requires": [],
+      "conflicts": [],
+      "evals": ["grader-control-must-fail"],
+      "uninstall": "Not removable while the core workflow is active."
+    },
+    "irreversible-write": {
+      "provider": "guard-before-write",
+      "bundled": true,
+      "authority": "control",
+      "stages": ["BUILD", "RELEASE"],
+      "mode": "default",
+      "load_policy": "signal-triggered",
+      "consumes": ["proposed-action"],
+      "produces": ["guard-receipt"],
+      "requires": [],
+      "conflicts": [],
+      "evals": ["missing-backup-must-block"],
+      "uninstall": "Not removable while auto-accept is enabled."
+    }
+  }
+}
