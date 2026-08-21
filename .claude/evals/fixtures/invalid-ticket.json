@@ -1,8 +1,14 @@
 {
+  "$schema": "../../schemas/ticket.schema.json",
+  "schema_version": 2,
   "ticket_id": "BROKEN-001",
+  "status": "DRAFT",
+  "requirement_ids": [],
+  "evidence_refs": [],
   "user_outcome": "Vague outcome",
   "scope": [],
   "non_scope": [],
+  "files_or_surfaces": [],
   "inputs": [],
   "outputs": [],
   "dependencies": [],
@@ -11,5 +17,6 @@
   "required_capabilities": [],
   "risk_class": "medium",
   "rollback": "none",
-  "owner_role": "implementation-engineer"
+  "owner_role": "implementation-engineer",
+  "human_gates": []
 }
