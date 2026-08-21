@@ -1,0 +1,24 @@
+{
+  "$schema": "../schemas/definition-of-good.schema.json",
+  "schema_version": 1,
+  "project_id": "replace-me",
+  "version": 1,
+  "status": "DRAFT",
+  "requirements": [
+    {
+      "id": "REQ-EXAMPLE-001",
+      "statement": "Replace this example with a traceable product requirement.",
+      "priority": "MUST",
+      "evidence_refs": ["EVIDENCE-EXAMPLE-001"],
+      "acceptance_condition": "State an observable outcome.",
+      "verification_method": "State a runnable check, calibrated rubric, or human gate.",
+      "owner_surface": "product",
+      "status": "ACTIVE"
+    }
+  ],
+  "human_gates": [],
+  "non_goals": [],
+  "source_artifact_hashes": {},
+  "approved_by": null,
+  "approved_at": null
+}
