@@ -3,100 +3,34 @@
   "title": "Workflow Improvement Proposal",
   "type": "object",
   "additionalProperties": false,
-  "required": [
-    "improvement_id",
-    "observed_failure",
-    "evidence",
-    "frequency",
-    "workflow_stage",
-    "root_cause",
-    "existing_control",
-    "proposed_change",
-    "scope",
-    "expected_effect",
-    "measurement",
-    "seeded_failure_eval",
-    "cost",
-    "new_risks",
-    "rollback",
-    "warrant",
-    "review_date",
-    "status"
-  ],
+  "required": ["schema_version", "improvement_id", "observed_failure", "evidence", "frequency", "workflow_stage", "root_cause", "existing_control", "proposed_change", "scope", "expected_effect", "measurement", "seeded_failure_eval", "cost", "new_risks", "rollback", "warrant", "review_date", "status", "human_approval"],
   "properties": {
-    "improvement_id": {
-      "type": "string"
-    },
-    "observed_failure": {
-      "type": "string"
-    },
-    "evidence": {
-      "type": "array",
-      "minItems": 1
-    },
-    "frequency": {
-      "type": "string"
-    },
-    "workflow_stage": {
-      "type": "string"
-    },
-    "root_cause": {
-      "type": "string"
-    },
-    "existing_control": {
-      "type": "string"
-    },
-    "proposed_change": {
-      "type": "string"
-    },
-    "scope": {
-      "enum": [
-        "project",
-        "global"
-      ]
-    },
-    "expected_effect": {
-      "type": "string"
-    },
-    "measurement": {
-      "type": "string"
-    },
-    "seeded_failure_eval": {
-      "type": "string"
-    },
-    "cost": {
-      "type": "string"
-    },
-    "new_risks": {
-      "type": "array"
-    },
-    "rollback": {
-      "type": "string"
-    },
-    "warrant": {
-      "enum": [
-        "incident",
-        "prediction"
-      ]
-    },
-    "review_date": {
-      "type": "string",
-      "format": "date"
-    },
-    "status": {
-      "enum": [
-        "OBSERVED",
-        "VALIDATED",
-        "RESEARCHED",
-        "PROPOSED",
-        "APPROVED",
-        "REJECTED",
-        "DEFERRED",
-        "IMPLEMENTED",
-        "EVAL_GREEN",
-        "EVAL_RED",
-        "RETIRED"
-      ]
+    "$schema": {"type": "string"},
+    "schema_version": {"const": 2},
+    "improvement_id": {"type": "string", "minLength": 1},
+    "observed_failure": {"type": "string", "minLength": 1},
+    "evidence": {"type": "array", "minItems": 1},
+    "frequency": {"type": "string", "minLength": 1},
+    "workflow_stage": {"type": "string", "minLength": 1},
+    "root_cause": {"type": "string", "minLength": 1},
+    "existing_control": {"type": "string", "minLength": 1},
+    "proposed_change": {"type": "string", "minLength": 1},
+    "scope": {"enum": ["project", "global"]},
+    "expected_effect": {"type": "string", "minLength": 1},
+    "measurement": {"type": "string", "minLength": 1},
+    "seeded_failure_eval": {"type": "string", "minLength": 1},
+    "cost": {"type": "string", "minLength": 1},
+    "new_risks": {"type": "array"},
+    "rollback": {"type": "string", "minLength": 1},
+    "warrant": {"enum": ["incident", "prediction"]},
+    "review_date": {"type": "string", "format": "date"},
+    "status": {"enum": ["OBSERVED", "VALIDATED", "RESEARCHED", "PROPOSED", "APPROVED", "REJECTED", "DEFERRED", "IMPLEMENTED", "EVAL_GREEN", "EVAL_RED", "RETIRED"]},
+    "human_approval": {"type": ["string", "null"]}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"status": {"enum": ["APPROVED", "IMPLEMENTED", "EVAL_GREEN", "EVAL_RED"]}}},
+      "then": {"properties": {"human_approval": {"type": "string", "minLength": 1}}}
     }
-  }
+  ]
 }
