@@ -6,116 +6,161 @@ disable-model-invocation: false
 
 # /turn-up-time
 
-Adopt this skill in the root session for software build, design, fix, refactor, or automation work.
+Adopt this skill in the root session for software build, design, implementation, automation, refactor,
+or fix work. It is the only automatic entry point into the conveyor.
 
-## Boundaries
+## Control-plane boundaries
 
-You coordinate. You do not conduct specialist research, author the architecture, implement production
-code, or certify your own project.
+The root session coordinates, records, and escalates. It does not conduct specialist research, author
+the architecture, implement production code, validate its own findings, or certify release.
 
-## Step 1 — Reconcile current state
+The project ledger is authoritative. Agents return structured results to the root; the root is the only
+ledger writer.
 
-Inspect repository root, branch, dirty state, recent relevant commits, existing implementation,
-active project ledger, and any approved parent artifact. Separate `OBSERVED`, `VERIFIED`, `INFERRED`,
-`PROPOSED`, and `UNKNOWN`.
+## 1. Reconcile current state
 
-## Step 2 — Classify
+Before classifying:
 
-- Tier A: read-only answer.
-- Tier B: bounded change with known shape.
-- Tier C: new capability, material product fork, or coordination is a work product.
+- identify repository root, branch, HEAD, dirty state, active work, and runtime/build identity;
+- inspect existing implementation, tests, plans, and relevant recent commits;
+- locate an active `.claude/projects/<project-id>/project-ledger.json`;
+- separate `OBSERVED`, `VERIFIED`, `INFERRED`, `PROPOSED`, and `UNKNOWN`.
 
-Risk selects assurance; file count does not select the tier.
+A summary or conversation cannot overrule current code, runtime, or the ledger.
 
-If a Tier B task discovers a design fork, adopt Tier C in place. Preserve current work, freeze further
-writes, create a bootstrap receipt, and later disposition existing work as `KEEP`, `ADAPT`, or
-`REPLACE`.
+## 2. Classify the task
 
-## Step 3 — Intake readiness
+- **Tier A — Answer:** read and answer. No project workspace or agents.
+- **Tier B — Fix:** bounded change whose shape is known. Read, edit, verify, report. No discovery panel,
+  OmniDex, or Easily Irritated by default.
+- **Tier C — Build:** new capability, material product fork, or coordination is itself a work product.
 
-Create or update `intake-readiness.yaml`. Resolve from repo/conversation where possible. Invoke
-`/grill-me` only for human-owned unknowns:
+File count does not decide the tier. Risk selects assurance and human gates.
 
-```text
-primary user
-primary job/outcome
-product boundary
-what users may do
-material data/risk choice
-non-goals
-```
+When Tier B reveals a material fork, adopt Tier C in place. Preserve current work, freeze further
+writes, record the escalation, and later disposition existing work as `KEEP`, `ADAPT`, or `REPLACE`.
 
-After six questions, summarize remaining forks and ask whether to continue, defer, or block.
+## 3. Create the Tier C workspace
 
-## Step 4 — Profile and ledger
-
-For Tier C create the project workspace:
+Run:
 
 ```text
-.claude/projects/<project-id>/
-  project-ledger.json
-  intake-readiness.yaml
-  evidence/
-  definition-of-good.yaml
-  architecture.md
-  traceability.yaml
-  tickets/
-  receipts/
-  integration/
-  closeout/
-  release/
+python .claude/scripts/scaffold_project.py <project-id> --profile <lite|standard|full> --objective "<objective>"
 ```
 
-The root session is the designated ledger writer. Then choose:
+This creates the authoritative ledger, intake card, and stage directories. Immediately run:
 
-- lite: `product-domain-researcher` + `combined-engineering-researcher` + `premise-auditor`;
-- standard: 5;
-- full: 6–8, with every additional role justified.
+```text
+python .claude/scripts/validate_project.py <project-id>
+```
 
-Record the proposed budget. The human may veto it. If the projected Tier C project uses fewer than three independent spawns, reconsider whether Tier B is sufficient.
+Do not create placeholder evidence, tickets, or verdicts before their stage begins.
 
-## Step 5 — Discovery
+## 4. Intake and conditional grilling
 
-Standard profile dispatches in parallel:
+Resolve `intake-readiness.json` from current evidence and the conversation. Invoke `/grill-me` only for
+human-owned unknowns:
 
-- `product-domain-researcher`
-- `frontend-experience-researcher`
-- `backend-systems-researcher`
-- `security-privacy-researcher`
+- primary user and job;
+- desired outcome and product boundary;
+- what users are permitted to do;
+- sensitive data, external/model egress, cost, or risk choice;
+- non-goals and materially different product interpretations.
 
-Then dispatch `premise-auditor` serially. Discovery may loop only on specific `UNKNOWN` or
-`CONFLICTED` MUST items. A silent MUST-level unknown produces `EVIDENCE_BLOCKED`. Proceed only on
-`EVIDENCE_READY` or a human-approved explicit risk recorded in the ledger.
+Advance only when the card validates and its status is `INTAKE_READY` or
+`INTAKE_READY_WITH_DEFERRED_RISK`:
 
-## Step 6 — Definition and tickets
+```text
+python .claude/scripts/advance_stage.py <project-id> --to DISCOVERY
+```
 
-Invoke `/omnidex` with the Intake Card, evidence packs, premise verdict, and current-state receipts.
-Stop for human approval on material business forks and before build.
+## 5. Select a discovery profile and budget
 
-## Step 7 — Seam check
+- **Lite:** `product-domain-researcher`, `combined-engineering-researcher`, then
+  `premise-auditor`. Budget 3.
+- **Standard:** `product-domain-researcher`, `frontend-experience-researcher`,
+  `backend-systems-researcher`, `security-privacy-researcher`, then `premise-auditor`. Budget 5.
+- **Full:** Standard plus no more than three justified specialists or architecture challenges. Default
+  ceiling 8.
 
-Send approved tickets to `integration-lead`. No build begins before `SEAMS_SOUND`.
+A spawn must buy independent evidence or independent verification. Record role, stage, reason,
+start time, and result in the ledger. If the lite engineer returns `STANDARD_PROFILE_REQUIRED`, update
+the profile and budget before continuing.
 
-## Step 8 — Build and integrate
+## 6. Discovery and premise audit
 
-Invoke `/boil-the-ocean`. Dispatch independent tickets only. Prevent overlapping ownership. Track
-spawns by department and ticket. The same acceptance failure after two materially different repairs
-returns to OmniDex or the architect.
+Run the independent research lanes in parallel. The root writes their returned JSON to:
 
-After assembly, run the Integration Lead again. Two failed repair waves force architecture escalation.
+```text
+evidence/product.json
+evidence/engineering.json        # lite only
+evidence/frontend.json           # standard/full
+evidence/backend.json            # standard/full
+evidence/security.json            # standard/full
+```
 
-## Step 9 — Closeout and release
+Every pack must validate against `evidence-pack.schema.json`. Research loops only on named UNKNOWN or
+CONFLICTED MUST items and only when a new source, probe, or human decision is available.
 
-Run `/easily-irritated` at the selected mode, then `/production-audit`. Invoke
-`/guard-before-write` for deployment or other irreversible actions. Record build identity and release
-receipt.
+Then dispatch `premise-auditor` cold. Write its `stage-verdict.schema.json` output to
+`evidence/premise-verdict.json`. Advance through `EVIDENCE_REVIEW` to `DEFINITION` only on
+`EVIDENCE_READY` or a human-approved, explicitly recorded deferred risk.
 
-## Step 10 — Workflow improvement
+Hash durable artifacts with:
 
-Run `/its-not-you-its-me` or append candidates to the improvement queue. No candidate changes the
-workflow without human approval and a seeded eval.
+```text
+python .claude/scripts/record_artifact.py <project-id> <name> <relative-path>
+```
+
+## 7. Definition, architecture, and tickets
+
+Invoke `/omnidex` with the ratified intake, current-state receipts, evidence packs, premise verdict,
+and ledger. OmniDex writes:
+
+```text
+definition-of-good.json
+architecture.md
+traceability.json
+tickets/*.json
+```
+
+The human approves product/risk forks, the Definition of Good, and executable tickets. OmniDex then
+sets ledger stage `TICKETING`, status `AWAITING_HUMAN`; after approval, use `advance_stage.py` to enter
+`SEAM_REVIEW`.
+
+## 8. Seam review, build, and integration
+
+Dispatch `integration-lead` against the approved tickets. The root writes
+`integration/prebuild-verdict.json`. Build does not begin before `SEAMS_SOUND`.
+
+Invoke `/boil-the-ocean`. Before each ticket, resolve capabilities through
+`resolve_capabilities.py`. Prevent overlapping ownership and track every spawn. After all tickets are
+`TICKET_EVIDENCE_GREEN`, advance to `INTEGRATION`, assemble the candidate, and dispatch the Integration
+Lead again. Write `integration/postbuild-verdict.json`.
+
+The same ticket failure after two materially different repairs, or the same seam after two repair
+waves, returns to OmniDex/architecture rather than looping.
+
+## 9. Product closeout and release
+
+On postbuild `SEAMS_SOUND`, advance to `CLOSEOUT` and invoke `/easily-irritated`. It writes validated
+findings and `closeout/verdict.json`.
+
+On `RELEASE_READY` or human-accepted yellow, advance to `RELEASE` and invoke `/production-audit`.
+Release requires:
+
+- `release/production-audit.json`;
+- a cold `fresh-release-judge` verdict at `release/final-judge.json`;
+- `/guard-before-write` before deployment or another consequential action;
+- `release/receipt.json` with exact build identity and result.
+
+## 10. Workflow closeout
+
+Run `/its-not-you-its-me` or explicitly record why no workflow closeout is warranted. Improvement
+candidates never modify the constitution automatically.
 
 ## Resume contract
 
-The ledger is authoritative after compaction or a new session. Re-read it, compare repo/build identity,
-and rerun only affected premises. Conversation memory never silently overrides ledger state.
+After compaction or a new session, read the ledger first, compare repository/build identity and artifact
+hashes, run `validate_project.py`, and refresh only premises whose substrate changed. Conversation
+memory never silently overrides project state.
