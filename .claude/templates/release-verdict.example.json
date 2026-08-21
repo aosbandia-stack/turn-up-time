@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "project_id": "example-project",
+  "build_identity": "commit-or-artifact-id",
+  "production_audit": "SHIP",
+  "final_judge": "GREEN",
+  "status": "SHIP",
+  "accepted_risks": [],
+  "blockers": [],
+  "evidence_refs": ["release/production-audit.json", "release/final-judge.json"],
+  "guard_receipt_ref": null,
+  "human_approval": {
+    "required": false,
+    "status": "NOT_REQUIRED",
+    "by": null,
+    "at": null
+  },
+  "decided_at": "2026-08-21T00:00:00Z"
+}
