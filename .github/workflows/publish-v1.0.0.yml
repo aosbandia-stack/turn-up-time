@@ -102,16 +102,37 @@ jobs:
           fi
           gh release view "$VERSION" --repo "$GITHUB_REPOSITORY" --json url,name,isDraft,isPrerelease
 
-      - name: Record release receipt on PR 4
+  release-receipt:
+    if: always()
+    needs: validate-and-publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Record release outcome on PR 4
         env:
           GH_TOKEN: ${{ github.token }}
+          OUTCOME: ${{ needs.validate-and-publish.result }}
+          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          COMMIT_SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
           marker='<!-- turn-up-time-release-v1.0.0 -->'
-          if gh api --paginate "repos/${GITHUB_REPOSITORY}/issues/4/comments" --jq '.[].body' | grep -Fq "$marker"; then
-            echo 'Release receipt already recorded.'
+          body="$(cat <<EOF
+          $marker
+          Turn Up Time v1.0.0 release publisher outcome: **$OUTCOME**
+
+          - Commit: \`$COMMIT_SHA\`
+          - Actions run: $RUN_URL
+          - Publication rule: the \`v1.0.0\` tag and GitHub Release are created and tag-target verified only after every release gate passes.
+          EOF
+          )"
+
+          comment_id="$(gh api "repos/${GITHUB_REPOSITORY}/issues/4/comments?per_page=100" \
+            --jq '.[] | select(.body | contains("<!-- turn-up-time-release-v1.0.0 -->")) | .id' \
+            | head -n 1)"
+          if [ -n "$comment_id" ]; then
+            gh api --method PATCH "repos/${GITHUB_REPOSITORY}/issues/comments/$comment_id" \
+              -f body="$body" >/dev/null
           else
-            body="$marker
-          Turn Up Time v1.0.0 was published from validated main commit \`$GITHUB_SHA\`. The workflow re-ran the repository, seeded-eval, cold-review, graph-review, runtime-test, topology, and generated-artifact gates before creating and verifying the release tag."
-            gh api --method POST "repos/${GITHUB_REPOSITORY}/issues/4/comments" -f body="$body" >/dev/null
+            gh api --method POST "repos/${GITHUB_REPOSITORY}/issues/4/comments" \
+              -f body="$body" >/dev/null
           fi
