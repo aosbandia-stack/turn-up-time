@@ -31,7 +31,7 @@ function Get-Sha256 {
 
 function Get-RelativeToHome {
     param([string]$Path)
-    return $Path.Substring($ClaudeHome.Length).TrimStart('\\','/')
+    return $Path.Substring($ClaudeHome.Length).TrimStart([char[]]@([char]92, [char]47))
 }
 
 function Backup-Target {
@@ -98,7 +98,7 @@ $copySpecs = @(
 
 foreach ($entry in $copySpecs) {
     foreach ($file in @(Get-ChildItem -Path $entry.Source -Recurse -File)) {
-        $relative = $file.FullName.Substring($entry.Source.Length).TrimStart('\\','/')
+        $relative = $file.FullName.Substring($entry.Source.Length).TrimStart([char[]]@([char]92, [char]47))
         $target = Join-Path $entry.Target $relative
         if ($relative -ieq 'fresh_review.py') {
             $Plan.Add("SKIP source-only cold reviewer $target") | Out-Null
