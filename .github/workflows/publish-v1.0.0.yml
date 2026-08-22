@@ -15,6 +15,7 @@ on:
 permissions:
   contents: write
   issues: write
+  pull-requests: write
 
 jobs:
   validate-and-publish:
@@ -46,6 +47,7 @@ jobs:
           assert manifest['publish_on_merge'] is True
           assert len(manifest['runtime_merge_commit']) == 40
           assert len(manifest['validated_runtime_tree']) == 40
+          assert len(manifest['release_target_commit']) == 40
 
           notes = root / manifest['release_notes']
           report = root / manifest['graph_review_report']
@@ -76,7 +78,7 @@ jobs:
           turn-up-time-graph render --repo-root .
           git diff --exit-code -- docs/generated/workflow.json docs/generated/workflow.mmd
 
-      - name: Create and verify GitHub Release
+      - name: Create or refresh and verify GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: v1.0.0
@@ -84,23 +86,28 @@ jobs:
           NOTES: docs/RELEASE-NOTES-v1.0.0.md
         run: |
           set -euo pipefail
+          expected_target="$(python -c 'import json; print(json.load(open("release/v1.0.0.json", encoding="utf-8"))["release_target_commit"])')"
+
           if gh release view "$VERSION" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            echo "$VERSION already exists; verifying its tag target."
+            gh release edit "$VERSION" \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "$TITLE" \
+              --notes-file "$NOTES"
           else
             gh release create "$VERSION" \
               --repo "$GITHUB_REPOSITORY" \
-              --target "$GITHUB_SHA" \
+              --target "$expected_target" \
               --title "$TITLE" \
               --notes-file "$NOTES"
           fi
 
           git fetch origin "refs/tags/$VERSION:refs/tags/$VERSION" --force
           tag_sha="$(git rev-list -n 1 "refs/tags/$VERSION")"
-          if [ "$tag_sha" != "$GITHUB_SHA" ]; then
-            echo "Release tag target mismatch: expected $GITHUB_SHA, found $tag_sha" >&2
+          if [ "$tag_sha" != "$expected_target" ]; then
+            echo "Release tag target mismatch: expected $expected_target, found $tag_sha" >&2
             exit 1
           fi
-          gh release view "$VERSION" --repo "$GITHUB_REPOSITORY" --json url,name,isDraft,isPrerelease
+          gh release view "$VERSION" --repo "$GITHUB_REPOSITORY" --json url,name,isDraft,isPrerelease,targetCommitish
 
   release-receipt:
     if: always()
@@ -113,6 +120,7 @@ jobs:
           OUTCOME: ${{ needs.validate-and-publish.result }}
           RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
           COMMIT_SHA: ${{ github.sha }}
+          RELEASE_TARGET: f950980c8878411b21d7949e837b3ce0745189e2
         run: |
           set -euo pipefail
           marker='<!-- turn-up-time-release-v1.0.0 -->'
@@ -120,9 +128,10 @@ jobs:
           $marker
           Turn Up Time v1.0.0 release publisher outcome: **$OUTCOME**
 
-          - Commit: \`$COMMIT_SHA\`
+          - Publisher commit: \`$COMMIT_SHA\`
+          - Immutable release target: \`$RELEASE_TARGET\`
           - Actions run: $RUN_URL
-          - Publication rule: the \`v1.0.0\` tag and GitHub Release are created and tag-target verified only after every release gate passes.
+          - Publication rule: the \`v1.0.0\` tag and GitHub Release must exist and the tag must resolve to the release target recorded in \`release/v1.0.0.json\`.
           EOF
           )"
 
