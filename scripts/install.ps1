@@ -144,7 +144,7 @@ function Install-GraphRuntime {
         Ensure-Directory (Split-Path -Parent $runtimeHome)
 
         $python = Resolve-GraphPython
-        $versionText = "$(& $python -c 'import sys; print("{0}.{1}.{2}".format(*sys.version_info[:3]))')".Trim()
+        $versionText = "$(& $python -c 'import sys; print(sys.version_info[0], sys.version_info[1], sys.version_info[2], sep=chr(46))')".Trim()
         if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($versionText)) {
             throw "Unable to read Python version from $python"
         }
