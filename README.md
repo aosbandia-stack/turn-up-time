@@ -3,6 +3,11 @@
 **An evidence-to-ship engineering gauntlet for Claude Code, governed by an executable LangGraph
 control shell.**
 
+> **Current release: Turn Up Time v1.0.0.** See the
+> [release notes](docs/RELEASE-NOTES-v1.0.0.md),
+> [graph validation report](docs/GRAPH-REVIEW-REPORT.md), and
+> [installation guide](docs/INSTALL.md).
+
 Turn Up Time is designed to make agents build the right thing earlier, repair less later, and improve
 the workflow only when evidence justifies it. It replaces overlapping routers, planning rituals,
 reviewer loops, and style constitutions with one conveyor, one project ledger, bounded local loops,
