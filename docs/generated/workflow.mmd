@@ -1,0 +1,50 @@
+flowchart TD
+    INTAKE["INTAKE"]
+    DISCOVERY["DISCOVERY"]
+    EVIDENCE_REVIEW["EVIDENCE_REVIEW"]
+    DEFINITION["DEFINITION"]
+    TICKETING["TICKETING"]
+    SEAM_REVIEW["SEAM_REVIEW"]
+    BUILD["BUILD"]
+    INTEGRATION["INTEGRATION"]
+    CLOSEOUT["CLOSEOUT"]
+    RELEASE["RELEASE"]
+    WORKFLOW_CLOSEOUT["WORKFLOW_CLOSEOUT"]
+    DONE["DONE"]
+    BLOCKED["BLOCKED"]
+    INTAKE -->|"intake_ready<br/>READY<br/>human:INTAKE"| DISCOVERY
+    INTAKE -->|"intake_ready_with_deferred_risk<br/>READY_WITH_DEFERRED_RISK<br/>human:INTAKE"| DISCOVERY
+    INTAKE -->|"intake_blocked<br/>INTAKE_BLOCKED"| BLOCKED
+    INTAKE -->|"intake_cancelled<br/>CANCELLED<br/>human:INTAKE"| BLOCKED
+    DISCOVERY -->|"discovery_complete<br/>DISCOVERY_COMPLETE"| EVIDENCE_REVIEW
+    DISCOVERY -->|"product_boundary_question<br/>HUMAN_PRODUCT_DECISION_REQUIRED<br/>loop:product-boundary-return 2x<br/>human:INTAKE<br/>new-evidence"| INTAKE
+    DISCOVERY -->|"discovery_blocked<br/>DISCOVERY_BLOCKED"| BLOCKED
+    EVIDENCE_REVIEW -->|"evidence_ready<br/>EVIDENCE_READY"| DEFINITION
+    EVIDENCE_REVIEW -->|"evidence_blocked<br/>EVIDENCE_BLOCKED<br/>loop:discovery-premise-repair 2x<br/>new-evidence"| DISCOVERY
+    EVIDENCE_REVIEW -->|"product_policy_question<br/>HUMAN_PRODUCT_DECISION_REQUIRED<br/>loop:product-boundary-return 2x<br/>human:INTAKE<br/>new-evidence"| INTAKE
+    EVIDENCE_REVIEW -->|"evidence_terminal_block<br/>EVIDENCE_TERMINALLY_BLOCKED"| BLOCKED
+    DEFINITION -->|"definition_approved<br/>DEFINITION_APPROVED<br/>human:DEFINITION"| TICKETING
+    DEFINITION -->|"definition_rejected<br/>DEFINITION_REJECTED<br/>human:DEFINITION"| BLOCKED
+    DEFINITION -->|"definition_blocked<br/>DEFINITION_BLOCKED"| BLOCKED
+    TICKETING -->|"tickets_approved<br/>TICKETS_APPROVED<br/>human:TICKETS"| SEAM_REVIEW
+    TICKETING -->|"tickets_rejected<br/>TICKETS_REJECTED<br/>loop:architecture-reframe 1x<br/>human:TICKETS<br/>new-evidence"| DEFINITION
+    TICKETING -->|"ticketing_blocked<br/>TICKETING_BLOCKED"| BLOCKED
+    SEAM_REVIEW -->|"seams_sound<br/>SEAMS_SOUND"| BUILD
+    SEAM_REVIEW -->|"seams_blocked<br/>SEAMS_BLOCKED<br/>loop:prebuild-ticket-repair 1x<br/>new-evidence"| TICKETING
+    SEAM_REVIEW -->|"architecture_reframe<br/>ARCHITECTURE_REFRAME_REQUIRED<br/>loop:architecture-reframe 1x<br/>new-evidence"| DEFINITION
+    SEAM_REVIEW -->|"seam_review_blocked<br/>SEAM_REVIEW_BLOCKED"| BLOCKED
+    BUILD -->|"build_complete<br/>BUILD_COMPLETE"| INTEGRATION
+    BUILD -->|"build_blocked<br/>BUILD_BLOCKED"| BLOCKED
+    INTEGRATION -->|"seams_sound<br/>SEAMS_SOUND"| CLOSEOUT
+    INTEGRATION -->|"seams_blocked<br/>SEAMS_BLOCKED<br/>loop:integration-repair 2x<br/>new-evidence"| BUILD
+    INTEGRATION -->|"architecture_escalation<br/>ARCHITECTURE_ESCALATION<br/>loop:architecture-reframe 1x<br/>new-evidence"| DEFINITION
+    INTEGRATION -->|"integration_blocked<br/>INTEGRATION_BLOCKED"| BLOCKED
+    CLOSEOUT -->|"closeout_complete<br/>CLOSEOUT_COMPLETE"| RELEASE
+    CLOSEOUT -->|"validated_repairs<br/>VALIDATED_REPAIRS_REQUIRED<br/>loop:closeout-repair 4x<br/>new-evidence"| BUILD
+    CLOSEOUT -->|"closeout_blocked<br/>CLOSEOUT_BLOCKED"| BLOCKED
+    RELEASE -->|"release_shipped<br/>SHIP<br/>human:RELEASE"| WORKFLOW_CLOSEOUT
+    RELEASE -->|"release_shipped_with_accepted_risk<br/>SHIP_WITH_ACCEPTED_RISK<br/>human:ACCEPTED_RISK"| WORKFLOW_CLOSEOUT
+    RELEASE -->|"release_blocked<br/>RELEASE_BLOCKED<br/>loop:release-repair 2x<br/>new-evidence"| BUILD
+    RELEASE -->|"release_cancelled<br/>CANCELLED<br/>human:RELEASE"| BLOCKED
+    WORKFLOW_CLOSEOUT -->|"workflow_closed<br/>WORKFLOW_CLOSED"| DONE
+    WORKFLOW_CLOSEOUT -->|"workflow_blocked<br/>WORKFLOW_CLOSEOUT_BLOCKED"| BLOCKED

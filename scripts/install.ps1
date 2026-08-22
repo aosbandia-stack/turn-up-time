@@ -4,7 +4,8 @@ param(
     [switch]$Apply,
     [switch]$EnableNotifications,
     [switch]$EnableAutoAccept,
-    [switch]$ReplaceGlobalConstitution
+    [switch]$ReplaceGlobalConstitution,
+    [switch]$EnableGraphRuntime
 )
 $ErrorActionPreference = 'Stop'
 
@@ -15,6 +16,7 @@ $BackupRoot = Join-Path $ClaudeHome ("turn-up-time-backup-$Stamp")
 $ManifestPath = Join-Path $ClaudeHome 'turn-up-time-install-manifest.json'
 $Plan = New-Object 'System.Collections.Generic.List[string]'
 $FileRecords = New-Object 'System.Collections.Generic.List[object]'
+$PreservedRecords = New-Object 'System.Collections.Generic.List[object]'
 
 function Ensure-Directory {
     param([string]$Path)
@@ -25,7 +27,7 @@ function Ensure-Directory {
 
 function Get-Sha256 {
     param([string]$Path)
-    if (-not (Test-Path -LiteralPath $Path)) { return $null }
+    if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) { return $null }
     return (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant()
 }
 
@@ -34,9 +36,31 @@ function Get-RelativeToHome {
     return $Path.Substring($ClaudeHome.Length).TrimStart([char[]]@([char]92, [char]47))
 }
 
+function Get-DirectorySha256 {
+    param([string]$Path)
+    if (-not (Test-Path -LiteralPath $Path -PathType Container)) { return $null }
+    $root = (Resolve-Path -LiteralPath $Path).Path
+    $rows = New-Object 'System.Collections.Generic.List[string]'
+    foreach ($file in @(Get-ChildItem -LiteralPath $root -Recurse -File | Sort-Object FullName)) {
+        $relative = $file.FullName.Substring($root.Length).TrimStart([char[]]@([char]92, [char]47))
+        if ($relative -ieq 'runtime-manifest.json') { continue }
+        if ($relative -match '(^|[\\/])__pycache__([\\/]|$)') { continue }
+        if ($relative -match '\.pyc$') { continue }
+        $rows.Add("$relative|$(Get-Sha256 $file.FullName)") | Out-Null
+    }
+    $bytes = [System.Text.Encoding]::UTF8.GetBytes([string]::Join("`n", $rows.ToArray()))
+    $sha = [System.Security.Cryptography.SHA256]::Create()
+    try {
+        $hash = $sha.ComputeHash($bytes)
+        return ([System.BitConverter]::ToString($hash)).Replace('-', '').ToLowerInvariant()
+    } finally {
+        $sha.Dispose()
+    }
+}
+
 function Backup-Target {
     param([string]$Target)
-    if (-not (Test-Path -LiteralPath $Target)) { return $null }
+    if (-not (Test-Path -LiteralPath $Target -PathType Leaf)) { return $null }
     $relative = Get-RelativeToHome $Target
     $backup = Join-Path $BackupRoot $relative
     Ensure-Directory (Split-Path -Parent $backup)
@@ -84,6 +108,114 @@ function Add-HookGroup {
     return @($Groups) + @([pscustomobject]$group)
 }
 
+function Resolve-GraphPython {
+    if (-not [string]::IsNullOrWhiteSpace($env:TURN_UP_TIME_PYTHON)) {
+        if (-not (Test-Path -LiteralPath $env:TURN_UP_TIME_PYTHON -PathType Leaf)) {
+            throw "TURN_UP_TIME_PYTHON does not exist: $env:TURN_UP_TIME_PYTHON"
+        }
+        return $env:TURN_UP_TIME_PYTHON
+    }
+    foreach ($name in @('python.exe', 'python3.exe', 'python3', 'python')) {
+        $command = Get-Command $name -ErrorAction SilentlyContinue | Select-Object -First 1
+        if ($null -ne $command) { return $command.Source }
+    }
+    throw 'Python 3.11 or newer is required. Install Python or set TURN_UP_TIME_PYTHON to python.exe.'
+}
+
+function Install-GraphRuntime {
+    $runtimeSource = Join-Path $RepoRoot 'runtime'
+    if (-not (Test-Path -LiteralPath (Join-Path $runtimeSource 'pyproject.toml') -PathType Leaf)) {
+        throw "Graph runtime source is missing: $runtimeSource"
+    }
+    $runtimeHome = Join-Path $ClaudeHome 'runtime\turn-up-time'
+    $markerPath = Join-Path $runtimeHome 'runtime-manifest.json'
+    $preexisting = Test-Path -LiteralPath $runtimeHome -PathType Container
+    $backup = $null
+    if ($preexisting) {
+        $backup = Join-Path $BackupRoot 'runtime\turn-up-time'
+        Ensure-Directory (Split-Path -Parent $backup)
+        Copy-Item -LiteralPath $runtimeHome -Destination $backup -Recurse -Force
+    }
+
+    try {
+        if (Test-Path -LiteralPath $runtimeHome) {
+            Remove-Item -LiteralPath $runtimeHome -Recurse -Force
+        }
+        Ensure-Directory (Split-Path -Parent $runtimeHome)
+
+        $python = Resolve-GraphPython
+        $versionText = "$(& $python -c 'import sys; print("{0}.{1}.{2}".format(*sys.version_info[:3]))')".Trim()
+        if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($versionText)) {
+            throw "Unable to read Python version from $python"
+        }
+        try { $pythonVersion = [version]$versionText }
+        catch { throw "Unrecognized Python version from $python`: $versionText" }
+        if ($pythonVersion -lt [version]'3.11') {
+            throw "Python 3.11 or newer is required; found $pythonVersion at $python"
+        }
+
+        $venvOutput = & $python -m venv $runtimeHome 2>&1
+        $venvCode = $LASTEXITCODE
+        $venvOutput | ForEach-Object { Write-Host $_ }
+        if ($venvCode -ne 0) { throw "Failed to create graph runtime virtual environment at $runtimeHome" }
+
+        $venvPython = Join-Path $runtimeHome 'Scripts\python.exe'
+        if (-not (Test-Path -LiteralPath $venvPython -PathType Leaf)) {
+            $venvPython = Join-Path $runtimeHome 'bin\python'
+        }
+        if (-not (Test-Path -LiteralPath $venvPython -PathType Leaf)) {
+            throw "Virtual environment Python is missing under $runtimeHome"
+        }
+
+        $pipOutput = & $venvPython -m pip install --disable-pip-version-check --no-input $runtimeSource 2>&1
+        $pipCode = $LASTEXITCODE
+        $pipOutput | ForEach-Object { Write-Host $_ }
+        if ($pipCode -ne 0) { throw 'Failed to install the Turn Up Time graph runtime and pinned dependencies.' }
+
+        $validationOutput = & $venvPython -m turn_up_time_graph.cli validate-topology 2>&1
+        $validationCode = $LASTEXITCODE
+        $validationOutput | ForEach-Object { Write-Host $_ }
+        if ($validationCode -ne 0) { throw 'Installed graph runtime failed topology validation.' }
+
+        $installedHash = Get-DirectorySha256 $runtimeHome
+        $installId = [guid]::NewGuid().ToString()
+        $marker = [ordered]@{
+            schema_version = 1
+            install_id = $installId
+            runtime_version = '1.0.0'
+            installed_at = (Get-Date).ToUniversalTime().ToString('o')
+            home = $runtimeHome
+            venv_python = $venvPython
+            installed_sha256 = $installedHash
+            source = $runtimeSource
+        }
+        $marker | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $markerPath -Encoding UTF8
+        $markerHash = Get-Sha256 $markerPath
+
+        return [pscustomobject][ordered]@{
+            enabled = $true
+            install_id = $installId
+            version = '1.0.0'
+            home = $runtimeHome
+            marker_path = $markerPath
+            marker_sha256 = $markerHash
+            venv_python = $venvPython
+            installed_sha256 = $installedHash
+            preexisting = [bool]$preexisting
+            backup_path = $backup
+        }
+    } catch {
+        if (Test-Path -LiteralPath $runtimeHome) {
+            Remove-Item -LiteralPath $runtimeHome -Recurse -Force
+        }
+        if ($preexisting -and $backup -and (Test-Path -LiteralPath $backup -PathType Container)) {
+            Ensure-Directory (Split-Path -Parent $runtimeHome)
+            Copy-Item -LiteralPath $backup -Destination $runtimeHome -Recurse -Force
+        }
+        throw
+    }
+}
+
 $copySpecs = @(
     @{ Source = Join-Path $RepoRoot '.claude\skills'; Target = Join-Path $ClaudeHome 'skills' },
     @{ Source = Join-Path $RepoRoot '.claude\agents'; Target = Join-Path $ClaudeHome 'agents' },
@@ -104,12 +236,17 @@ foreach ($entry in $copySpecs) {
             $Plan.Add("SKIP source-only cold reviewer $target") | Out-Null
             continue
         }
+        if ($relative -ieq 'fresh_graph_review.py') {
+            $Plan.Add("SKIP source-only graph reviewer $target") | Out-Null
+            continue
+        }
         if ($relative -ieq 'notify.ps1' -and -not $EnableNotifications) {
             $Plan.Add("SKIP optional notification provider $target") | Out-Null
             continue
         }
         if ($relative -ieq 'notify.ps1' -and (Test-Path -LiteralPath $target)) {
             $Plan.Add("KEEP existing notification provider $target") | Out-Null
+            $PreservedRecords.Add([pscustomobject][ordered]@{ path = $target; reason = 'existing notification provider' }) | Out-Null
             continue
         }
 
@@ -121,6 +258,7 @@ foreach ($entry in $copySpecs) {
             Copy-Item -LiteralPath $file.FullName -Destination $target -Force
             $FileRecords.Add([pscustomobject][ordered]@{
                 path = $target
+                action = $(if ($preexisting) { 'overwritten' } else { 'created' })
                 installed_sha256 = Get-Sha256 $target
                 preexisting = [bool]$preexisting
                 backup_path = $backup
@@ -138,6 +276,7 @@ $Plan.Add('REPLACE any existing destructive-command-guard.ps1 hook row; preserve
 if ($EnableNotifications) { $Plan.Add('ADD notification Stop hook only when no notify.ps1 hook already exists') | Out-Null }
 if ($EnableAutoAccept) { $Plan.Add('SET permissions.defaultMode=acceptEdits; preserve deny rules') | Out-Null }
 if ($ReplaceGlobalConstitution) { $Plan.Add('BACKUP and replace ~/.claude/CLAUDE.md') | Out-Null }
+if ($EnableGraphRuntime) { $Plan.Add('CREATE isolated Python 3.11+ graph runtime under ~/.claude/runtime/turn-up-time and record runtime-manifest.json') | Out-Null }
 
 if (-not $Apply) {
     Write-Host 'DRY RUN - no files changed. Re-run with -Apply after reviewing:'
@@ -202,12 +341,29 @@ if ($ReplaceGlobalConstitution) {
     }
 }
 
+$GraphRuntime = [pscustomobject][ordered]@{
+    enabled = $false
+    install_id = $null
+    version = $null
+    home = $null
+    marker_path = $null
+    marker_sha256 = $null
+    venv_python = $null
+    installed_sha256 = $null
+    preexisting = $false
+    backup_path = $null
+}
+if ($EnableGraphRuntime) {
+    $GraphRuntime = Install-GraphRuntime
+}
+
 $manifest = [ordered]@{
-    schema_version = 2
+    schema_version = 3
     installed_at = (Get-Date).ToUniversalTime().ToString('o')
     source = $RepoRoot
     backup_root = $BackupRoot
     files = $FileRecords.ToArray()
+    preserved_files = $PreservedRecords.ToArray()
     settings = [ordered]@{
         path = $SettingsPath
         backup_path = $SettingsBackup
@@ -219,9 +375,11 @@ $manifest = [ordered]@{
         default_mode_changed = $DefaultModeChanged
     }
     constitution = $Constitution
+    graph_runtime = $GraphRuntime
 }
 $manifest | ConvertTo-Json -Depth 30 | Set-Content -LiteralPath $ManifestPath -Encoding UTF8
 
 Write-Host "Applied Turn Up Time. Backup: $BackupRoot"
 Write-Host "Install manifest: $ManifestPath"
+if ($GraphRuntime.enabled) { Write-Host "Graph runtime: $($GraphRuntime.home)" }
 $Plan | ForEach-Object { Write-Host $_ }

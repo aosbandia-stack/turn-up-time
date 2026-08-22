@@ -34,65 +34,177 @@ def fm(path: Path) -> dict[str, Any]:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--write-report", action="store_true")
-    parser.add_argument("--report-path", type=Path, default=ROOT / "docs" / "REVIEW-REPORT.md")
+    parser.add_argument(
+        "--report-path", type=Path, default=ROOT / "docs" / "REVIEW-REPORT.md"
+    )
     args = parser.parse_args()
 
     validate = run([sys.executable, ".claude/scripts/validate_repo.py"])
-    add("repository-validator", validate.returncode == 0, validate.stdout.strip() or validate.stderr.strip())
+    add(
+        "repository-validator",
+        validate.returncode == 0,
+        validate.stdout.strip() or validate.stderr.strip(),
+    )
     seeded = run([sys.executable, ".claude/scripts/run_seeded_evals.py"])
-    add("seeded-process-evals", seeded.returncode == 0, seeded.stdout.strip().splitlines()[-1] if seeded.stdout else seeded.stderr.strip())
+    add(
+        "seeded-process-evals",
+        seeded.returncode == 0,
+        seeded.stdout.strip().splitlines()[-1]
+        if seeded.stdout
+        else seeded.stderr.strip(),
+    )
 
     skills = sorted((CLAUDE_DIR / "skills").glob("*/SKILL.md"))
     agents = sorted((CLAUDE_DIR / "agents").glob("*.md"))
     schemas = sorted((CLAUDE_DIR / "schemas").glob("*.json"))
     add("skill-count", len(skills) == 10, f"count={len(skills)}")
     add("agent-count", len(agents) == 17, f"count={len(agents)}")
-    add("schema-count", len(schemas) == 11, f"count={len(schemas)}")
+    add("schema-count", len(schemas) == 13, f"count={len(schemas)}")
 
     constitution = (ROOT / "CLAUDE.md").read_text(encoding="utf-8")
-    add("single-constitution", "one constitution" in constitution.lower(), "CLAUDE.md declares authority")
-    for marker in ("One funnel", "Loop contract", "Separation of duties", "Stage transition contract", "Capability routing", "Release and mutation"):
-        add("constitution-" + marker.lower().replace(" ", "-"), marker in constitution, marker)
+    add(
+        "single-constitution",
+        "one constitution" in constitution.lower(),
+        "CLAUDE.md declares authority",
+    )
+    for marker in (
+        "One funnel",
+        "Loop contract",
+        "Separation of duties",
+        "Stage transition contract",
+        "Capability routing",
+        "Release and mutation",
+    ):
+        add(
+            "constitution-" + marker.lower().replace(" ", "-"),
+            marker in constitution,
+            marker,
+        )
 
     architecture = (ROOT / "docs" / "ARCHITECTURE.md").read_text(encoding="utf-8")
-    for stage in ("INTAKE", "DISCOVERY", "EVIDENCE_REVIEW", "DEFINITION", "TICKETING", "SEAM_REVIEW", "BUILD", "INTEGRATION", "CLOSEOUT", "RELEASE", "WORKFLOW_CLOSEOUT"):
-        add("stage-owner-" + stage.lower(), f"| {stage} |" in architecture, "owner/input/output row exists")
+    for stage in (
+        "INTAKE",
+        "DISCOVERY",
+        "EVIDENCE_REVIEW",
+        "DEFINITION",
+        "TICKETING",
+        "SEAM_REVIEW",
+        "BUILD",
+        "INTEGRATION",
+        "CLOSEOUT",
+        "RELEASE",
+        "WORKFLOW_CLOSEOUT",
+    ):
+        add(
+            "stage-owner-" + stage.lower(),
+            f"| {stage} |" in architecture,
+            "owner/input/output row exists",
+        )
 
-    assurance = []
+    assurance: list[str] = []
     for path in agents:
         data = fm(path)
         tools = set(data.get("tools") or [])
         role_class = data.get("role_class")
         if role_class == "assurance":
             assurance.append(path.stem)
-            add("readonly-" + path.stem, not tools.intersection({"Edit", "Write", "MultiEdit", "NotebookEdit"}), f"tools={sorted(tools)}")
-        for heading in ("## Mission", "## Receives", "## Method", "## Returns", "## Stop and escalate", "## Prohibited"):
-            add(f"profile-{path.stem}-{heading[3:].lower().replace(' ', '-')}", heading in path.read_text(encoding="utf-8"), heading)
+            add(
+                "readonly-" + path.stem,
+                not tools.intersection({"Edit", "Write", "MultiEdit", "NotebookEdit"}),
+                f"tools={sorted(tools)}",
+            )
+        source = path.read_text(encoding="utf-8")
+        for heading in (
+            "## Mission",
+            "## Receives",
+            "## Method",
+            "## Returns",
+            "## Stop and escalate",
+            "## Prohibited",
+        ):
+            add(
+                f"profile-{path.stem}-{heading[3:].lower().replace(' ', '-')}",
+                heading in source,
+                heading,
+            )
     add("assurance-majority", len(assurance) == 16, f"assurance={len(assurance)}")
 
-    router = (CLAUDE_DIR / "hooks" / "skill-router.ps1").read_text(encoding="utf-8").lower()
-    add("router-control-plane", "route = 'turn-up-time'" in router, "build work enters Turn Up Time")
+    router = (CLAUDE_DIR / "hooks" / "skill-router.ps1").read_text(
+        encoding="utf-8"
+    ).lower()
+    add(
+        "router-control-plane",
+        "route = 'turn-up-time'" in router,
+        "build work enters Turn Up Time",
+    )
     add("router-no-legacy-loop", "engineering-loop" not in router, "legacy loop absent")
     add("router-no-direct-omnidex", "route = 'omnidex'" not in router, "no planning bypass")
     add("router-no-direct-boil", "route = 'boil-the-ocean'" not in router, "no build bypass")
 
-    registry = json.loads((CLAUDE_DIR / "capabilities" / "registry.json").read_text(encoding="utf-8"))
-    add("registry-json-only", not (CLAUDE_DIR / "capabilities" / "registry.yaml").exists(), "one registry")
+    registry = json.loads(
+        (CLAUDE_DIR / "capabilities" / "registry.json").read_text(encoding="utf-8")
+    )
+    add(
+        "registry-json-only",
+        not (CLAUDE_DIR / "capabilities" / "registry.yaml").exists(),
+        "one registry",
+    )
     for name, capability in registry["capabilities"].items():
-        add("capability-eval-" + name, bool(capability.get("evals")), str(capability.get("evals")))
-        add("capability-uninstall-" + name, bool(capability.get("uninstall")), capability.get("uninstall", ""))
-        add("capability-authority-" + name, capability.get("authority") in {"control", "production", "assurance", "reference"}, str(capability.get("authority")))
+        add(
+            "capability-eval-" + name,
+            bool(capability.get("evals")),
+            str(capability.get("evals")),
+        )
+        add(
+            "capability-uninstall-" + name,
+            bool(capability.get("uninstall")),
+            capability.get("uninstall", ""),
+        )
+        add(
+            "capability-authority-" + name,
+            capability.get("authority")
+            in {"control", "production", "assurance", "reference"},
+            str(capability.get("authority")),
+        )
         if capability.get("bundled"):
-            add("bundled-provider-" + name, (CLAUDE_DIR / "skills" / capability["provider"] / "SKILL.md").is_file(), capability["provider"])
+            add(
+                "bundled-provider-" + name,
+                (CLAUDE_DIR / "skills" / capability["provider"] / "SKILL.md").is_file(),
+                capability["provider"],
+            )
 
     install = (ROOT / "scripts" / "install.ps1").read_text(encoding="utf-8")
     uninstall = (ROOT / "scripts" / "uninstall.ps1").read_text(encoding="utf-8")
-    for marker in ("[switch]$Apply", "BackupRoot", "turn-up-time-install-manifest.json", "installed_sha256", "skill-router.ps1"):
-        add("installer-" + re.sub(r"[^a-z0-9]+", "-", marker.lower()).strip("-"), marker in install, marker)
-    add("uninstall-hash-safe", "installed_sha256" in uninstall and "SKIP MODIFIED" in uninstall, "modified installed files are preserved")
-    add("uninstall-removes-router-only", "skill-router.ps1" in uninstall and "UserPromptSubmit" in uninstall, "settings cleanup is targeted")
+    for marker in (
+        "[switch]$Apply",
+        "BackupRoot",
+        "turn-up-time-install-manifest.json",
+        "installed_sha256",
+        "skill-router.ps1",
+    ):
+        add(
+            "installer-" + re.sub(r"[^a-z0-9]+", "-", marker.lower()).strip("-"),
+            marker in install,
+            marker,
+        )
+    add(
+        "uninstall-hash-safe",
+        "installed_sha256" in uninstall and "SKIP MODIFIED" in uninstall,
+        "modified installed files are preserved",
+    )
+    add(
+        "uninstall-removes-router-only",
+        "skill-router.ps1" in uninstall and "UserPromptSubmit" in uninstall,
+        "settings cleanup is targeted",
+    )
 
-    required_scripts = ("resolve_capabilities.py", "validate_project.py", "scaffold_project.py", "validate_repo.py", "run_seeded_evals.py")
+    required_scripts = (
+        "resolve_capabilities.py",
+        "validate_project.py",
+        "scaffold_project.py",
+        "validate_repo.py",
+        "run_seeded_evals.py",
+    )
     for name in required_scripts:
         add("script-" + name, (CLAUDE_DIR / "scripts" / name).is_file(), name)
 
@@ -104,7 +216,11 @@ def main() -> int:
         "windows-user": re.compile(r"C:\\Users\\[^\\\s]+", re.I),
         "company-domain": re.compile(r"teamtag\.com", re.I),
     }
-    all_text = "\n".join(path.read_text(encoding="utf-8", errors="replace") for path in ROOT.rglob("*") if path.is_file() and ".git" not in path.parts)
+    all_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="replace")
+        for path in ROOT.rglob("*")
+        if path.is_file() and ".git" not in path.parts
+    )
     for name, pattern in patterns.items():
         add("scan-" + name, not pattern.search(all_text), "no match")
 
@@ -127,10 +243,25 @@ def main() -> int:
     print(f"FRESH REVIEW: {len(CHECKS)-len(failed)}/{len(CHECKS)} passed")
 
     if args.write_report:
-        lines = ["# Fresh workflow review", "", f"**Verdict: {'GREEN' if not failed else 'RED'} — {len(CHECKS)-len(failed)}/{len(CHECKS)} checks passed.**", "", "## Checks", ""]
+        lines = [
+            "# Fresh workflow review",
+            "",
+            f"**Verdict: {'GREEN' if not failed else 'RED'} — {len(CHECKS)-len(failed)}/{len(CHECKS)} checks passed.**",
+            "",
+            "## Checks",
+            "",
+        ]
         for name, ok, detail in CHECKS:
             lines.append(f"- [{'x' if ok else ' '}] `{name}` — {detail}")
-        lines += ["", "## Limits", "", "- This deterministic cold pass is not a separate model judgment.", "- Windows PowerShell behavior is exercised in the Windows CI job.", "- Optional external providers are intentionally not vendored.", ""]
+        lines += [
+            "",
+            "## Limits",
+            "",
+            "- This deterministic cold pass is not a separate model judgment.",
+            "- Windows PowerShell behavior is exercised in the Windows CI job.",
+            "- Optional external providers are intentionally not vendored.",
+            "",
+        ]
         args.report_path.write_text("\n".join(lines), encoding="utf-8")
 
     return 1 if failed else 0
