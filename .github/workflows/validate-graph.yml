@@ -1,0 +1,114 @@
+name: Validate graph runtime
+
+on:
+  push:
+    branches:
+      - main
+      - feat/official-langgraph-runtime-v2
+  pull_request:
+
+jobs:
+  graph-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install graph runtime and test dependencies
+        run: python -m pip install -e "./runtime[dev]"
+      - name: Compile Python
+        run: python -m compileall -q runtime/src runtime/tests
+      - name: Run runtime tests
+        run: pytest -q runtime/tests
+      - name: Validate topology
+        run: turn-up-time-graph validate-topology
+      - name: Regenerate graph artifacts
+        run: turn-up-time-graph render --repo-root .
+      - name: Validate graph artifacts against schemas
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from jsonschema import Draft202012Validator
+
+          root = Path('.')
+          for artifact, schema in [
+              ('docs/generated/workflow.json', '.claude/schemas/workflow-graph.schema.json'),
+          ]:
+              value = json.loads((root / artifact).read_text())
+              contract = json.loads((root / schema).read_text())
+              errors = sorted(Draft202012Validator(contract).iter_errors(value), key=lambda e: list(e.path))
+              if errors:
+                  raise SystemExit('\n'.join(error.message for error in errors))
+          print('Graph artifact schemas: GREEN')
+          PY
+      - name: Generated topology is current
+        run: git diff --exit-code -- docs/generated/workflow.json docs/generated/workflow.mmd
+
+  graph-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Parse PowerShell 5.1 files
+        shell: powershell
+        run: |
+          $failed = $false
+          Get-ChildItem -Recurse -Filter *.ps1 | ForEach-Object {
+            $tokens = $null
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile($_.FullName, [ref]$tokens, [ref]$errors) | Out-Null
+            if ($errors.Count -gt 0) {
+              $failed = $true
+              Write-Host "PARSE RED: $($_.FullName)"
+              $errors | ForEach-Object { Write-Host $_.Message }
+            }
+          }
+          if ($failed) { exit 1 }
+          Write-Host 'PowerShell 5.1 parse: GREEN'
+      - name: Exercise graph-enabled install and uninstall
+        shell: powershell
+        run: |
+          $sandbox = Join-Path $env:RUNNER_TEMP 'turn-up-time-graph-home'
+          $env:USERPROFILE = $sandbox
+          $env:TURN_UP_TIME_CLAUDE_HOME = Join-Path $sandbox '.claude'
+          $env:TURN_UP_TIME_PYTHON = (Get-Command python.exe).Source
+          New-Item -ItemType Directory -Force -Path $env:TURN_UP_TIME_CLAUDE_HOME | Out-Null
+          @'
+          {
+            "permissions": {"defaultMode": "default", "deny": ["Bash(git push --force*)"]},
+            "hooks": {
+              "UserPromptSubmit": [{"hooks": [{"type":"command","command":"echo unrelated","timeout":5}]}],
+              "Stop": [{"hooks": [{"type":"command","command":"echo existing-notification","timeout":5}]}]
+            }
+          }
+          '@ | Set-Content -Path (Join-Path $env:TURN_UP_TIME_CLAUDE_HOME 'settings.json') -Encoding UTF8
+
+          .\scripts\install.ps1
+          if (Test-Path (Join-Path $env:TURN_UP_TIME_CLAUDE_HOME 'turn-up-time-install-manifest.json')) { throw 'Dry-run created a manifest' }
+
+          .\scripts\install.ps1 -Apply -EnableNotifications -EnableAutoAccept -ReplaceGlobalConstitution -EnableGraphRuntime
+          $manifestPath = Join-Path $env:TURN_UP_TIME_CLAUDE_HOME 'turn-up-time-install-manifest.json'
+          if (-not (Test-Path $manifestPath)) { throw 'Install manifest missing' }
+          $manifest = Get-Content $manifestPath -Raw | ConvertFrom-Json
+          if (-not $manifest.graph_runtime.enabled) { throw 'Graph runtime was not recorded as enabled' }
+          if (-not (Test-Path $manifest.graph_runtime.marker_path)) { throw 'Graph runtime ownership marker missing' }
+
+          $wrapper = Join-Path $env:TURN_UP_TIME_CLAUDE_HOME 'scripts\turn-up-time-graph.ps1'
+          & $wrapper validate-topology
+          if ($LASTEXITCODE -ne 0) { throw 'Installed graph runtime failed topology validation' }
+
+          $settings = Get-Content (Join-Path $env:TURN_UP_TIME_CLAUDE_HOME 'settings.json') -Raw | ConvertFrom-Json
+          $settingsJson = $settings | ConvertTo-Json -Depth 50 -Compress
+          if ($settingsJson -notmatch 'echo unrelated') { throw 'Unrelated prompt hook was removed' }
+          if (($settingsJson | Select-String -Pattern 'skill-router.ps1' -AllMatches).Matches.Count -ne 1) { throw 'Router registration is not singular' }
+          if ($settings.permissions.defaultMode -ne 'acceptEdits') { throw 'Auto-accept was not enabled' }
+          if ($settingsJson -notmatch 'git push --force') { throw 'Deny rule was removed' }
+          if ($settingsJson -notmatch 'echo existing-notification') { throw 'Existing notification hook was removed' }
+
+          .\scripts\uninstall.ps1 -Apply
+          if (Test-Path $manifest.graph_runtime.home) { throw 'Owned graph runtime was not removed' }
+          if (Test-Path $manifestPath) { throw 'Manifest remained after clean uninstall' }

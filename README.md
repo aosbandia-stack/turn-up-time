@@ -1,163 +1,170 @@
 # Turn Up Time
 
-**An evidence-to-ship engineering gauntlet for Claude Code.**
+**An evidence-to-ship engineering gauntlet for Claude Code, governed by an executable LangGraph
+control shell.**
 
-Turn Up Time is a compact software-delivery workflow designed to help agents build the right thing
-earlier, repair less later, and improve the workflow only when evidence justifies it. It replaces
-competing routers, planning rituals, reviewer loops, and overlapping style constitutions with one
-control plane, explicit handoff artifacts, and plug-in capability providers.
+Turn Up Time is designed to make agents build the right thing earlier, repair less later, and improve
+the workflow only when evidence justifies it. It replaces overlapping routers, planning rituals,
+reviewer loops, and style constitutions with one conveyor, one project ledger, bounded local loops,
+and one legal stage topology.
 
 ```text
 /turn-up-time
       ↓
 Discovery Gauntlet
       ↓
-Premise Auditor
+/omnidex
       ↓
-/omnidex + Architect
-      ↓
-Integration Lead (pre-build)
+Integration Lead
       ↓
 /boil-the-ocean
       ↓
-Integration Lead (post-build)
-      ↓
 /easily-irritated
       ↓
-/production-audit + Fresh Release Judge
-      ↓
-/guard-before-write
+/production-audit + fresh release judge + release gate
       ↓
 /its-not-you-its-me
 ```
+
+LangGraph sits beneath that conveyor. It controls legal transitions, human interrupts, loop ceilings,
+checkpoint/resume, and event history. It does not replace the specialist skills and agents.
 
 ## Operating rule
 
 > **Loop where evidence changes. Gate where authority changes. Stop where the same failure repeats.
 > Never loop merely because another agent is available.**
 
-A repeat pass must receive new evidence, a changed artifact, a fresh independent evaluator, or a human
-decision. Re-reading the same prompt with the same context is rumination.
+A repeat is justified only by new evidence, a changed artifact, a fresh independent evaluator, or a
+human decision. Re-reading the same prompt with the same evidence is rumination.
 
 ## What ships
 
-- **9 user-facing skills plus 1 internal eval provider**—one job each.
-- **17 agents**, with every assurance role mechanically read-only.
-- **11 JSON schemas** for intake, discovery, definition, tickets, ledger, findings, integration,
-  release, capabilities, and workflow improvement.
-- A single prompt router that sends software work to `/turn-up-time` rather than competing workflows.
-- A schema-backed capability registry and deterministic resolver.
-- Project scaffolding and stage-aware transition validation.
-- Seeded process evals, a deterministic cold reviewer, and Linux/Windows CI.
-- Dry-run-first installation, backups, notification preservation, exact install manifests, and
-  modified-file-safe uninstall.
+- 9 user-facing skills plus 1 internal eval provider.
+- 17 role-specific agents, with assurance roles mechanically read-only.
+- One prompt router that sends ordinary software work to `/turn-up-time`.
+- A plug-and-play capability registry for optional specialist providers.
+- Machine-readable contracts for intake, evidence, Definition of Good, tickets, seams, findings,
+  release, ledger, workflow improvements, graph topology, and graph events.
+- Deterministic project validation and seeded workflow-failure evals.
+- A pinned LangGraph runtime with local SQLite checkpointing.
+- A dry-run-first installer with backup, ownership manifest, modified-file protection, and reversible
+  uninstall.
 
-## Task tiers
+## Task shapes
 
 | Tier | Shape | Process |
 |---|---|---|
-| **A — Answer** | Lookup, explanation, read-only question | Read, answer, cite. No workflow. |
-| **B — Fix** | Bounded change whose shape is known | Read, edit, verify, report. No discovery fleet. |
-| **C — Build** | New capability, material product fork, or coordination is work | Artifact-backed conveyor, sized lite/standard/full. |
+| **A — Answer** | Lookup, explanation, read-only question | Read, answer, cite. No project graph. |
+| **B — Fix** | Bounded change whose shape is already known | Read, edit, verify, report. No discovery fan-out. |
+| **C — Build** | New capability, material product fork, or coordination is itself work | Full graph-backed conveyor, sized lite/standard/full. |
 
-File count does not decide the tier. Risk selects assurance and human gates.
+File count does not decide the tier. Risk selects assurance. Coordination and unresolved product
+design select Tier C.
 
 ## Discovery profiles
 
-| Profile | Use | Independent roles |
+| Profile | When | Independent roles |
 |---|---|---|
-| **Lite** | Small new capability | Product/Domain + Combined Engineering + Premise Auditor |
+| **Lite** | Small new capability | Product/Domain + combined engineering + Premise Auditor |
 | **Standard** | New web app or significant feature | Product/Domain + Frontend/Experience + Backend/Systems + Security/Privacy + Premise Auditor |
-| **Full** | Novel, high-risk, regulated, enterprise | Standard + up to two justified specialists/challenges |
+| **Full** | Novel, high-risk, enterprise, regulated | Standard team + up to two justified specialists + architecture challenge |
 
-A spawn budget is a ceiling, not a target. Each spawn must buy independent information or
-verification. Lite self-escalates when compression is unsafe.
+A spawn is not a goal. It must buy independent information or independent verification.
 
-## Quick start
+## Official topology
 
-Clone the repository and validate the workflow:
+The authority chain is:
 
-```powershell
-python .claude/scripts/validate_repo.py
-python .claude/scripts/run_seeded_evals.py
-python .claude/scripts/fresh_review.py
+```text
+CLAUDE.md
+  constitutional principles and human ownership
+        ↓
+runtime/src/turn_up_time_graph/topology.py
+  only executable source of legal stages, edges, loops, and gates
+        ↓
+.claude/skills and .claude/agents
+  node behavior and role boundaries
+        ↓
+.claude/schemas
+  artifact contracts
+        ↓
+project-ledger.json
+  approved human-readable project state
+        ↓
+SQLite checkpoint + events.jsonl
+  runtime recovery and append-only execution history
 ```
 
-Preview installation:
+The graph runtime blocks illegal transitions, loop exhaustion, missing human approvers, missing
+evidence deltas on repair edges, and checkpoint/ledger drift.
+
+## Install
+
+Clone or update the repository, then preview:
 
 ```powershell
-./scripts/install.ps1
+.\scripts\install.ps1 `
+  -EnableNotifications `
+  -EnableAutoAccept `
+  -ReplaceGlobalConstitution `
+  -EnableGraphRuntime
 ```
 
-Apply after reviewing the plan:
+The preview changes nothing. After reviewing it, apply:
 
 ```powershell
-./scripts/install.ps1 -Apply
+.\scripts\install.ps1 `
+  -Apply `
+  -EnableNotifications `
+  -EnableAutoAccept `
+  -ReplaceGlobalConstitution `
+  -EnableGraphRuntime
 ```
 
-Preserve and enable the workflow conveniences explicitly:
+The graph runtime requires Python 3.11 or newer and is installed into an isolated virtual environment
+under `~/.claude/runtime/turn-up-time/`.
+
+Verify:
 
 ```powershell
-./scripts/install.ps1 -Apply -EnableNotifications -EnableAutoAccept -ReplaceGlobalConstitution
+& "$HOME\.claude\scripts\turn-up-time-graph.ps1" validate-topology
 ```
 
-The installer backs up conflicts, replaces only the old Turn Up Time/legacy skill-router registration,
-preserves unrelated hooks/settings, and records hashes for safe uninstall.
-
-## Run a Tier C project
-
-```powershell
-python .claude/scripts/scaffold_project.py budget-app --profile standard --objective "Build a household budgeting app"
-python .claude/scripts/validate_project.py .claude/projects/budget-app --stage INTAKE
-```
-
-Turn Up Time advances the project only when the target-stage validator is green and the controlling
-artifact hashes/verdict are recorded in the ledger.
-
-Resolve an approved ticket's capabilities:
-
-```powershell
-python .claude/scripts/resolve_capabilities.py frontend-operate browser-e2e
-```
-
-Missing optional providers are reported; they are never silently substituted. Use `/plug-it-in` to
-pilot or install one.
+See [docs/INSTALL.md](docs/INSTALL.md) and [docs/GRAPH-RUNTIME.md](docs/GRAPH-RUNTIME.md).
 
 ## Core commands
 
-- `/turn-up-time` — control plane, ledger, stage transitions, and budget.
-- `/omnidex` — evidence compiler, architecture handoff, traceability, and ticket factory.
-- `/boil-the-ocean` — approved ticket execution and build receipts.
-- `/easily-irritated` — independent product-friction closeout.
-- `/production-audit` — operational release evidence.
-- `/its-not-you-its-me` — evidence-based workflow improvement.
+- `/turn-up-time` — control plane, classification, state, and stage signaling.
+- `/omnidex` — compiles approved evidence into architecture and executable tickets.
+- `/boil-the-ocean` — executes approved tickets completely.
+- `/easily-irritated` — independent product-friction and consistency closeout.
+- `/production-audit` — release readiness and operational risk.
+- `/its-not-you-its-me` — workflow self-improvement with approval and seeded evals.
 
-Conditional support:
+Conditional controls:
 
-- `/grill-me` — human-owned ambiguity only.
-- `/guard-before-write` — reversibility/accountability gate.
-- `/plug-it-in` — safe provider placement, pilot, and retirement.
+- `/grill-me` — resolves only human-owned ambiguity.
+- `/guard-before-write` — reversibility gate for destructive or externally consequential actions.
+- `/plug-it-in` — safely places a new provider into the capability registry.
 
 ## Source-of-truth order
 
-1. Current repository/runtime evidence.
-2. Active project ledger and artifact hashes.
-3. Human-approved intake and Definition of Good.
-4. Approved architecture, traceability, and tickets.
-5. Evidence packs and stage receipts.
-6. Handoffs and summaries.
-7. Conversation memory.
+1. Current repository and runtime evidence.
+2. Active `project-ledger.json`.
+3. Human-ratified intake and Definition of Good.
+4. Approved architecture and tickets.
+5. Recorded evidence packs and receipts.
+6. SQLite checkpoint cursor, only when aligned with the ledger.
+7. Handoffs and summaries.
+8. Conversation memory.
 
-A conversation cannot overrule the ledger. A summary cannot overrule the code.
+A conversation cannot overrule the ledger. A checkpoint cannot overrule a changed ledger. A summary
+cannot overrule the code.
 
 ## Optional providers
 
-Large design/testing packages are not vendored. Tickets request capabilities such as
-`frontend-operate`, `browser-e2e`, or `ai-regression`; the registry maps them to providers such as
-Impeccable, E2E Testing, or AI Regression Testing after `/plug-it-in` evaluation.
+Large design and testing packages are not vendored into the core. Tickets request capabilities such as
+`frontend-operate` or `browser-e2e`; the registry maps them to approved providers. `/plug-it-in`
+evaluates placement, overlap, authority, conflicts, evals, cost, and removal before activation.
 
-For dashboards and product interfaces, `frontend-operate` uses Impeccable's `operate` mode. A
-marketing-page Taste skill is not loaded by default.
-
-See [Architecture](docs/ARCHITECTURE.md), [Installation](docs/INSTALL.md), and
-[Skill decisions](docs/SKILL-DECISIONS.md).
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full ownership and loop model.
