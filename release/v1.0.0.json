@@ -6,6 +6,7 @@
   "target_branch": "main",
   "runtime_merge_commit": "752521b58f8cdbc958f092c5fd3affdb0a4bef26",
   "validated_runtime_tree": "b59c91441fd2c63969f5bf3ac4349254ef971061",
+  "release_target_commit": "f950980c8878411b21d7949e837b3ce0745189e2",
   "release_notes": "docs/RELEASE-NOTES-v1.0.0.md",
   "graph_review_report": "docs/GRAPH-REVIEW-REPORT.md",
   "publish_on_merge": true
