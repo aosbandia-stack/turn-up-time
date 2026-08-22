@@ -1,0 +1,117 @@
+name: Publish Turn Up Time v1.0.0
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/publish-v1.0.0.yml
+      - release/v1.0.0.json
+      - docs/RELEASE-NOTES-v1.0.0.md
+      - docs/GRAPH-REVIEW-REPORT.md
+      - README.md
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  validate-and-publish:
+    if: github.repository == 'aosbandia-stack/turn-up-time'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate release manifest
+        run: |
+          python - <<'PY'
+          import json
+          import tomllib
+          from pathlib import Path
+
+          root = Path('.')
+          manifest = json.loads((root / 'release/v1.0.0.json').read_text(encoding='utf-8'))
+          assert manifest['schema_version'] == 1
+          assert manifest['version'] == 'v1.0.0'
+          assert manifest['title'] == 'Turn Up Time v1.0.0'
+          assert manifest['runtime_version'] == '1.0.0'
+          assert manifest['target_branch'] == 'main'
+          assert manifest['publish_on_merge'] is True
+          assert len(manifest['runtime_merge_commit']) == 40
+          assert len(manifest['validated_runtime_tree']) == 40
+
+          notes = root / manifest['release_notes']
+          report = root / manifest['graph_review_report']
+          assert notes.is_file() and notes.stat().st_size > 0
+          assert report.is_file() and report.stat().st_size > 0
+
+          project = tomllib.loads((root / 'runtime/pyproject.toml').read_text(encoding='utf-8'))
+          assert project['project']['version'] == manifest['runtime_version']
+          assert '__version__ = "1.0.0"' in (
+              root / 'runtime/src/turn_up_time_graph/version.py'
+          ).read_text(encoding='utf-8')
+          print('Release manifest: GREEN')
+          PY
+
+      - name: Install validation dependencies
+        run: |
+          python -m pip install -r requirements-dev.txt
+          python -m pip install -e "./runtime[dev]"
+
+      - name: Re-run release gates
+        run: |
+          python .claude/scripts/validate_repo.py
+          python .claude/scripts/run_seeded_evals.py
+          python .claude/scripts/fresh_review.py
+          python .claude/scripts/fresh_graph_review.py
+          pytest -q runtime/tests
+          turn-up-time-graph validate-topology
+          turn-up-time-graph render --repo-root .
+          git diff --exit-code -- docs/generated/workflow.json docs/generated/workflow.mmd
+
+      - name: Create and verify GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: v1.0.0
+          TITLE: Turn Up Time v1.0.0
+          NOTES: docs/RELEASE-NOTES-v1.0.0.md
+        run: |
+          set -euo pipefail
+          if gh release view "$VERSION" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "$VERSION already exists; verifying its tag target."
+          else
+            gh release create "$VERSION" \
+              --repo "$GITHUB_REPOSITORY" \
+              --target "$GITHUB_SHA" \
+              --title "$TITLE" \
+              --notes-file "$NOTES"
+          fi
+
+          git fetch origin "refs/tags/$VERSION:refs/tags/$VERSION" --force
+          tag_sha="$(git rev-list -n 1 "refs/tags/$VERSION")"
+          if [ "$tag_sha" != "$GITHUB_SHA" ]; then
+            echo "Release tag target mismatch: expected $GITHUB_SHA, found $tag_sha" >&2
+            exit 1
+          fi
+          gh release view "$VERSION" --repo "$GITHUB_REPOSITORY" --json url,name,isDraft,isPrerelease
+
+      - name: Record release receipt on PR 4
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          marker='<!-- turn-up-time-release-v1.0.0 -->'
+          if gh api --paginate "repos/${GITHUB_REPOSITORY}/issues/4/comments" --jq '.[].body' | grep -Fq "$marker"; then
+            echo 'Release receipt already recorded.'
+          else
+            body="$marker
+          Turn Up Time v1.0.0 was published from validated main commit \`$GITHUB_SHA\`. The workflow re-ran the repository, seeded-eval, cold-review, graph-review, runtime-test, topology, and generated-artifact gates before creating and verifying the release tag."
+            gh api --method POST "repos/${GITHUB_REPOSITORY}/issues/4/comments" -f body="$body" >/dev/null
+          fi
