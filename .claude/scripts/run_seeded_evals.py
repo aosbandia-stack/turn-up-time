@@ -90,7 +90,7 @@ def main() -> int:
     check("unknown-capability-blocks", code != 0 and output["status"] == "BLOCKED", "unknown capability cannot silently disappear")
     conflict_registry = json.loads(json.dumps(registry))
     conflict_registry["taste-skill"] = {
-        "provider": "taste-skill", "bundled": false, "authority": "production", "stages": ["BUILD"],
+        "provider": "taste-skill", "bundled": False, "authority": "production", "stages": ["BUILD"],
         "mode": "default", "load_policy": "manual-only", "consumes": [], "produces": [], "requires": [],
         "conflicts": ["frontend-operate"], "evals": ["manual"], "uninstall": "remove mapping"
     }
