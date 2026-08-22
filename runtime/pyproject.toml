@@ -1,0 +1,29 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "turn-up-time-runtime"
+version = "1.0.0"
+description = "LangGraph execution controller for the Turn Up Time evidence-to-ship gauntlet"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+dependencies = [
+  "langgraph==1.2.11",
+  "langgraph-checkpoint-sqlite==3.1.1",
+  "pydantic>=2.7.4,<3",
+  "jsonschema>=4.23,<5",
+]
+
+[project.scripts]
+turn-up-time-graph = "turn_up_time_graph.cli:main"
+
+[project.optional-dependencies]
+dev = ["pytest>=8,<10", "pytest-asyncio>=0.25,<2"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/turn_up_time_graph"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
