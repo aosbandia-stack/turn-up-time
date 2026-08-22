@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Premise Audit Verdict",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "project_id", "status", "reviewed_pack_refs", "must_unknowns", "conflicts", "invalid_sources", "human_escalations", "checked_at", "reviewer"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "project_id": {"type": "string"},
+    "status": {"enum": ["EVIDENCE_READY", "EVIDENCE_BLOCKED"]},
+    "reviewed_pack_refs": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+    "must_unknowns": {"type": "array", "items": {"type": "string"}},
+    "conflicts": {"type": "array", "items": {"type": "string"}},
+    "invalid_sources": {"type": "array", "items": {"type": "string"}},
+    "human_escalations": {"type": "array", "items": {"type": "string"}},
+    "checked_at": {"type": "string", "format": "date-time"},
+    "reviewer": {"type": "string"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"status": {"const": "EVIDENCE_READY"}}},
+      "then": {
+        "properties": {
+          "must_unknowns": {"maxItems": 0},
+          "conflicts": {"maxItems": 0},
+          "invalid_sources": {"maxItems": 0}
+        }
+      }
+    }
+  ]
+}

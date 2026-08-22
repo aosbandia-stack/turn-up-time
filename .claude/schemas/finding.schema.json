@@ -1,65 +1,26 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Validated Finding",
+  "title": "Validated Product Finding",
   "type": "object",
   "additionalProperties": false,
-  "required": [
-    "finding_id",
-    "journey_step",
-    "expected",
-    "observed",
-    "impact",
-    "evidence",
-    "severity",
-    "status",
-    "owner_role",
-    "acceptance_criteria"
-  ],
+  "required": ["schema_version", "project_id", "finding_id", "build_identity", "requirement_ids", "journey_step", "expected", "observed", "impact", "recovery", "evidence", "severity", "type", "status", "owner_role", "acceptance_criteria", "verification_status"],
   "properties": {
-    "finding_id": {
-      "type": "string"
-    },
-    "journey_step": {
-      "type": "string"
-    },
-    "expected": {
-      "type": "string"
-    },
-    "observed": {
-      "type": "string"
-    },
-    "impact": {
-      "type": "string"
-    },
-    "evidence": {
-      "type": "array",
-      "minItems": 1
-    },
-    "severity": {
-      "enum": [
-        "S0",
-        "S1",
-        "S2",
-        "S3",
-        "S4"
-      ]
-    },
-    "status": {
-      "enum": [
-        "RAW",
-        "VALIDATED",
-        "REJECTED",
-        "IMPLEMENTED",
-        "VERIFIED",
-        "REOPENED",
-        "BLOCKED"
-      ]
-    },
-    "owner_role": {
-      "type": "string"
-    },
-    "acceptance_criteria": {
-      "type": "string"
-    }
+    "schema_version": {"const": 2},
+    "project_id": {"type": "string"},
+    "finding_id": {"type": "string"},
+    "build_identity": {"type": "string"},
+    "requirement_ids": {"type": "array", "items": {"type": "string"}},
+    "journey_step": {"type": "string"},
+    "expected": {"type": "string"},
+    "observed": {"type": "string"},
+    "impact": {"type": "string"},
+    "recovery": {"type": ["string", "null"]},
+    "evidence": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+    "severity": {"enum": ["S0", "S1", "S2", "S3", "S4"]},
+    "type": {"enum": ["defect", "friction", "content", "accessibility", "craft", "performance", "security", "environment", "business-question", "feature-proposal"]},
+    "status": {"enum": ["RAW", "VALIDATED", "REJECTED", "AUTHORIZED", "IMPLEMENTED", "VERIFIED", "REOPENED", "BLOCKED", "DEFERRED", "SUPERSEDED"]},
+    "owner_role": {"type": ["string", "null"]},
+    "acceptance_criteria": {"type": "string"},
+    "verification_status": {"enum": ["NOT_RUN", "VERIFIED", "REOPENED", "PARTIALLY_VERIFIED", "BLOCKED_BY_ENVIRONMENT", "BLOCKED_BY_DECISION", "SUPERSEDED", "DEFERRED_WITH_OWNER"]}
   }
 }

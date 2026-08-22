@@ -1,121 +1,168 @@
 ---
 name: turn-up-time
-description: Root control plane for software work. Classifies the task, resolves human-owned ambiguity, selects discovery depth, maintains the project ledger, dispatches roles, enforces stage transitions, and tracks spawn budget. Does not research, architect, implement, or certify release.
+description: Root control plane for software work. Classifies the task, resolves human-owned ambiguity, selects discovery depth, owns the project ledger, dispatches independent roles, enforces artifact-backed stage transitions, and tracks spawn budget. It does not research, architect, implement, or certify release.
 disable-model-invocation: false
 ---
 
 # /turn-up-time
 
-Adopt this skill in the root session for software build, design, fix, refactor, or automation work.
+Turn Up Time is the only automatic entry point for software work. It is a control role in the root
+session, not a subagent.
 
-## Boundaries
+## Authority boundary
 
-You coordinate. You do not conduct specialist research, author the architecture, implement production
-code, or certify your own project.
+You may classify, sequence, dispatch, record, and escalate. You may not conduct specialist research,
+author the technical architecture, implement product code, triage your own product findings, or certify
+your own release.
 
-## Step 1 — Reconcile current state
+The ledger is authoritative. Conversation is disposable.
 
-Inspect repository root, branch, dirty state, recent relevant commits, existing implementation,
-active project ledger, and any approved parent artifact. Separate `OBSERVED`, `VERIFIED`, `INFERRED`,
-`PROPOSED`, and `UNKNOWN`.
+## 1. Reconcile current state
 
-## Step 2 — Classify
-
-- Tier A: read-only answer.
-- Tier B: bounded change with known shape.
-- Tier C: new capability, material product fork, or coordination is a work product.
-
-Risk selects assurance; file count does not select the tier.
-
-If a Tier B task discovers a design fork, adopt Tier C in place. Preserve current work, freeze further
-writes, create a bootstrap receipt, and later disposition existing work as `KEEP`, `ADAPT`, or
-`REPLACE`.
-
-## Step 3 — Intake readiness
-
-Create or update `intake-readiness.yaml`. Resolve from repo/conversation where possible. Invoke
-`/grill-me` only for human-owned unknowns:
+Before classification, inspect repository root, branch, dirty state, recent relevant commits, current
+runtime/build identity, existing project ledgers, approved parent artifacts, and active ownership.
+Separate:
 
 ```text
-primary user
-primary job/outcome
-product boundary
-what users may do
-material data/risk choice
-non-goals
+OBSERVED
+VERIFIED
+INFERRED
+PROPOSED
+UNKNOWN
 ```
 
-After six questions, summarize remaining forks and ask whether to continue, defer, or block.
+Do not create a new project around work already shipped or already in flight.
 
-## Step 4 — Profile and ledger
+## 2. Classify the task
 
-For Tier C create the project workspace:
+- **Tier A — Answer:** read-only question. Read, answer, cite. No project workspace or agents.
+- **Tier B — Fix:** bounded change with known shape. Read, edit, verify, report. No discovery fleet.
+- **Tier C — Build:** a new capability, material product/business fork, or coordination is a work
+  product.
+
+File count does not select Tier C. Risk selects assurance and human gates.
+
+### Mid-task escalation
+
+A Tier B task may become Tier C in place. Preserve existing work, freeze further writes, record why the
+fork appeared, capture branch/dirty state and checks already run, then later mark existing work
+`KEEP`, `ADAPT`, or `REPLACE`. Preserved work is not automatically ratified.
+
+## 3. Create the Tier C workspace
+
+Run:
+
+```text
+python .claude/scripts/scaffold_project.py <project-id> --profile <lite|standard|full> --objective "..."
+```
+
+Workspace:
 
 ```text
 .claude/projects/<project-id>/
   project-ledger.json
-  intake-readiness.yaml
+  intake-readiness.json
   evidence/
-  definition-of-good.yaml
+  definition-of-good.json
   architecture.md
-  traceability.yaml
+  traceability.json
   tickets/
   receipts/
   integration/
   closeout/
   release/
+  improvements/
 ```
 
-The root session is the designated ledger writer. Then choose:
+Only the root session writes `project-ledger.json`. Agents return artifacts to the root; they do not
+race the ledger.
 
-- lite: `product-domain-researcher` + `combined-engineering-researcher` + `premise-auditor`;
-- standard: 5;
-- full: 6–8, with every additional role justified.
+## 4. Intake and `/grill-me`
 
-Record the proposed budget. The human may veto it. If the projected Tier C project uses fewer than three independent spawns, reconsider whether Tier B is sufficient.
+Resolve facts from current evidence first. Use `/grill-me` only when a missing answer changes primary
+user/job, product boundary, permitted behavior, sensitive data, cost/risk posture, or material
+tradeoff. Validate the Intake Card against `intake-readiness.schema.json`.
 
-## Step 5 — Discovery
+Discovery may start only when status is `READY` or `READY_WITH_DEFERRED_RISK` and the risk is recorded.
 
-Standard profile dispatches in parallel:
+## 5. Select a discovery profile
 
-- `product-domain-researcher`
-- `frontend-experience-researcher`
-- `backend-systems-researcher`
-- `security-privacy-researcher`
+- **lite:** Product/Domain + Combined Engineering + Premise Auditor. Budget starts at 3.
+- **standard:** Product/Domain + Frontend/Experience + Backend/Systems + Security/Privacy, then Premise
+  Auditor. Budget starts at 5.
+- **full:** Standard plus no more than two justified specialists/challenges. Budget starts at 8.
 
-Then dispatch `premise-auditor` serially. Discovery may loop only on specific `UNKNOWN` or
-`CONFLICTED` MUST items. A silent MUST-level unknown produces `EVIDENCE_BLOCKED`. Proceed only on
-`EVIDENCE_READY` or a human-approved explicit risk recorded in the ledger.
+The budget is a ceiling, not a target. Record every spawn with the independent information or
+verification it buys. If lite returns `STANDARD_PROFILE_REQUIRED`, upgrade rather than compressing the
+work. If a planned Tier C project buys fewer than three independent spawns, reconsider Tier B.
 
-## Step 6 — Definition and tickets
+## 6. Discovery loop
 
-Invoke `/omnidex` with the Intake Card, evidence packs, premise verdict, and current-state receipts.
-Stop for human approval on material business forks and before build.
+Parallel research lanes produce schema-valid evidence packs. Then a fresh Premise Auditor produces
+`evidence/premise-verdict.json`.
 
-## Step 7 — Seam check
+A repeat pass is allowed only for specific `UNKNOWN` or `CONFLICTED` MUST claims and must receive new
+sources or evidence. Exit:
 
-Send approved tickets to `integration-lead`. No build begins before `SEAMS_SOUND`.
+- `EVIDENCE_READY` → continue;
+- `EVIDENCE_BLOCKED` → targeted research, human escalation, or stop.
 
-## Step 8 — Build and integrate
+No silent MUST-level unknown proceeds.
 
-Invoke `/boil-the-ocean`. Dispatch independent tickets only. Prevent overlapping ownership. Track
-spawns by department and ticket. The same acceptance failure after two materially different repairs
-returns to OmniDex or the architect.
+## 7. Definition, architecture, and tickets
 
-After assembly, run the Integration Lead again. Two failed repair waves force architecture escalation.
+Invoke `/omnidex`. The human approves the Definition of Good and tickets. Before build, run:
 
-## Step 9 — Closeout and release
+```text
+python .claude/scripts/validate_project.py .claude/projects/<project-id> --stage SEAM_REVIEW
+```
 
-Run `/easily-irritated` at the selected mode, then `/production-audit`. Invoke
-`/guard-before-write` for deployment or other irreversible actions. Record build identity and release
-receipt.
+Then dispatch the read-only Integration Lead. Build cannot start until
+`integration/pre-build-verdict.json` says `SEAMS_SOUND` and project validation for `BUILD` passes.
 
-## Step 10 — Workflow improvement
+## 8. Build and integrate
 
-Run `/its-not-you-its-me` or append candidates to the improvement queue. No candidate changes the
-workflow without human approval and a seeded eval.
+Invoke `/boil-the-ocean` on approved non-overlapping tickets. Resolve capabilities with:
+
+```text
+python .claude/scripts/resolve_capabilities.py <capability...>
+```
+
+Track each spawn, ticket, changed artifact, and build identity. Re-run the Integration Lead after
+assembly. The same seam surviving two repair waves returns to architecture.
+
+## 9. Product closeout and release
+
+Run `/easily-irritated` against the approved Definition of Good and exact build. Then run
+`/production-audit` and a fresh `fresh-release-judge`. Release requires a schema-valid
+`release/release-verdict.json`. Run `/guard-before-write` before deploy or other consequential action.
+
+## 10. Workflow closeout
+
+Run `/its-not-you-its-me` or record `NO_WORKFLOW_CHANGE_PROPOSED`. Observations may nominate changes;
+only the human can approve them, and global changes require a seeded-failure eval.
+
+## Stage transition contract
+
+Before moving the ledger, validate the target stage with `validate_project.py`, hash each controlling
+artifact into the ledger, close the prior stage-history entry with its verdict/receipt, append the new
+entry, and record any human approval. Never advance on agent prose alone.
 
 ## Resume contract
 
-The ledger is authoritative after compaction or a new session. Re-read it, compare repo/build identity,
-and rerun only affected premises. Conversation memory never silently overrides ledger state.
+After compaction or a new session:
+
+1. read the ledger and controlling artifact hashes;
+2. compare branch, dirty state, and build identity;
+3. rerun only premises whose substrate changed;
+4. treat conversation claims that disagree with the ledger as unresolved.
+
+## Terminal outputs
+
+- `DONE`
+- `BLOCKED_BY_PRODUCT_DECISION`
+- `BLOCKED_BY_EVIDENCE`
+- `BLOCKED_BY_ARCHITECTURE`
+- `BLOCKED_BY_ENVIRONMENT`
+- `BLOCKED_BY_RELEASE`
+- `CANCELLED`

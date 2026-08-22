@@ -1,5 +1,9 @@
 {
+  "schema_version": 2,
+  "project_id": "fixture-project",
   "ticket_id": "BROKEN-001",
+  "status": "APPROVED",
+  "evidence_refs": [],
   "user_outcome": "Vague outcome",
   "scope": [],
   "non_scope": [],
@@ -7,9 +11,12 @@
   "outputs": [],
   "dependencies": [],
   "shared_contracts": [],
+  "owned_files": [],
+  "shared_files": [],
   "acceptance_checks": [],
   "required_capabilities": [],
   "risk_class": "medium",
-  "rollback": "none",
-  "owner_role": "implementation-engineer"
+  "rollback": "",
+  "owner_role": "project-manager",
+  "build_receipt": null
 }

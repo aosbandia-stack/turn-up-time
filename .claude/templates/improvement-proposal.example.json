@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "improvement_id": "IMPROVE-001",
+  "source_project_ids": ["example-project"],
+  "observed_failure": "A load-bearing requirement was discovered only during closeout.",
+  "evidence": ["closeout/findings.jsonl#F-001"],
+  "frequency": "Observed once; project-only proposal until repeated.",
+  "workflow_stage": "DISCOVERY",
+  "root_cause": "The research lane omitted a required failure-state question.",
+  "existing_control": null,
+  "proposed_change": "Add a seeded recovery-state question to the affected research role.",
+  "scope": "project",
+  "expected_effect": "The missing requirement is surfaced before ticketing.",
+  "measurement": "Seed the original omission and require EVIDENCE_BLOCKED before the change is accepted.",
+  "seeded_failure_eval": "evals/recovery-state-omission.json",
+  "cost": "One additional targeted research check.",
+  "new_risks": ["Could add ceremony to projects without persisted state."],
+  "rollback": "Remove the project-level role addition.",
+  "warrant": "incident",
+  "review_date": "2026-11-21",
+  "human_decision": {"status": "PENDING", "by": null, "at": null, "notes": null},
+  "status": "PROPOSED"
+}

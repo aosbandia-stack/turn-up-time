@@ -12,15 +12,34 @@ jobs:
         with:
           python-version: '3.12'
       - run: pip install pyyaml jsonschema
-      - run: python .claude/scripts/validate_repo.py
-      - run: python .claude/scripts/run_seeded_evals.py
-      - run: python .claude/scripts/fresh_review.py
+      - name: Validate repository contracts
+        run: python .claude/scripts/validate_repo.py
+      - name: Run seeded process failures
+        run: python .claude/scripts/run_seeded_evals.py
+      - name: Run cold deterministic review
+        run: python .claude/scripts/fresh_review.py
+      - name: Exercise capability resolver CLI
+        run: |
+          python .claude/scripts/resolve_capabilities.py workflow-evals
+          if python .claude/scripts/resolve_capabilities.py does-not-exist; then
+            echo 'unknown capability unexpectedly passed'
+            exit 1
+          fi
+      - name: Exercise scaffold and stage validator CLI
+        run: |
+          tmp="$(mktemp -d)"
+          python .claude/scripts/scaffold_project.py ci-project --root "$tmp" --objective "CI stage validation"
+          python .claude/scripts/validate_project.py "$tmp/ci-project" --stage INTAKE
+          if python .claude/scripts/validate_project.py "$tmp/ci-project" --stage DISCOVERY; then
+            echo 'draft intake unexpectedly advanced'
+            exit 1
+          fi
 
   powershell-51:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Parse PowerShell files with Windows PowerShell 5.1
+      - name: Parse all PowerShell with Windows PowerShell 5.1
         shell: powershell
         run: |
           $failed = $false
@@ -41,8 +60,45 @@ jobs:
         run: |
           $build = '{"prompt":"Build a budgeting app"}' | powershell.exe -NoProfile -ExecutionPolicy Bypass -File .claude/hooks/skill-router.ps1
           if ($build -notmatch 'turn-up-time') { throw 'Build prompt did not route to turn-up-time' }
-          if ($build -match 'engineering-loop') { throw 'Retired engineering-loop leaked into routing' }
+          if ($build -match 'engineering-loop|/omnidex|/boil-the-ocean') { throw 'A retired or downstream workflow leaked into automatic routing' }
           $skill = '{"prompt":"Add this dashboard skill to my workflow"}' | powershell.exe -NoProfile -ExecutionPolicy Bypass -File .claude/hooks/skill-router.ps1
           if ($skill -notmatch 'plug-it-in') { throw 'Skill prompt did not route to plug-it-in' }
           $guard = '{"tool_input":{"command":"git reset --hard HEAD~1"}}' | powershell.exe -NoProfile -ExecutionPolicy Bypass -File .claude/hooks/destructive-command-guard.ps1
           if ($guard -notmatch 'deny') { throw 'Destructive guard did not deny reset --hard' }
+          $safe = '{"tool_input":{"command":"git status --short"}}' | powershell.exe -NoProfile -ExecutionPolicy Bypass -File .claude/hooks/destructive-command-guard.ps1
+          if ($safe -match 'deny') { throw 'Destructive guard denied a safe read-only command' }
+      - name: Exercise dry-run, install, and hash-safe uninstall
+        shell: powershell
+        run: |
+          $sandbox = Join-Path $env:RUNNER_TEMP 'turn-up-time-home'
+          $env:USERPROFILE = $sandbox
+          $env:TURN_UP_TIME_CLAUDE_HOME = Join-Path $sandbox '.claude'
+          New-Item -ItemType Directory -Force -Path $env:TURN_UP_TIME_CLAUDE_HOME | Out-Null
+          @'
+          {
+            "permissions": {"defaultMode": "default", "deny": ["Bash(git push --force*)"]},
+            "hooks": {
+              "UserPromptSubmit": [{"hooks": [{"type":"command","command":"echo unrelated","timeout":5}]}],
+              "Stop": [{"hooks": [{"type":"command","command":"echo existing-notification","timeout":5}]}]
+            }
+          }
+          '@ | Set-Content -Path (Join-Path $env:TURN_UP_TIME_CLAUDE_HOME 'settings.json') -Encoding UTF8
+          .\scripts\install.ps1
+          if (Test-Path (Join-Path $env:TURN_UP_TIME_CLAUDE_HOME 'turn-up-time-install-manifest.json')) { throw 'Dry-run created a manifest' }
+          .\scripts\install.ps1 -Apply -EnableNotifications -EnableAutoAccept -ReplaceGlobalConstitution
+          $manifest = Join-Path $env:TURN_UP_TIME_CLAUDE_HOME 'turn-up-time-install-manifest.json'
+          if (-not (Test-Path $manifest)) { throw 'Install manifest missing' }
+          $settings = Get-Content (Join-Path $env:TURN_UP_TIME_CLAUDE_HOME 'settings.json') -Raw | ConvertFrom-Json
+          $settingsJson = $settings | ConvertTo-Json -Depth 30 -Compress
+          if ($settingsJson -notmatch 'echo unrelated') { throw 'Unrelated prompt hook was removed' }
+          if (($settingsJson | Select-String -Pattern 'skill-router.ps1' -AllMatches).Matches.Count -ne 1) { throw 'Router registration is not singular' }
+          if ($settings.permissions.defaultMode -ne 'acceptEdits') { throw 'Auto-accept was not enabled' }
+          if ($settingsJson -notmatch 'git push --force') { throw 'Deny rule was removed' }
+          $modified = Join-Path $env:TURN_UP_TIME_CLAUDE_HOME 'skills\turn-up-time\SKILL.md'
+          Add-Content -Path $modified -Value "`n# local modification"
+          .\scripts\uninstall.ps1 -Apply
+          if (-not (Test-Path $modified)) { throw 'Modified installed file was deleted' }
+          if (-not (Test-Path $manifest)) { throw 'Manifest should remain when modified files are skipped' }
+          $settingsAfter = Get-Content (Join-Path $env:TURN_UP_TIME_CLAUDE_HOME 'settings.json') -Raw
+          if ($settingsAfter -match 'skill-router.ps1|destructive-command-guard.ps1') { throw 'Turn Up Time hook rows were not removed' }
+          if ($settingsAfter -notmatch 'echo unrelated') { throw 'Unrelated hook was lost during uninstall' }

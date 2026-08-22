@@ -1,78 +1,63 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Evidence Pack",
+  "title": "Discovery Evidence Pack",
   "type": "object",
   "additionalProperties": false,
-  "required": [
-    "lane",
-    "claims",
-    "open_questions",
-    "sources"
-  ],
+  "required": ["schema_version", "project_id", "lane", "generated_by", "generated_at", "claims", "open_questions", "sources"],
   "properties": {
-    "lane": {
-      "enum": [
-        "product",
-        "frontend",
-        "backend",
-        "security"
-      ]
-    },
+    "schema_version": {"const": 2},
+    "project_id": {"type": "string", "minLength": 1},
+    "lane": {"enum": ["product", "frontend", "backend", "security", "combined-engineering"]},
+    "generated_by": {"type": "string"},
+    "generated_at": {"type": "string", "format": "date-time"},
     "claims": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": [
-          "id",
-          "claim",
-          "evidence_state",
-          "priority",
-          "applicability",
-          "verification_method"
-        ],
+        "additionalProperties": false,
+        "required": ["id", "claim", "evidence_state", "priority", "source_ids", "applicability", "counterevidence", "verification_method"],
         "properties": {
-          "id": {
-            "type": "string"
-          },
-          "claim": {
-            "type": "string"
-          },
-          "evidence_state": {
-            "enum": [
-              "SUPPORTED",
-              "CONFLICTED",
-              "UNKNOWN",
-              "NOT_APPLICABLE"
-            ]
-          },
-          "priority": {
-            "enum": [
-              "MUST",
-              "SHOULD",
-              "OPTIONAL"
-            ]
-          },
-          "applicability": {
-            "type": "string"
-          },
-          "verification_method": {
-            "type": "string"
-          },
-          "source_ids": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        },
-        "additionalProperties": false
+          "id": {"type": "string"},
+          "claim": {"type": "string"},
+          "evidence_state": {"enum": ["SUPPORTED", "CONFLICTED", "UNKNOWN", "NOT_APPLICABLE"]},
+          "priority": {"enum": ["MUST", "SHOULD", "OPTIONAL"]},
+          "source_ids": {"type": "array", "items": {"type": "string"}},
+          "applicability": {"type": "string"},
+          "counterevidence": {"type": "array", "items": {"type": "string"}},
+          "verification_method": {"type": "string"}
+        }
       }
     },
     "open_questions": {
-      "type": "array"
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "question", "owner", "blocking"],
+        "properties": {
+          "id": {"type": "string"},
+          "question": {"type": "string"},
+          "owner": {"enum": ["research", "architect", "human", "implementation"]},
+          "blocking": {"type": "boolean"}
+        }
+      }
     },
     "sources": {
-      "type": "array"
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "title", "url", "type", "authority", "freshness_checked_at", "supports_claims"],
+        "properties": {
+          "id": {"type": "string"},
+          "title": {"type": "string"},
+          "url": {"type": "string"},
+          "type": {"enum": ["official-doc", "standard", "research", "reference-implementation", "product-reference", "repository-evidence", "user-evidence"]},
+          "authority": {"enum": ["primary", "authoritative-secondary", "context-only"]},
+          "freshness_checked_at": {"type": "string", "format": "date-time"},
+          "supports_claims": {"type": "array", "items": {"type": "string"}}
+        }
+      }
     }
   }
 }

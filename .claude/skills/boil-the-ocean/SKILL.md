@@ -1,57 +1,81 @@
 ---
 name: boil-the-ocean
-description: Ticket execution engine. Resolves approved ticket capabilities, assigns non-overlapping work packages to implementation agents, runs ticket-local checks until evidence is green, and hands assembled work to integration. It does not research, redefine scope, or certify release.
+description: Ticket execution engine. Resolves approved capabilities, dispatches one implementation engineer per non-overlapping work package, runs ticket-local checks to evidence green, assembles the build, and returns it to Integration Lead. It does not research, redefine scope, or certify release.
 disable-model-invocation: true
 ---
 
 # /boil-the-ocean
 
-Boil the ocean you were handed: complete depth inside the approved ticket, no horizontal scope
+Boil the ocean you were handed: complete vertical depth inside approved tickets, no horizontal scope
 invention.
 
-## Precondition
+## Preconditions
 
 Require:
 
-- human-approved tickets;
-- `SEAMS_SOUND`;
-- named build identity;
-- clean or explicitly preserved working state;
-- capability registry resolution with no conflicts (project registry first, then user registry).
+- approved Definition of Good and tickets;
+- current `SEAMS_SOUND` PRE_BUILD verdict;
+- target stage validation GREEN;
+- clean or explicitly preserved worktree state;
+- named branch/worktree and rollback;
+- no unresolved human gate required by the ticket.
+
+## Resolve capabilities
+
+For each ticket, run the deterministic resolver. A ticket does not start when a capability is unknown,
+conflicted, or a required bundled provider is missing. Optional providers that are not installed are
+reported to Turn Up Time and handled through `/plug-it-in`; they are not silently substituted.
+
+Load only the selected providers and modes. Do not stack multiple frontend constitutions.
 
 ## Dispatch
 
-One implementation engineer per independent work package. Do not assign overlapping files or a shared
-writer concurrently. Sequential dependencies remain sequential. Parallelism is secondary to clear
-ownership.
+- One `implementation-engineer` per independent ticket or explicitly grouped non-overlapping tickets.
+- No concurrent ownership of the same `owned_files` entry or shared writer.
+- Dependencies remain sequential.
+- Parallelism is secondary to clear ownership and independent attention.
+- Record each spawn against the ledger budget before dispatch.
+
+If the execution plan projects fewer than two independent production packages, solo ticket execution
+is preferred; do not create a fleet for ceremony.
 
 ## Ticket loop
 
-1. Read the ticket, acceptance checks, contracts, and required capabilities.
-2. Load only the minimum registered providers.
-3. Implement the complete ticket, including errors and edge states inside scope.
-4. Run deterministic checks and any required live/browser check.
-5. Record the deciding evidence, changed files, and build identity.
-6. Repair failures.
+1. Re-run current-state probes and confirm file ownership.
+2. Implement the complete approved ticket, including in-scope errors and recovery.
+3. Run every acceptance check and required live/browser proof.
+4. Record build identity, changed files, deciding outputs, and rollback in the ticket receipt.
+5. Repair concrete failures.
 
-The same acceptance failure after two materially different repairs is not an invitation to keep
-trying. Return `TICKET_OR_ARCHITECTURE_ESCALATION` with evidence.
+A repeat is justified only by a failing check and a changed implementation. The same check surviving
+two materially different repairs produces `TICKET_OR_ARCHITECTURE_ESCALATION`.
 
-## Scope control
+## Scope and change control
 
-Work discovered outside the ticket is recorded as a finding. Do not silently add it. A missing piece
-inside the approved outcome is not optional; escalate it to the PM for ticket repair.
+- Missing work inside the approved user outcome is returned for ticket repair; it is not optional.
+- Adjacent work outside scope becomes a finding and is not implemented.
+- New dependencies, protected files, destructive actions, external side effects, or architecture
+  changes are gates, not silent builder choices.
+- `/guard-before-write` governs consequential operations.
 
-## Completion
+## Assembly and integration
 
-A builder may return:
+After all tickets are `EVIDENCE_GREEN`, assemble one build identity and dispatch the read-only
+Integration Lead for POST_BUILD review. Integration findings return to the original ticket owner with
+the original brief, diff, finding, and acceptance. Each repair is a full-cost production spawn.
 
-- `TICKET_EVIDENCE_GREEN`
-- `BLOCKED_BY_DEPENDENCY`
-- `BLOCKED_BY_DECISION`
-- `TICKET_OR_ARCHITECTURE_ESCALATION`
+At most two integration repair waves are permitted. The same seam after two waves produces
+`ARCHITECTURE_ESCALATION`.
 
-The builder never sets release-ready or verified status.
+## Outputs
 
-After assembly, send the integrated result to the read-only Integration Lead. Integration repair gets
-at most two waves before returning to OmniDex.
+- updated schema-valid tickets with build receipts;
+- one assembled build identity;
+- changed-file and dependency manifest;
+- `integration/post-build-verdict.json`;
+- build-stage ledger receipt.
+
+## Boundaries
+
+Builders never mark VERIFIED, SEAMS_SOUND, RELEASE_READY, GREEN, or SHIP. Boil does not run broad
+research, invent tickets, rewrite the Definition of Good, or perform final product/release judgment.

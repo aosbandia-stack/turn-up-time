@@ -1,17 +1,25 @@
 {
-  "ticket_id": "EXAMPLE-001",
+  "schema_version": 2,
+  "project_id": "fixture-project",
+  "ticket_id": "FIXTURE-001",
+  "status": "APPROVED",
   "requirement_ids": ["REQ-001"],
-  "evidence_refs": ["EVIDENCE-001"],
-  "user_outcome": "The user completes the critical task.",
-  "scope": ["Implement the approved behavior"],
-  "non_scope": ["Unrelated redesign"],
+  "evidence_refs": ["product:EVIDENCE-001"],
+  "user_outcome": "The primary user completes the critical task.",
+  "scope": ["Implement the approved behavior."],
+  "non_scope": ["Unrelated redesign."],
   "inputs": ["Approved input"],
   "outputs": ["Observable result"],
   "dependencies": [],
   "shared_contracts": [],
-  "acceptance_checks": [{"id":"CHK-001","check":"run deterministic check","expected":"exit 0","evidence":null}],
+  "owned_files": ["src/fixture.ts"],
+  "shared_files": [],
+  "acceptance_checks": [
+    {"id": "CHK-001", "type": "deterministic", "check": "Run targeted test", "expected": "exit 0", "evidence": null}
+  ],
   "required_capabilities": [],
   "risk_class": "medium",
   "rollback": "Revert the ticket commit.",
-  "owner_role": "implementation-engineer"
+  "owner_role": "implementation-engineer",
+  "build_receipt": null
 }

@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Turn Up Time Capability Registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "capabilities"],
+  "properties": {
+    "schema_version": {"const": 2},
+    "capabilities": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["provider", "bundled", "authority", "stages", "mode", "load_policy", "consumes", "produces", "requires", "conflicts", "evals", "uninstall"],
+        "properties": {
+          "provider": {"type": "string", "minLength": 1},
+          "bundled": {"type": "boolean"},
+          "authority": {"enum": ["control", "production", "assurance", "reference"]},
+          "stages": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": ["INTAKE", "DISCOVERY", "EVIDENCE_REVIEW", "DEFINITION", "TICKETING", "SEAM_REVIEW", "BUILD", "INTEGRATION", "CLOSEOUT", "RELEASE", "WORKFLOW_CLOSEOUT"]}},
+          "mode": {"type": "string"},
+          "load_policy": {"enum": ["core", "conditional", "signal-triggered", "manual-only", "project-pilot"]},
+          "consumes": {"type": "array", "items": {"type": "string"}},
+          "produces": {"type": "array", "items": {"type": "string"}},
+          "requires": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+          "conflicts": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+          "evals": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+          "uninstall": {"type": "string", "minLength": 1}
+        }
+      }
+    }
+  }
+}

@@ -1,40 +1,48 @@
-# Skill decisions
+# Skill and provider decisions
 
-## Kept as workflow stages
+## Core workflow stages
 
-- Turn Up Time
-- OmniDex
-- Boil the Ocean
-- Easily Irritated
-- Production Audit
-- Its Not You, Its Me
+- `/turn-up-time` — one control plane and ledger owner.
+- `/omnidex` — evidence compiler, architecture handoff, traceability, and ticket factory.
+- `/boil-the-ocean` — ticket execution only.
+- `/easily-irritated` — independent product closeout.
+- `/production-audit` — operational release evidence.
+- `/its-not-you-its-me` — workflow closeout and improvement proposals.
 
-## Kept as conditional controls
+## Conditional controls
 
-- Grill Me
-- Guard Before Write
-- Plug It In
+- `/grill-me` — human-owned ambiguity only.
+- `/guard-before-write` — irreversible/external/accountability gate.
+- `/plug-it-in` — provider evaluation, placement, pilot, and removal.
 
-## Kept as an internal provider
+## Internal provider
 
-- Eval Harness
+- `eval-harness` — common proof grammar and seeded-failure discipline.
 
-## External provider strategy
+## Optional provider strategy
 
-- Impeccable is the preferred frontend provider, routed by mode (`operate`, `persuade`, `read`,
-  `experience`). It is not vendored here.
-- Taste is not a dashboard default. Its useful Design Read and anti-default principles belong in a
-  provider reference or closeout lens.
-- E2E Testing is a browser verification provider.
-- AI Regression Testing is a provider for model/agent behavior changes.
+- **Impeccable** is the preferred frontend production provider when installed. Use `operate` for
+  dashboards/product UI and `persuade` for marketing surfaces.
+- **E2E Testing** supplies browser/live journey evidence.
+- **AI Regression Testing** supplies model/agent behavior baselines and regression checks.
+- **Taste** is not a dashboard default. Its useful brief-reading and anti-default ideas may be a
+  reference for marketing/craft work, but it conflicts with `frontend-operate` as a simultaneous
+  product-interface constitution.
 
-## Retired from the default flow
+Providers are not vendored. `/plug-it-in` must record authority, stages, load policy, inputs, outputs,
+dependencies, conflicts, evals, cost, and uninstall contract in the schema-backed registry.
 
-- Engineering Loop
-- Default OmniDex R0–R3 consensus rounds
-- Default Boil fan-out and unlimited judge loops
-- Verification Loop as a second release constitution
-- UI/UX Pro Max as mandatory frontend instructions
-- Design System and Design Review as separate overlapping constitutions
-- Continuous Learning as an automatic policy writer
-- Fleet coordination and twin-nem unless a real concurrent fleet returns
+## Retired from automatic routing
+
+- Engineering Loop.
+- Twelve-class router.
+- Mandatory OmniDex multi-round consensus.
+- Default fan-out for ordinary fixes.
+- Unlimited judge loops.
+- Verification Loop as a second release constitution.
+- UI/UX Pro Max, Design System, and Design Review as mandatory overlapping frontend rules.
+- Continuous Learning as an automatic policy writer.
+- Fleet/twin-nem coordination without a real concurrent fleet.
+
+Retired material may remain externally available or manually invoked, but it is not loaded by the Turn
+Up Time router or core conveyor.

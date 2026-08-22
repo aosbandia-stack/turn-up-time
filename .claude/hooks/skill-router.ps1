@@ -1,4 +1,6 @@
 #requires -Version 5.1
+# Advisory UserPromptSubmit router. One prompt gets at most one control-plane route,
+# plus the independent irreversible-action signal. It never invokes specialist stages directly.
 $ErrorActionPreference = 'Continue'
 try {
     $raw = [Console]::In.ReadToEnd()
@@ -8,37 +10,39 @@ try {
     if ([string]::IsNullOrWhiteSpace($prompt)) { return }
     $p = $prompt.ToLowerInvariant()
 
+    # Explicit slash commands are already a human routing decision.
+    if ($p -match '^\s*/[a-z0-9-]+') { return }
+
     $route = $null
     $reason = $null
     $guard = $false
 
-    if ($p -match '^\s*/') {
-        return
-    }
-    if ($p -match '(delete|drop table|truncate|purge|wipe|rm -rf|reset --hard|force[- ]push|deploy|go live|publish|send email|bulk update|migration)') {
+    if ($p -match '(?i)(delete|drop\s+table|truncate|purge|wipe|rm\s+-rf|reset\s+--hard|force[- ]?push|deploy|go\s+live|publish|send\s+(an\s+)?email|bulk\s+(update|delete)|schema\s+migration|production\s+flag|rotate\s+credentials)') {
         $guard = $true
     }
-    if ($p -match '(add|install|plug in|plug-in).*(skill|agent|provider)') {
+
+    if ($p -match '(?i)\b(add|install|plug\s*[- ]?in|integrate)\b.{0,80}\b(skill|agent|provider|plugin)\b') {
         $route = 'plug-it-in'
-        $reason = 'A new capability must be placed, conflict-checked, evaluated, and made removable.'
+        $reason = 'Evaluate capability, placement, authority, conflicts, evals, and removal before installation.'
     }
-    elseif ($p -match '(close out the workflow|workflow retrospective|improve the workflow|what should the workflow learn|its not you|it.s not you)') {
+    elseif ($p -match '(?i)(close\s*out\s+the\s+workflow|workflow\s+retrospective|improve\s+the\s+workflow|what\s+should\s+the\s+workflow\s+learn|it.?s\s+not\s+you)') {
         $route = 'its-not-you-its-me'
-        $reason = 'Collect and validate process improvements without auto-mutating the constitution.'
+        $reason = 'Convert project traces into evidence-backed improvement proposals; never auto-promote policy.'
     }
-    elseif ($p -match '(resume|continue from|pick up where|where did we leave)') {
+    elseif ($p -match '(?i)\b(resume|continue\s+from|pick\s+up\s+where|where\s+did\s+we\s+leave)\b') {
         $route = 'turn-up-time'
-        $reason = 'Resume from the project ledger and run drift checks before acting.'
+        $reason = 'Resume from the project ledger and drift-check current repository/build state.'
     }
-    elseif ($p -match '(build|design|implement|create|make|automate|refactor|fix|repair|develop|ship|set up|wire up)') {
+    elseif ($p -match '(?i)\b(build|design|implement|create|develop|automate|refactor|fix|repair|ship|set\s+up|wire\s+up)\b') {
         $route = 'turn-up-time'
         $reason = 'One control plane classifies Tier A/B/C and loads only justified stages and capabilities.'
     }
 
     if ($null -eq $route -and -not $guard) { return }
-    $lines = New-Object System.Collections.Generic.List[string]
-    if ($route) { $lines.Add("Workflow router: invoke /$route. $reason") | Out-Null }
-    if ($guard) { $lines.Add('Irreversible-action signal detected: /guard-before-write must run before the consequential action.') | Out-Null }
+    $lines = New-Object 'System.Collections.Generic.List[string]'
+    if ($route) { $lines.Add("Workflow router: adopt /$route. $reason") | Out-Null }
+    if ($guard) { $lines.Add('Consequential-action signal: /guard-before-write must produce PROCEED before the named action.') | Out-Null }
+
     $out = @{
         hookSpecificOutput = @{
             hookEventName = 'UserPromptSubmit'
@@ -47,5 +51,5 @@ try {
     } | ConvertTo-Json -Depth 6 -Compress
     Write-Output $out
 } catch {
-    # Advisory router: fail open, never block the prompt.
+    # Advisory router fails open. Deterministic deny rules still protect destructive commands.
 }

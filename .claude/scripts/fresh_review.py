@@ -1,68 +1,140 @@
 #!/usr/bin/env python3
+"""Cold deterministic review of the final workflow tree."""
+from __future__ import annotations
+
+import argparse
+import json
+import re
+import subprocess
+import sys
 from pathlib import Path
-import re, json, yaml, sys
+from typing import Any
+
+import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
-checks=[]
-def add(name, ok, detail): checks.append((name,bool(ok),detail))
+CLAUDE_DIR = ROOT / ".claude"
+CHECKS: list[tuple[str, bool, str]] = []
+FRONTMATTER = re.compile(r"^---\n(.*?)\n---\n", re.S)
 
-readme=(ROOT/'README.md').read_text(encoding='utf-8')
-add('readme-skill-count', '9 user-facing skills plus 1 internal eval provider' in readme, 'README matches ten skill directories')
-add('readme-agent-count', '17 role-specific agents' in readme, 'README matches agent inventory')
-add('lite-combined-researcher', (ROOT/'.claude/agents/combined-engineering-researcher.md').exists(), 'lite profile provider exists')
-claude=(ROOT/'CLAUDE.md').read_text(encoding='utf-8')
-arch=(ROOT/'docs/ARCHITECTURE.md').read_text(encoding='utf-8')
-add('single-constitution', 'one constitution' in claude.lower() and 'Canonical Operating Contract' in claude, 'CLAUDE.md declares itself canonical')
-for stage in ('Route/intake','Discovery','Definition/tickets','Seam review','Build','Product closeout','Release','Workflow closeout'):
-    add('owner-'+stage.lower().replace('/','-').replace(' ','-'), stage in arch, f'architecture names owner row for {stage}')
-fm_re=re.compile(r'^---\n(.*?)\n---\n',re.S)
-assurance_tokens=('researcher','auditor','architect','integration-lead','irritated-domain-user','functional-qa','reviewer','triage-lead','ticket-verifier','judge')
-for p in sorted((ROOT/'.claude/agents').glob('*.md')):
-    m=fm_re.match(p.read_text(encoding='utf-8')); fm=yaml.safe_load(m.group(1)) if m else {}
-    name=fm.get('name',''); tools=set(fm.get('tools') or [])
-    if any(t in name for t in assurance_tokens) and name!='implementation-engineer':
-        add('readonly-'+name, not (tools & {'Edit','Write','MultiEdit','NotebookEdit'}), f'tools={sorted(tools)}')
-router=(ROOT/'.claude/hooks/skill-router.ps1').read_text(encoding='utf-8').lower()
-add('router-control-plane', "route = 'turn-up-time'" in router, 'build work routes to turn-up-time')
-add('router-no-engineering-loop', 'engineering-loop' not in router, 'retired router absent')
-add('router-no-direct-omnidex', "route = 'omnidex'" not in router, 'router does not bypass control plane')
-add('router-no-direct-boil', "route = 'boil-the-ocean'" not in router, 'router does not bypass control plane')
-loop_markers={'turn-up-time':['EVIDENCE_BLOCKED','two materially different repairs','Two failed repair waves'],'omnidex':['Repair once','stop and reframe'],'boil-the-ocean':['two materially different repairs','at most two waves'],'easily-irritated':['max_rounds','Terminal states'],'its-not-you-its-me':['Promote or retire']}
-for skill, markers in loop_markers.items():
-    text=(ROOT/f'.claude/skills/{skill}/SKILL.md').read_text(encoding='utf-8')
-    for marker in markers: add(f'loop-{skill}-{marker[:18]}', marker.lower() in text.lower(), marker)
-reg=yaml.safe_load((ROOT/'.claude/capabilities/registry.yaml').read_text(encoding='utf-8'))['capabilities']
-for name,cap in reg.items():
-    add('cap-'+name+'-eval', bool(cap.get('eval')), cap.get('eval'))
-    add('cap-'+name+'-uninstall', bool(cap.get('uninstall')), cap.get('uninstall'))
-    if cap.get('bundled'): add('cap-'+name+'-provider-present', (ROOT/f".claude/skills/{cap['provider']}/SKILL.md").exists(), cap['provider'])
-install=(ROOT/'scripts/install.ps1').read_text(encoding='utf-8')
-add('install-dry-run-default', '[switch]$Apply' in install and 'if ($Apply)' in install, 'Apply is opt-in')
-add('install-backup', 'BackupRoot' in install and 'Copy-Item $settingsPath' in install, 'conflicts/settings backed up')
-add('install-preserve-settings', 'ConvertFrom-Json' in install and 'UserPromptSubmit' in install, 'settings merged, not replaced')
-add('install-copies-runtime-scripts', "'.claude\\scripts'" in install, 'validator/scaffolder installed')
-add('install-manifest', 'turn-up-time-install-manifest.json' in install, 'exact installed file list recorded')
-add('install-notify-preserved', 'KEEP existing notification provider' in install, 'existing notification implementation is not overwritten')
-patterns={'github_pat':re.compile(r'gh[pousr]_[A-Za-z0-9_]{20,}'),'openai_key':re.compile(r'sk-[A-Za-z0-9]{20,}'),'aws':re.compile(r'AKIA[0-9A-Z]{16}'),'private_key':re.compile(r'-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----'),'windows_user':re.compile(r'C:\\Users\\[^\\\s]+',re.I),'company_domain':re.compile(r'teamtag\.com',re.I)}
-alltext='\n'.join(p.read_text(encoding='utf-8',errors='replace') for p in ROOT.rglob('*') if p.is_file() and '.git' not in p.parts)
-for name,pat in patterns.items(): add('scan-'+name, not pat.search(alltext), 'no match')
-broken=[]; link_re=re.compile(r'\[[^\]]+\]\(([^)]+)\)')
-for p in ROOT.rglob('*.md'):
-    if '.git' in p.parts: continue
-    for target in link_re.findall(p.read_text(encoding='utf-8')):
-        if target.startswith(('http://','https://','#','mailto:')): continue
-        path=target.split('#',1)[0]
-        if path and not (p.parent/path).resolve().exists(): broken.append(f'{p.relative_to(ROOT)} -> {target}')
-add('relative-links', not broken, '; '.join(broken[:5]) or 'all resolved')
-for p in ROOT.joinpath('.claude/schemas').glob('*.json'):
-    try: json.loads(p.read_text(encoding='utf-8')); ok=True; detail='valid JSON'
-    except Exception as e: ok=False; detail=str(e)
-    add('schema-'+p.stem,ok,detail)
-failed=[c for c in checks if not c[1]]
-for name,ok,detail in checks: print(('PASS' if ok else 'FAIL'),name,'-',detail)
-print(f'FRESH REVIEW: {len(checks)-len(failed)}/{len(checks)} passed')
-report=['# Fresh review report','', 'Reviewer contract: `.claude/agents/fresh-workflow-reviewer.md`. This automated cold pass reads the final tree rather than the build script.','', f'**Verdict: {"GREEN" if not failed else "RED"} — {len(checks)-len(failed)}/{len(checks)} checks passed.**','', '## Checks','']
-for name,ok,detail in checks: report.append(f'- [{"x" if ok else " "}] `{name}` — {detail}')
-report += ['', '## Limits', '', '- PowerShell parser and behavior checks require Windows PowerShell 5.1; the included GitHub Actions workflow runs them on `windows-latest`.', '- This deterministic pass is not a substitute for a separate model reviewing design judgment. The repository includes a read-only fresh reviewer agent for that cold model pass.', '- External capability providers are intentionally not vendored and must be evaluated through `/plug-it-in` before activation.','']
-(ROOT/'docs/REVIEW-REPORT.md').write_text('\n'.join(report),encoding='utf-8')
-sys.exit(1 if failed else 0)
+
+def add(name: str, ok: bool, detail: str) -> None:
+    CHECKS.append((name, bool(ok), detail))
+
+
+def run(command: list[str]) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(command, cwd=ROOT, text=True, capture_output=True)
+
+
+def fm(path: Path) -> dict[str, Any]:
+    match = FRONTMATTER.match(path.read_text(encoding="utf-8"))
+    return yaml.safe_load(match.group(1)) if match else {}
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--write-report", action="store_true")
+    parser.add_argument("--report-path", type=Path, default=ROOT / "docs" / "REVIEW-REPORT.md")
+    args = parser.parse_args()
+
+    validate = run([sys.executable, ".claude/scripts/validate_repo.py"])
+    add("repository-validator", validate.returncode == 0, validate.stdout.strip() or validate.stderr.strip())
+    seeded = run([sys.executable, ".claude/scripts/run_seeded_evals.py"])
+    add("seeded-process-evals", seeded.returncode == 0, seeded.stdout.strip().splitlines()[-1] if seeded.stdout else seeded.stderr.strip())
+
+    skills = sorted((CLAUDE_DIR / "skills").glob("*/SKILL.md"))
+    agents = sorted((CLAUDE_DIR / "agents").glob("*.md"))
+    schemas = sorted((CLAUDE_DIR / "schemas").glob("*.json"))
+    add("skill-count", len(skills) == 10, f"count={len(skills)}")
+    add("agent-count", len(agents) == 17, f"count={len(agents)}")
+    add("schema-count", len(schemas) == 11, f"count={len(schemas)}")
+
+    constitution = (ROOT / "CLAUDE.md").read_text(encoding="utf-8")
+    add("single-constitution", "one constitution" in constitution.lower(), "CLAUDE.md declares authority")
+    for marker in ("One funnel", "Loop contract", "Separation of duties", "Stage transition contract", "Capability routing", "Release and mutation"):
+        add("constitution-" + marker.lower().replace(" ", "-"), marker in constitution, marker)
+
+    architecture = (ROOT / "docs" / "ARCHITECTURE.md").read_text(encoding="utf-8")
+    for stage in ("INTAKE", "DISCOVERY", "EVIDENCE_REVIEW", "DEFINITION", "TICKETING", "SEAM_REVIEW", "BUILD", "INTEGRATION", "CLOSEOUT", "RELEASE", "WORKFLOW_CLOSEOUT"):
+        add("stage-owner-" + stage.lower(), f"| {stage} |" in architecture, "owner/input/output row exists")
+
+    assurance = []
+    for path in agents:
+        data = fm(path)
+        tools = set(data.get("tools") or [])
+        role_class = data.get("role_class")
+        if role_class == "assurance":
+            assurance.append(path.stem)
+            add("readonly-" + path.stem, not tools.intersection({"Edit", "Write", "MultiEdit", "NotebookEdit"}), f"tools={sorted(tools)}")
+        for heading in ("## Mission", "## Receives", "## Method", "## Returns", "## Stop and escalate", "## Prohibited"):
+            add(f"profile-{path.stem}-{heading[3:].lower().replace(' ', '-')}", heading in path.read_text(encoding="utf-8"), heading)
+    add("assurance-majority", len(assurance) == 16, f"assurance={len(assurance)}")
+
+    router = (CLAUDE_DIR / "hooks" / "skill-router.ps1").read_text(encoding="utf-8").lower()
+    add("router-control-plane", "route = 'turn-up-time'" in router, "build work enters Turn Up Time")
+    add("router-no-legacy-loop", "engineering-loop" not in router, "legacy loop absent")
+    add("router-no-direct-omnidex", "route = 'omnidex'" not in router, "no planning bypass")
+    add("router-no-direct-boil", "route = 'boil-the-ocean'" not in router, "no build bypass")
+
+    registry = json.loads((CLAUDE_DIR / "capabilities" / "registry.json").read_text(encoding="utf-8"))
+    add("registry-json-only", not (CLAUDE_DIR / "capabilities" / "registry.yaml").exists(), "one registry")
+    for name, capability in registry["capabilities"].items():
+        add("capability-eval-" + name, bool(capability.get("evals")), str(capability.get("evals")))
+        add("capability-uninstall-" + name, bool(capability.get("uninstall")), capability.get("uninstall", ""))
+        add("capability-authority-" + name, capability.get("authority") in {"control", "production", "assurance", "reference"}, str(capability.get("authority")))
+        if capability.get("bundled"):
+            add("bundled-provider-" + name, (CLAUDE_DIR / "skills" / capability["provider"] / "SKILL.md").is_file(), capability["provider"])
+
+    install = (ROOT / "scripts" / "install.ps1").read_text(encoding="utf-8")
+    uninstall = (ROOT / "scripts" / "uninstall.ps1").read_text(encoding="utf-8")
+    for marker in ("[switch]$Apply", "BackupRoot", "turn-up-time-install-manifest.json", "installed_sha256", "skill-router.ps1"):
+        add("installer-" + re.sub(r"[^a-z0-9]+", "-", marker.lower()).strip("-"), marker in install, marker)
+    add("uninstall-hash-safe", "installed_sha256" in uninstall and "SKIP MODIFIED" in uninstall, "modified installed files are preserved")
+    add("uninstall-removes-router-only", "skill-router.ps1" in uninstall and "UserPromptSubmit" in uninstall, "settings cleanup is targeted")
+
+    required_scripts = ("resolve_capabilities.py", "validate_project.py", "scaffold_project.py", "validate_repo.py", "run_seeded_evals.py")
+    for name in required_scripts:
+        add("script-" + name, (CLAUDE_DIR / "scripts" / name).is_file(), name)
+
+    patterns = {
+        "github-token": re.compile(r"gh[pousr]_[A-Za-z0-9_]{20,}"),
+        "api-key": re.compile(r"sk-[A-Za-z0-9]{20,}"),
+        "aws-key": re.compile(r"AKIA[0-9A-Z]{16}"),
+        "private-key": re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
+        "windows-user": re.compile(r"C:\\Users\\[^\\\s]+", re.I),
+        "company-domain": re.compile(r"teamtag\.com", re.I),
+    }
+    all_text = "\n".join(path.read_text(encoding="utf-8", errors="replace") for path in ROOT.rglob("*") if path.is_file() and ".git" not in path.parts)
+    for name, pattern in patterns.items():
+        add("scan-" + name, not pattern.search(all_text), "no match")
+
+    broken: list[str] = []
+    link_pattern = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
+    for path in ROOT.rglob("*.md"):
+        if ".git" in path.parts:
+            continue
+        for target in link_pattern.findall(path.read_text(encoding="utf-8")):
+            if target.startswith(("http://", "https://", "#", "mailto:")):
+                continue
+            relative = target.split("#", 1)[0]
+            if relative and not (path.parent / relative).resolve().exists():
+                broken.append(f"{path.relative_to(ROOT)} -> {target}")
+    add("relative-links", not broken, "; ".join(broken[:5]) or "all resolved")
+
+    failed = [item for item in CHECKS if not item[1]]
+    for name, ok, detail in CHECKS:
+        print(("PASS" if ok else "FAIL"), name, "-", detail)
+    print(f"FRESH REVIEW: {len(CHECKS)-len(failed)}/{len(CHECKS)} passed")
+
+    if args.write_report:
+        lines = ["# Fresh workflow review", "", f"**Verdict: {'GREEN' if not failed else 'RED'} — {len(CHECKS)-len(failed)}/{len(CHECKS)} checks passed.**", "", "## Checks", ""]
+        for name, ok, detail in CHECKS:
+            lines.append(f"- [{'x' if ok else ' '}] `{name}` — {detail}")
+        lines += ["", "## Limits", "", "- This deterministic cold pass is not a separate model judgment.", "- Windows PowerShell behavior is exercised in the Windows CI job.", "- Optional external providers are intentionally not vendored.", ""]
+        args.report_path.write_text("\n".join(lines), encoding="utf-8")
+
+    return 1 if failed else 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

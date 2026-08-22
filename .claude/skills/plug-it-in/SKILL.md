@@ -1,33 +1,41 @@
 ---
 name: plug-it-in
-description: Safe skill intake and placement. Inspects a proposed skill, identifies the exact capability it adds, classifies its authority and workflow stage, detects overlap and conflicts, requires an eval and rollback, and updates the capability registry only after human approval.
+description: Safe skill/provider intake and placement. Inspects a proposed package, identifies the exact capability it adds, classifies authority and stage, detects overlap/conflicts and data/tool risk, requires eval and removal contracts, pilots when appropriate, and updates the registry only after human approval.
 disable-model-invocation: true
 ---
 
 # /plug-it-in
 
-Use when the human says "add this skill," "install this dashboard skill," or wants a new capability
-provider.
+Skills are implementation providers, not new constitutions. Add capability without adding routing
+confusion or permanent context cost.
 
-## Inspect before asking
+## 1. Inspect before asking
 
-Read the skill, dependencies, tool permissions, data egress, hooks, setup, size, and references. Compare
-against the project registry first and the user registry second, plus installed providers.
+Read the proposed skill/package, dependencies, install scripts, hooks, tools, model/data egress,
+configuration, generated files, update behavior, size, license, and referenced standards. Compare it
+against project registry first, user registry second, and installed providers.
 
-Ask only unresolved placement questions:
+Do not run unpinned install commands or external scanners during evaluation.
+
+## 2. Placement contract
+
+Resolve only unanswered questions:
 
 1. What exact capability are we buying?
-2. Which stage consumes it?
-3. Is it control, production, assurance, or reference?
-4. Default, conditional, manual-only, or project pilot?
-5. What does it consume and produce?
-6. What tools/data does it require?
-7. What overlaps or conflicts?
-8. What eval proves improvement?
-9. What is the context/dependency cost?
-10. How is it removed cleanly?
+2. Which stages consume it?
+3. Is it `control`, `production`, `assurance`, or `reference`?
+4. Is load policy core, conditional, signal-triggered, manual-only, or project pilot?
+5. What artifacts/data/tools does it consume and produce?
+6. What existing provider overlaps, conflicts, or should be replaced?
+7. What transitive capabilities does it require?
+8. What seeded eval proves it adds value and catches a real failure?
+9. What context, dependency, security, latency, and maintenance cost does it add?
+10. How is it removed without deleting product evidence or user work?
 
-## Outcomes
+Assurance providers may not have Edit/Write. A provider that combines review and repair must be split
+or classified as production with a separate verifier.
+
+## 3. Outcomes
 
 - `INSTALL_AS_PROVIDER`
 - `MERGE_INTO_PROVIDER`
@@ -37,10 +45,24 @@ Ask only unresolved placement questions:
 - `REJECT`
 - `REPLACE_EXISTING_PROVIDER`
 
-## Rules
+Default to a project pilot when evidence is promising but not yet sufficient for global installation.
 
-- Skills request capabilities; workflow stages do not hard-code large skill stacks.
-- Assurance providers must not receive Edit/Write.
-- A provider must declare stage, mode, inputs, outputs, conflicts, eval, and uninstall path.
-- No installation or registry mutation occurs without human approval.
-- Run the validator and seeded evals after any registry change.
+## 4. Approval, registration, and validation
+
+Before mutation, present exact files/hooks/settings/dependencies, conflict/removal plan, eval, and
+rollback. Obtain human approval and run `/guard-before-write` when installation changes external,
+credential, global, or protected state.
+
+Update `registry.json` only after installation is real. Validate it against the capability schema,
+run `resolve_capabilities.py` for success and conflict cases, run repository validation/seeded evals,
+and record the provider version/hash.
+
+## 5. Review and retirement
+
+A project pilot has an owner, success measure, cost measure, and review date. `/its-not-you-its-me`
+handles global promotion or retirement; usage alone is not proof of value.
+
+## Boundaries
+
+Do not hard-code provider names into core stage skills, install multiple competing frontend
+constitutions, silently enable hooks/telemetry, or treat discoverability as permission to install.

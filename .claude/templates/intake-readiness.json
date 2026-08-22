@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "project_id": "example-project",
+  "status": "DRAFT",
+  "primary_user": "",
+  "primary_job": "",
+  "desired_outcome": "",
+  "product_boundary": "",
+  "permitted_actions": [],
+  "prohibited_actions": [],
+  "critical_constraints": [],
+  "non_goals": [],
+  "human_owned_decisions": [],
+  "deferred_risks": []
+}

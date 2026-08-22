@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Definition of Good",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "project_id", "status", "requirements", "critical_journeys", "non_goals", "human_gates", "approved_by", "approved_at"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "project_id": {"type": "string", "minLength": 1},
+    "status": {"enum": ["DRAFT", "APPROVED", "SUPERSEDED"]},
+    "requirements": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "statement", "priority", "evidence_refs", "acceptance", "owner_surface", "ticket_ids"],
+        "properties": {
+          "id": {"type": "string"},
+          "statement": {"type": "string"},
+          "priority": {"enum": ["MUST", "SHOULD", "OPTIONAL"]},
+          "evidence_refs": {"type": "array", "items": {"type": "string"}},
+          "acceptance": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["type", "check", "expected"],
+            "properties": {
+              "type": {"enum": ["deterministic", "experiential", "human_gate"]},
+              "check": {"type": "string"},
+              "expected": {"type": "string"}
+            }
+          },
+          "owner_surface": {"type": "string"},
+          "ticket_ids": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "critical_journeys": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "persona", "start_state", "steps", "success", "failure_and_recovery", "verification"],
+        "properties": {
+          "id": {"type": "string"},
+          "persona": {"type": "string"},
+          "start_state": {"type": "string"},
+          "steps": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+          "success": {"type": "string"},
+          "failure_and_recovery": {"type": "string"},
+          "verification": {"type": "string"}
+        }
+      }
+    },
+    "non_goals": {"type": "array", "items": {"type": "string"}},
+    "human_gates": {"type": "array", "items": {"type": "string"}},
+    "approved_by": {"type": ["string", "null"]},
+    "approved_at": {"type": ["string", "null"], "format": "date-time"}
+  }
+}

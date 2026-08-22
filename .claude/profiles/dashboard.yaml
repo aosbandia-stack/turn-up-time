@@ -1,19 +1,32 @@
 name: dashboard
-required_capabilities:
-  - frontend-operate
-  - browser-e2e
+profile_version: 2
+recommended_discovery_profile: standard
 required_discovery:
   - product-domain-researcher
   - frontend-experience-researcher
   - backend-systems-researcher
   - security-privacy-researcher
+  - premise-auditor
+required_capabilities:
+  - frontend-operate
+  - browser-e2e
 required_closeout:
   - irritated-domain-user
   - functional-qa
   - ux-accessibility-reviewer
 conditional_closeout:
   - security-performance-reviewer
-notes:
-  - Use Impeccable in Operate mode.
-  - Do not load marketing-page Taste rules by default.
-  - Critical journeys and state matrices must be defined before tickets.
+required_artifacts:
+  - critical journeys
+  - information architecture
+  - complete UI state matrix
+  - backend ownership for each state
+  - browser verification plan
+  - accessibility requirements
+  - performance and data-density expectations
+rules:
+  - Use Impeccable in Operate mode when installed.
+  - Do not load marketing-page Taste rules as a product-interface constitution.
+  - Define loading, empty, partial, error, denied, success, and recovery states before tickets.
+  - Treat tables, filters, keyboard navigation, responsive density, and long-running operations as product behavior, not polish.
+  - Require one real critical-journey browser test and one known-bad control.
