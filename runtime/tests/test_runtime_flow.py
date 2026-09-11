@@ -37,7 +37,11 @@ def _ledger():
 
 
 @pytest.mark.asyncio
-async def test_interrupt_resume_advances_ledger(tmp_path):
+async def test_interrupt_resume_advances_ledger(tmp_path, monkeypatch):
+    # This is a topology-only unit fixture. Production has no bypass switches;
+    # test_cli_hardening exercises real validators and signatures through the CLI.
+    monkeypatch.setattr("turn_up_time_graph.graph.validate_project_for_target", lambda *args: None)
+    monkeypatch.setattr("turn_up_time_graph.graph.verify_approval", lambda *args: "Harold")
     repo_root = tmp_path / "repo"
     project = repo_root / ".claude" / "projects" / "pilot"
     project.mkdir(parents=True)
