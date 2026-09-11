@@ -14,6 +14,7 @@ dependencies = [
   "aiosqlite>=0.20,<0.22",
   "pydantic>=2.7.4,<3",
   "jsonschema>=4.23,<5",
+  "cryptography>=46,<52",
 ]
 
 [project.scripts]

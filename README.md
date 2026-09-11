@@ -3,15 +3,19 @@
 **An evidence-to-ship engineering gauntlet for Claude Code, governed by an executable LangGraph
 control shell.**
 
-> **Current release: Turn Up Time v1.0.0.** See the
+> **Latest published release: Turn Up Time v1.0.0.** See the
 > [release notes](docs/RELEASE-NOTES-v1.0.0.md),
-> [graph validation report](docs/GRAPH-REVIEW-REPORT.md), and
+> [release validation report](docs/GRAPH-REVIEW-REPORT.md), and
 > [installation guide](docs/INSTALL.md).
+>
+> **Unreleased hardening:** signed approvals, runtime-owned bookkeeping, evidence integrity,
+> and journal-backed recovery change the operational contract. Read
+> [the migration guide](docs/HARDENING.md) before upgrading an active project.
+> The v1.0.0 tag and existing local installations are not changed by this branch.
 
-Turn Up Time is designed to make agents build the right thing earlier, repair less later, and improve
-the workflow only when evidence justifies it. It replaces overlapping routers, planning rituals,
-reviewer loops, and style constitutions with one conveyor, one project ledger, bounded local loops,
-and one legal stage topology.
+Turn Up Time aims to build the right thing earlier and repair less later. It replaces overlapping
+routers, planning rituals, and reviewer loops with one conveyor, one project ledger, bounded loops,
+and one legal business-stage topology.
 
 ```text
 /turn-up-time
@@ -31,145 +35,111 @@ Integration Lead
 /its-not-you-its-me
 ```
 
-LangGraph sits beneath that conveyor. It controls legal transitions, human interrupts, loop ceilings,
-checkpoint/resume, and event history. It does not replace the specialist skills and agents.
+LangGraph controls transitions, human gates, loop ceilings, checkpoint recovery, and history.
+Specialist skills and agents still do the engineering work. This is not a worker daemon or an
+operating-system sandbox.
 
 ## Operating rule
 
 > **Loop where evidence changes. Gate where authority changes. Stop where the same failure repeats.
 > Never loop merely because another agent is available.**
 
-A repeat is justified only by new evidence, a changed artifact, a fresh independent evaluator, or a
-human decision. Re-reading the same prompt with the same evidence is rumination.
+A repeat must buy new evidence, changed artifacts, independent evaluation, or a human decision.
+Re-reading the same prompt and evidence is rumination, not progress.
 
-## What ships
+## What is included
 
-- 9 user-facing skills plus 1 internal eval provider.
-- 17 role-specific agents, with assurance roles mechanically read-only.
-- One prompt router that sends ordinary software work to `/turn-up-time`.
-- A plug-and-play capability registry for optional specialist providers.
-- Machine-readable contracts for intake, evidence, Definition of Good, tickets, seams, findings,
-  release, ledger, workflow improvements, graph topology, and graph events.
-- Deterministic project validation and seeded workflow-failure evals.
-- A pinned LangGraph runtime with local SQLite checkpointing.
-- A dry-run-first installer with backup, ownership manifest, modified-file protection, and reversible
-  uninstall.
+- 9 user-facing skills plus 1 internal eval provider; 17 role-specific agent profiles.
+- One prompt router and a capability registry for optional providers.
+- Schema-backed project, evidence, ticket, finding, and release contracts.
+- Semantic checks for acceptance coverage, evidence hashes, dependency cycles, file ownership,
+  closeout contents, and exact assembled build identity.
+- A LangGraph runtime with SQLite checkpoints, operation journal, exclusive project writer,
+  explicit retry IDs, and controlled artifact/spawn/build bookkeeping.
+- Owner-signed, expiring approvals bound to the action, code, ledger, and evidence.
+- Deterministic workflow checks and regression tests, including actual process-death recovery.
+- A dry-run-first installer with backup, ownership manifest, modified-file protection, and uninstall.
+
+Tool profiles, hashes, and signatures do not make arbitrary owner-account shell access safe.
+Signing keys and trust configuration need a real protected-controller/worker boundary. No key,
+worker sandbox, paid agent service, or autonomous supervisor is provisioned by installation.
 
 ## Task shapes
 
 | Tier | Shape | Process |
 |---|---|---|
-| **A — Answer** | Lookup, explanation, read-only question | Read, answer, cite. No project graph. |
-| **B — Fix** | Bounded change whose shape is already known | Read, edit, verify, report. No discovery fan-out. |
-| **C — Build** | New capability, material product fork, or coordination is itself work | Full graph-backed conveyor, sized lite/standard/full. |
+| **A — Answer** | Lookup, explanation, read-only question | Read, answer, cite. No graph. |
+| **B — Fix** | Bounded known change | Read, edit, verify, report. No discovery fan-out. |
+| **C — Build** | New capability, material product fork, or real coordination | Graph-backed workflow sized lite/standard/full. |
 
-File count does not decide the tier. Risk selects assurance. Coordination and unresolved product
-design select Tier C.
+Risk, uncertainty, and dependencies determine process—not file count or a desired minimum agent
+count. Prefer one capable builder plus independent verification when work does not truly divide.
 
 ## Discovery profiles
 
-| Profile | When | Independent roles |
-|---|---|---|
-| **Lite** | Small new capability | Product/Domain + combined engineering + Premise Auditor |
-| **Standard** | New web app or significant feature | Product/Domain + Frontend/Experience + Backend/Systems + Security/Privacy + Premise Auditor |
-| **Full** | Novel, high-risk, enterprise, regulated | Standard team + up to two justified specialists + architecture challenge |
+| Profile | Coverage |
+|---|---|
+| **Lite** | Product/Domain + Combined Engineering, then Premise Auditor |
+| **Standard** | Product/Domain + Frontend/Experience + Backend/Systems + Security/Privacy, then Premise Auditor |
+| **Full** | Standard plus up to two justified specialists/challenges |
 
-A spawn is not a goal. It must buy independent information or independent verification.
-
-## Official topology
-
-The authority chain is:
-
-```text
-CLAUDE.md
-  constitutional principles and human ownership
-        ↓
-runtime/src/turn_up_time_graph/topology.py
-  only executable source of legal stages, edges, loops, and gates
-        ↓
-.claude/skills and .claude/agents
-  node behavior and role boundaries
-        ↓
-.claude/schemas
-  artifact contracts
-        ↓
-project-ledger.json
-  approved human-readable project state
-        ↓
-SQLite checkpoint + events.jsonl
-  runtime recovery and append-only execution history
-```
-
-The graph runtime blocks illegal transitions, loop exhaustion, missing human approvers, missing
-evidence deltas on repair edges, and checkpoint/ledger drift.
+A spawn must buy independent evidence or verification. Plan the whole-project ceiling, including
+build/review/repair work; the ceiling is not a target. Track reservations through the runtime.
 
 ## Install
 
-Clone or update the repository, then preview:
+Clone or update the repository, then preview without auto-accept:
 
 ```powershell
 .\scripts\install.ps1 `
   -EnableNotifications `
-  -EnableAutoAccept `
   -ReplaceGlobalConstitution `
   -EnableGraphRuntime
 ```
 
-The preview changes nothing. After reviewing it, apply:
+After reviewing the plan and migration requirements, apply:
 
 ```powershell
 .\scripts\install.ps1 `
   -Apply `
   -EnableNotifications `
-  -EnableAutoAccept `
   -ReplaceGlobalConstitution `
   -EnableGraphRuntime
 ```
 
-The graph runtime requires Python 3.11 or newer and is installed into an isolated virtual environment
-under `~/.claude/runtime/turn-up-time/`.
-
-Verify:
+Python 3.11+ is required for the isolated runtime under `~/.claude/runtime/turn-up-time/`.
+`-EnableAutoAccept` remains a separate explicit opt-in; it is not a substitute for human approval.
 
 ```powershell
 & "$HOME\.claude\scripts\turn-up-time-graph.ps1" validate-topology
 ```
 
-See [docs/INSTALL.md](docs/INSTALL.md) and [docs/GRAPH-RUNTIME.md](docs/GRAPH-RUNTIME.md).
+See [installation](docs/INSTALL.md), [runtime commands](docs/GRAPH-RUNTIME.md), and
+[approval/evidence migration](docs/HARDENING.md). Signed human gates fail closed until the trusted
+operator provisions a public trust file and an owner-only signing path.
 
 ## Core commands
 
-- `/turn-up-time` — control plane, classification, state, and stage signaling.
-- `/omnidex` — compiles approved evidence into architecture and executable tickets.
-- `/boil-the-ocean` — executes approved tickets completely.
-- `/easily-irritated` — independent product-friction and consistency closeout.
-- `/production-audit` — release readiness and operational risk.
-- `/its-not-you-its-me` — workflow self-improvement with approval and seeded evals.
+`/turn-up-time` coordinates classification and runtime state; `/omnidex` compiles approved evidence
+into architecture and tickets; `/boil-the-ocean` executes approved work; `/easily-irritated` independently
+checks the product; `/production-audit` checks release readiness; `/its-not-you-its-me` proposes measured
+workflow improvements. Conditional controls are `/grill-me`, `/guard-before-write`, and `/plug-it-in`.
 
-Conditional controls:
+Runtime commands include `signal`, `request-approval`, `recover`, `status`, and `history`.
+Metadata signals `record_artifact`, `reserve_spawn`, `complete_spawn`, and `set_build_identity` replace
+direct edits to an initialized ledger. Every signal uses a stable event ID; a retry reuses it.
 
-- `/grill-me` — resolves only human-owned ambiguity.
-- `/guard-before-write` — reversibility gate for destructive or externally consequential actions.
-- `/plug-it-in` — safely places a new provider into the capability registry.
+## Source of truth and execution boundary
 
-## Source-of-truth order
+Current code/runtime evidence and approved project artifacts outrank conversation memory. The
+runtime is the only supported ledger writer. Only the business graph advances a stage. A journal
+can finish a previously validated operation, not authorize a new one. Unrecorded drift blocks work.
+A structurally valid verdict without current supporting evidence is not a release decision.
 
-1. Current repository and runtime evidence.
-2. Active `project-ledger.json`.
-3. Human-ratified intake and Definition of Good.
-4. Approved architecture and tickets.
-5. Recorded evidence packs and receipts.
-6. SQLite checkpoint cursor, only when aligned with the ledger.
-7. Handoffs and summaries.
-8. Conversation memory.
+Large design/testing packages remain optional capability providers, loaded only when approved work
+requires them. Providers are libraries, not competing constitutions. See
+[architecture](docs/ARCHITECTURE.md) for ownership and handoffs.
 
-A conversation cannot overrule the ledger. A checkpoint cannot overrule a changed ledger. A summary
-cannot overrule the code.
-
-## Optional providers
-
-Large design and testing packages are not vendored into the core. Tickets request capabilities such as
-`frontend-operate` or `browser-e2e`; the registry maps them to approved providers. `/plug-it-in`
-evaluates placement, overlap, authority, conflicts, evals, cost, and removal before activation.
-
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full ownership and loop model.
+The next operational proof is a real one-builder/one-verifier feature pilot and comparison with a
+simpler baseline. [The pilot contract](docs/PILOT.md) defines the evidence and measurements; passing
+runtime tests alone does not establish app quality, unattended execution, or return on investment.

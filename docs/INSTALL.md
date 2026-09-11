@@ -1,118 +1,95 @@
 # Installation and removal
 
-The repository runs project-scoped as cloned. The optional installer copies the canonical skills,
+The repository supports project-scoped use. The optional installer copies canonical skills,
 agents, hooks, capability registry, schemas, templates, profiles, evals, and runtime wrapper scripts to
-`~/.claude/`. The LangGraph runtime is opt-in and is installed into its own virtual environment.
+`~/.claude/`. The LangGraph runtime is opt-in and uses its own virtual environment.
+
+Before upgrading an active project, read [HARDENING.md](HARDENING.md). Human gates now require
+signed approval, not a typed name; existing green receipts may need real reverification. Back up
+an existing installation and stopped project state first. No merge, local upgrade, signing key,
+trust file, or worker sandbox is implied by a source change.
 
 ## Preview first
 
-Dry-run is the default. The following command prints the complete plan without writing files:
+Dry-run prints the plan without writing files. The recommended initial profile does not enable
+auto-accept:
 
 ```powershell
 .\scripts\install.ps1 `
   -EnableNotifications `
-  -EnableAutoAccept `
   -ReplaceGlobalConstitution `
   -EnableGraphRuntime
 ```
 
-## Apply the complete workflow
+## Apply after reviewing the plan
 
 ```powershell
-.\scripts\install.ps1 `
-  -Apply `
-  -EnableNotifications `
-  -EnableAutoAccept `
-  -ReplaceGlobalConstitution `
-  -EnableGraphRuntime
+.\scripts\install.ps1 -Apply -EnableNotifications -ReplaceGlobalConstitution -EnableGraphRuntime
 ```
 
-Use a single line when copying through a system that may alter PowerShell backticks:
-
-```powershell
-.\scripts\install.ps1 -Apply -EnableNotifications -EnableAutoAccept -ReplaceGlobalConstitution -EnableGraphRuntime
-```
-
-The graph runtime requires Python 3.11 or newer. To select a specific interpreter:
+Python 3.11+ is required. To select an interpreter:
 
 ```powershell
 $env:TURN_UP_TIME_PYTHON = 'C:\path\to\python.exe'
 ```
 
-Without `-EnableGraphRuntime`, the installer applies the skills, agents, router, schemas, and safety
-controls but does not create the LangGraph virtual environment.
+Without `-EnableGraphRuntime`, the installer copies skills and controls but does not create the
+runtime virtual environment. `-EnableAutoAccept` is a separate explicit switch that sets acceptEdits;
+it does not grant human approval or provide isolation. The command guard is only a narrow backstop.
 
-## What installation does
+## Installation behavior
 
-- backs up every conflicting target before replacement;
-- records copied files as `created` or `overwritten` and records preserved conflicting providers;
-- replaces any prior `skill-router.ps1` hook row with the single Turn Up Time router while preserving
-  unrelated prompt hooks;
-- replaces only the Turn Up Time destructive-command guard row;
-- preserves an existing notification provider and adds the bundled fallback only when requested and
-  absent;
-- preserves existing permission deny rules;
-- sets `permissions.defaultMode=acceptEdits` only when explicitly requested;
-- records every installed file, its SHA-256, whether it preexisted, and its backup path;
-- optionally creates an isolated virtual environment under
-  `~/.claude/runtime/turn-up-time/`, installs the pinned runtime package, validates the executable
-  topology, and records a runtime ownership marker;
-- records targeted settings changes, graph-runtime ownership, and global-constitution replacement in
-  `~/.claude/turn-up-time-install-manifest.json`.
+The installer backs up conflicting targets, records created/overwritten/preserved files and their
+SHA-256 hashes, keeps unrelated hooks and existing deny rules, and preserves an existing notification
+provider. It replaces only its own router/guard hook rows. Global constitution replacement happens
+only when requested. The graph option installs the runtime and validates topology, with a recorded
+ownership marker and manifest under `~/.claude/turn-up-time-install-manifest.json`.
 
-`TURN_UP_TIME_CLAUDE_HOME` may point installation at a temporary directory for testing.
+`TURN_UP_TIME_CLAUDE_HOME` can target a temporary home for installation tests. The public approval
+trust file is separately provisioned in the trusted controller's home; a project cannot select its
+own authority key. The root `scripts/sign_approval.py` owner utility is not copied into worker skills.
+Source documentation remains in this checkout; retain its path with the installation record.
 
-## Verify the installed workflow
+## Verify
 
-From the source checkout:
+From the source checkout with development dependencies installed:
 
 ```powershell
 python .claude/scripts/validate_repo.py
 python .claude/scripts/run_seeded_evals.py
 python .claude/scripts/fresh_review.py
-```
-
-Verify the installed graph runtime:
-
-```powershell
+python -m pytest -q runtime/tests
 & "$HOME\.claude\scripts\turn-up-time-graph.ps1" validate-topology
 ```
 
-A separate Claude Code model review can be run after installation:
+The full runtime tests require the installed runtime and its dev dependencies. GitHub Actions runs
+Linux and Windows tests, including actual CLI interruption/recovery and malformed-input guard tests.
+A separate model review can be requested with `scripts/run-fresh-model-review.ps1`; it uses the
+read-only fresh-workflow-reviewer. This is distinct from deterministic tests and was not implicitly
+run by installing the package.
+
+For a new project, plan the total spawn ceiling, including research, implementation, verification,
+and repairs. For example, a deliberately approved ceiling of 12 can be supplied at scaffolding:
 
 ```powershell
-.\scripts\run-fresh-model-review.ps1
+python .claude/scripts/scaffold_project.py pilot --profile lite --spawn-budget 12 --objective 'Approved pilot outcome'
 ```
 
-That command uses the read-only `fresh-workflow-reviewer`. It is intentionally separate from the
-builder session and tells the reviewer to reproduce high-risk checks rather than trust a stored
-report.
+Twelve is an example ceiling, not a measured optimum or target. The signed intake binds the actual
+ledger including that limit. Legacy profile defaults remain available but may be too small for a
+complete build. `--force` can reuse only an empty directory; it cannot reset an existing project.
 
 ## Uninstall safely
 
-Preview:
-
 ```powershell
 .\scripts\uninstall.ps1
-```
-
-Apply:
-
-```powershell
 .\scripts\uninstall.ps1 -Apply
 ```
 
-The uninstaller:
-
-- removes or restores only files whose current hash still matches the installed hash;
-- prints `SKIP MODIFIED` and preserves any file changed after installation;
-- restores preexisting files from their exact backup;
-- removes only Turn Up Time router, guard, and notification hook rows;
-- restores the previous default permission mode only when it was not subsequently changed;
-- restores the global constitution only when its current hash still matches the installed copy;
-- removes or restores the owned graph virtual environment only when both its marker and installation
-  hash still match;
-- prints `SKIP MODIFIED GRAPH RUNTIME` rather than deleting a changed runtime;
-- retains the manifest when modified artifacts were skipped so recovery information is not lost.
-
-It never guesses ownership from a path name.
+The first command previews. Apply removes or restores only files whose current hashes still match
+installation ownership. Modified files print SKIP MODIFIED and remain. Preexisting files restore
+from exact backups. Only TUT hook rows are removed; permission mode/global constitution are restored
+only if still unchanged since installation. The owned graph environment is removed/restored only
+when marker and hash match; a changed environment prints SKIP MODIFIED GRAPH RUNTIME. The manifest
+remains when changes were skipped, preserving recovery information. Ownership is never guessed
+from a filename. Back up active project ledgers, journals, checkpoints, and evidence separately.
