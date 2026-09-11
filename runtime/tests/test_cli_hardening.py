@@ -77,8 +77,10 @@ def signed_intake(fixture):
 def test_cli_bookkeeping_signed_transition_and_retry(installed_project):
     _, project, _, _ = installed_project
     initial_history = json.loads((project / "project-ledger.json").read_text())["stage_history"]
+    (project / "requests").mkdir()
+    (project / "requests/record.json").write_text(json.dumps({"path": "intake-readiness.json", "schema": "intake-readiness.schema.json"}))
     cli(installed_project, "signal", "--event", "record_artifact", "--event-id", "record-1",
-        "--data-json", json.dumps({"path": "intake-readiness.json", "schema": "intake-readiness.schema.json"}))
+        "--data-file", "requests/record.json")
     ledger = json.loads((project / "project-ledger.json").read_text())
     assert ledger["stage_history"] == initial_history
     assert ledger["artifacts"]["intake-readiness.json"]["sha256"]

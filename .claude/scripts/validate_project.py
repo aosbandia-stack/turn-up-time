@@ -104,6 +104,8 @@ def validate_transition(project: Path, stage: str, errors: list[str]) -> None:
                 errors.append(f"TICKET_NOT_EVIDENCE_GREEN {ticket.get('ticket_id')}")
             else:
                 check_ticket_evidence(project, ticket, errors)
+                if not ledger.get("build_identity") or ticket["build_receipt"]["build_identity"] != ledger["build_identity"]:
+                    errors.append(f"TICKET_ASSEMBLED_BUILD_MISMATCH {ticket.get('ticket_id')}")
     if target_index >= order.index("CLOSEOUT"):
         seam = artifact_status(project, "integration/post-build-verdict.json", "seam-verdict.schema.json", errors)
         if seam and (seam.get("phase") != "POST_BUILD" or seam.get("status") != "SEAMS_SOUND"):

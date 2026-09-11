@@ -18,6 +18,7 @@ from .persistence import sqlite_checkpointer
 from .render import render
 from .topology import TRANSITION_INDEX, Stage, expected_events, validate_topology
 from .transactions import lookup, replay
+from .workspace import project_file
 from .validation import ensure_checkpoint_ledger_alignment, validate_event_payload, validate_project_for_target
 
 
@@ -42,7 +43,11 @@ def _print(value: Any) -> None:
 def _payload(args) -> dict[str, Any]:
     if not args.event_id:
         raise TurnUpTimeGraphError("--event-id is required: retain it for retries and approval binding")
-    data = json.loads(getattr(args, "data_json", "{}"))
+    data_file = getattr(args, "data_file", None)
+    if data_file and getattr(args, "data_json", "{}") != "{}":
+        raise TurnUpTimeGraphError("choose --data-file or --data-json, not both")
+    data = json.loads(project_file(Path(args.project_dir), data_file).read_text(encoding="utf-8-sig")
+                      if data_file else getattr(args, "data_json", "{}"))
     return EventSignal(
         event=args.event, event_id=args.event_id, approved_by=getattr(args, "approved_by", None),
         approval_ref=getattr(args, "approval_ref", None),
@@ -181,6 +186,7 @@ def build_parser() -> argparse.ArgumentParser:
             command.add_argument("--evidence-delta", action="append")
             command.add_argument("--receipt-ref", action="append")
             command.add_argument("--data-json", default="{}", help="JSON object for a control operation")
+            command.add_argument("--data-file", help="project-relative JSON file; avoids PowerShell quoting issues")
             command.set_defaults(handler=command_signal if name == "signal" else command_request_approval)
         elif name == "recover":
             command.set_defaults(handler=command_recover)
