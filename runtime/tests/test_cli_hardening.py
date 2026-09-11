@@ -77,7 +77,7 @@ def signed_intake(fixture):
 def test_cli_bookkeeping_signed_transition_and_retry(installed_project):
     _, project, _, _ = installed_project
     initial_history = json.loads((project / "project-ledger.json").read_text())["stage_history"]
-    (project / "requests").mkdir()
+    (project / "requests").mkdir(exist_ok=True)
     (project / "requests/record.json").write_text(json.dumps({"path": "intake-readiness.json", "schema": "intake-readiness.schema.json"}))
     cli(installed_project, "signal", "--event", "record_artifact", "--event-id", "record-1",
         "--data-file", "requests/record.json")
@@ -142,3 +142,24 @@ def test_real_process_death_recovers_without_duplicate_transition(installed_proj
     assert len(ledger["approvals"]) == 1
     rows = [json.loads(line) for line in (project / "events.jsonl").read_text().splitlines()]
     assert len([row for row in rows if row["event_id"] == "intake-1"]) == 1
+
+
+def test_recover_rejects_unrecorded_ledger_edits(installed_project):
+    _, project, _, _ = installed_project
+    cli(installed_project, "recover")
+    path = project / "project-ledger.json"
+    ledger = json.loads(path.read_text())
+    ledger["spawn_budget"]["limit"] = 999
+    path.write_text(json.dumps(ledger))
+    result = cli(installed_project, "recover", success=False)
+    assert "drift" in result.stdout
+    assert json.loads(path.read_text())["spawn_budget"]["limit"] == 999
+
+
+def test_rejected_bookkeeping_does_not_poison_resume(installed_project):
+    data = {"spawn_id": "too-early", "role": "implementation-engineer",
+            "role_class": "production", "reason": "not approved for build"}
+    cli(installed_project, "signal", "--event", "reserve_spawn", "--event-id", "bad-1",
+        "--data-json", json.dumps(data), success=False)
+    cli(installed_project, "signal", "--event", "record_artifact", "--event-id", "good-1",
+        "--data-json", json.dumps({"path": "intake-readiness.json"}))
