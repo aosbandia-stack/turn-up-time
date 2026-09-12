@@ -21,7 +21,7 @@ from .workspace import build_identity, evidence_manifest, project_file
 TRUST_FILE_VARIABLE = "TURN_UP_TIME_TRUST_FILE"
 
 
-def _account_home() -> Path:
+def account_home() -> Path:
     """The OS account's home, resolved WITHOUT consulting HOME or USERPROFILE.
 
     `Path.home()` expands `$HOME` (POSIX) or `%USERPROFILE%` (Windows), both of
@@ -84,7 +84,7 @@ def trust_file_path() -> Path:
     """
     override = os.environ.get(TRUST_FILE_VARIABLE)
     if not override:
-        return _account_home() / ".claude" / "turn-up-time-trust.json"
+        return account_home() / ".claude" / "turn-up-time-trust.json"
     path = Path(override)
     if _mode_grants_write(path):
         raise TurnUpTimeGraphError(

@@ -139,3 +139,39 @@ def test_default_trust_root_is_under_the_account_home(monkeypatch):
     resolved = trust_file_path()
     assert resolved.name == "turn-up-time-trust.json"
     assert resolved.parent.name == ".claude"
+
+
+def test_home_does_not_select_the_project_validator(tmp_path, monkeypatch):
+    """The same defect class, in the fail-closed validation path.
+
+    `_validator_candidates` derived its installed fallback from `Path.home()`,
+    so repointing HOME made the runtime discover a planted validator that
+    approves everything. A caller-selected validator is not validation.
+    """
+    from turn_up_time_graph.validation import _validator_candidates
+
+    planted = tmp_path / "planted-home" / ".claude" / "scripts"
+    planted.mkdir(parents=True)
+    (planted / "validate_project.py").write_text("import sys; sys.exit(0)\n")
+    monkeypatch.setenv("HOME", str(tmp_path / "planted-home"))
+    monkeypatch.setenv("USERPROFILE", str(tmp_path / "planted-home"))
+    monkeypatch.delenv("TURN_UP_TIME_CLAUDE_HOME", raising=False)
+
+    candidates = _validator_candidates(tmp_path / "repo")
+    assert planted / "validate_project.py" not in candidates
+
+
+def test_explicit_claude_home_still_selects_the_validator(tmp_path, monkeypatch):
+    """`TURN_UP_TIME_CLAUDE_HOME` stays an explicit installer/operator setting.
+
+    It is trust-relevant configuration, not something a worker may set; the
+    installed deployment depends on it, so it is deliberately still honoured.
+    """
+    from turn_up_time_graph.validation import _validator_candidates
+
+    installed = tmp_path / "installed" / "scripts"
+    installed.mkdir(parents=True)
+    (installed / "validate_project.py").write_text("import sys; sys.exit(0)\n")
+    monkeypatch.setenv("TURN_UP_TIME_CLAUDE_HOME", str(tmp_path / "installed"))
+
+    assert installed / "validate_project.py" in _validator_candidates(tmp_path / "repo")

@@ -54,7 +54,23 @@ def ensure_checkpoint_ledger_alignment(project_dir: Path, expected_stage: str, e
 
 
 def _validator_candidates(repo_root: Path) -> tuple[Path, ...]:
-    claude_home = Path(os.environ.get("TURN_UP_TIME_CLAUDE_HOME", str(Path.home() / ".claude")))
+    """Where the project validator may be found, in precedence order.
+
+    The installed fallback is resolved from the OS account rather than `$HOME`,
+    for the reason recorded in docs/SECURITY-BOUNDARY.md: `Path.home()` expands
+    an environment variable any caller sets on a child process, so a worker
+    could point it at a directory holding a validator that approves everything.
+    Validation is meant to fail closed, and a caller-selected validator is not
+    validation.
+
+    `TURN_UP_TIME_CLAUDE_HOME` remains an explicit installer/operator setting.
+    It is deliberately env-selectable and must be treated as trust-relevant
+    configuration, not as something a worker may set.
+    """
+    from .approvals import account_home
+
+    configured = os.environ.get("TURN_UP_TIME_CLAUDE_HOME")
+    claude_home = Path(configured) if configured else account_home() / ".claude"
     return (repo_root / ".claude" / "scripts" / "validate_project.py", claude_home / "scripts" / "validate_project.py")
 
 

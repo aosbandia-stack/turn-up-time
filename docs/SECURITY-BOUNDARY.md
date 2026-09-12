@@ -118,3 +118,35 @@ the result can be recomputed and compared.
 - No redaction exists anywhere in logging or evidence.
 
 These are recorded so they are not mistaken for solved problems.
+
+## The same defect, a second place: the project validator
+
+`validation._validator_candidates()` derived its installed fallback from
+`Path.home() / ".claude"`. Repointing `HOME` therefore made the runtime
+discover a planted `validate_project.py` — and a validator the caller chose is
+not validation. Measured: with `HOME` repointed, the fallback candidate
+resolved into the planted directory and the planted file was found.
+
+Severity is lower than the trust-root case for one reason only: the in-repo
+validator takes precedence when it exists, so exploitation first requires
+removing `<repo>/.claude/scripts/validate_project.py` — and `build_identity`
+records a removed tracked file as `DELETED`, so that step is visible.
+
+**Now:** the fallback resolves through the same account-derived home as the
+trust file. `TURN_UP_TIME_CLAUDE_HOME` is still honoured, because the installed
+deployment depends on it; it is therefore **trust-relevant configuration**, not
+something a worker may be allowed to set. A supervisor must not pass it through
+to a worker, and must not let a worker choose it.
+
+Regression tests: `test_home_does_not_select_the_project_validator` and
+`test_explicit_claude_home_still_selects_the_validator`.
+
+## A measured result worth keeping
+
+A nested Claude Code worker was bisected against its environment: greedy
+cumulative removal reached the **empty set**, and `env -i claude -p` with a file
+-writing task still completed. Provider authentication here is host-managed
+rather than environment-borne, so a worker can be launched with essentially no
+inherited environment. That does not create isolation between same-account
+processes — a sibling's `/proc/<pid>/environ` stays readable — but it removes
+the argument for forwarding the parent environment by default.
