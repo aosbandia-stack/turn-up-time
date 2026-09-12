@@ -43,8 +43,14 @@ def installed_project(tmp_path):
     private = Ed25519PrivateKey.generate()
     public = private.public_key().public_bytes(serialization.Encoding.Raw, serialization.PublicFormat.Raw)
     trust = {"keys": {"fixture": {"public_key": base64.b64encode(public).decode(), "approver": "Fixture Owner", "gates": ["INTAKE"]}}}
-    (home / ".claude/turn-up-time-trust.json").write_text(json.dumps(trust))
-    env = dict(os.environ, HOME=str(home), USERPROFILE=str(home), TURN_UP_TIME_CLAUDE_HOME=str(home / ".claude"), PYTHONDONTWRITEBYTECODE="1")
+    trust_file = home / ".claude/turn-up-time-trust.json"
+    trust_file.write_text(json.dumps(trust))
+    # The trust root is no longer selected by HOME/USERPROFILE, so the fixture
+    # names it explicitly and makes it unwritable - the same deployment shape
+    # the runtime demands of any override.
+    trust_file.chmod(0o444)
+    env = dict(os.environ, HOME=str(home), USERPROFILE=str(home), TURN_UP_TIME_CLAUDE_HOME=str(home / ".claude"),
+               TURN_UP_TIME_TRUST_FILE=str(trust_file), PYTHONDONTWRITEBYTECODE="1")
     return repo, project, private, env
 
 

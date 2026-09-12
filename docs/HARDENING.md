@@ -54,8 +54,21 @@ manifest. Changing any of these requires a fresh approval. Expiry is at most 24
 hours. Each trusted key lists its permitted gates; keys and individual approvals
 can be revoked.
 
-The controller reads `~/.claude/turn-up-time-trust.json` using its own fixed home.
-A trusted operator provisions it, not a ticket or worker. Format:
+The controller reads `.claude/turn-up-time-trust.json` under the **OS account's**
+home — resolved from the POSIX password database or the Windows process token,
+never from `HOME` or `USERPROFILE`. An earlier build resolved it with
+`Path.home()`, which expands those variables; a process could therefore point
+`HOME` at a directory holding its own trust file, name its own key as the owner,
+and have a forged approval accepted on any gate, including `RELEASE`, without
+modifying a single protected file. See `docs/SECURITY-BOUNDARY.md`.
+
+To keep the trust file somewhere protected (for example root-owned under `/etc`),
+set `TURN_UP_TIME_TRUST_FILE` to its absolute path. The runtime refuses that
+override when the file's permissions grant write to the account running the
+controller, so it cannot be redirected at a file the caller just wrote. That
+raises the cost of substitution; under a single OS account it is not isolation.
+
+A trusted operator provisions the trust file, not a ticket or worker. Format:
 
 ```json
 {
