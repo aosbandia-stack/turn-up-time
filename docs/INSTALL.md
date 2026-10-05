@@ -134,8 +134,16 @@ migrate a copy, retain the old records, and reapprove changed requirements/ticke
    project/environment, then record actual-use outputs separately. No missing selected provider may
    remain READY. Installation alone does not prove the bots used it.
 4. After final product repair, load the installed Swiper instructions. Extend the existing closeout
-   packet with cleanup, caller checks, rollback, handoff and current proof. Legacy ad hoc terminal
-   packets must be migrated using the consumed terminal schema; preserve historical findings.
+   packet with cleanup, caller checks, rollback, handoff and current proof. `cleanup.instruction`
+   records the known installed source path/hash and a baseline `cleanup-instructions` receipt with
+   the captured bytes. It verifies integrity, not model cognition. Unknown callers/dependencies and
+   INVESTIGATE actions link `risk_ref` to an existing `open_risks` entry, retaining the action owner.
+   REMOVE/CONSOLIDATE actions require baseline `guard_ref` and resulting-build `execution_ref`, both
+   bound to the exact path/decision through `cleanup_action`. The guard carries PROCEED and required
+   APPROVED authority with `by`/`at`; capture its six checks as hashed outputs. Guard time must precede
+   execution. Existing authorization is valid evidence; never fabricate approval or label it
+   NOT_REQUIRED. Known KEEP/NO_CHANGE need no removal guard. Migrate legacy ad hoc packets with the
+   consumed terminal/verification schemas and preserve historical findings.
 5. Produce production-audit and final-judge packets with canonical `status` and their schema fields.
    Renaming a field alone does not recreate stale evidence or authorize release. Complete the same
    terminal packet's `completion` only for the scope actually verified.

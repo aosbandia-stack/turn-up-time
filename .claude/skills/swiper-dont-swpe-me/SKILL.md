@@ -11,6 +11,10 @@ Make the approved product easier to understand and maintain. This is a control p
 existing CLOSEOUT stage, not another architecture, product audit, or release authority. Turn Up Time
 must read this installed `SKILL.md` before use and retain its path/hash in cleanup evidence. A slash
 mention, installed directory, or recorded event does not prove that instructions were loaded.
+`cleanup.instruction` binds the known source/installed path and SHA-256 to a `cleanup-instructions`
+verification receipt on the baseline build. Capture the read instruction bytes in its hashed outputs.
+The validator resolves the source from its own installed root, never an arbitrary claimed path.
+Matching bytes prove snapshot integrity, not model cognition or truthful tool invocation.
 
 ## Entry and scope
 
@@ -37,7 +41,12 @@ checks to the project. Avoid accidental script-to-module or language migrations.
 1. Capture the exact baseline, behavior checks and recoverable version or backup.
 2. Batch mechanical cleanup by one reason; separate behavior changes into new tickets.
 3. Dispatch the existing implementation owner for authorized file changes. Use `/guard-before-write`
-   before removal or another consequential action. Auditors do not repair their own findings.
+   before removal or another consequential action. Every REMOVE or CONSOLIDATE records an action-bound
+   `guard_ref` on the baseline and `execution_ref` on the resulting build. Both receipts name the exact
+   path and decision in `cleanup_action`. The guard includes PROCEED and required, named, time-stamped
+   human approval in `guard`; NOT_REQUIRED cannot waive destructive authority. Its hashed outputs
+   retain all six guard checks. Approval and guard must precede the action. Existing scoped user
+   authorization may supply that approval; do not invent it. Auditors do not repair their own findings.
 4. Keep one canonical implementation or document, stable entry points, explicit generated/temporary
    locations, and links from existing navigation. Avoid a new checklist document for each finding.
 5. Verify the changed build independently: affected acceptance checks, callers, integration, journeys,
@@ -53,7 +62,14 @@ Extend `closeout/terminal-state.json` using `terminal-state.schema.json`. Its `c
 baseline/current build, actions with dependency and external-caller proof, rollback, evidence receipts,
 reproof and handoff reference. Receipts follow `verification-receipt.schema.json` and hash the actual
 outputs. `NO_CHANGE` is a valid evidence-backed result. `CHANGED` requires a new build identity and
-fresh reproof. Retain unresolved investigations in open risks with an owner.
+fresh reproof. Every INVESTIGATE or UNKNOWN dependency/caller action supplies `risk_ref` matching an
+entry in the existing `open_risks`; its action owner remains responsible. Release validation carries
+those risks into explicit accepted-risk approval. Known KEEP and NO_CHANGE need no removal guard.
+
+Receipt IDs are `cleanup-instructions`, `cleanup-guard:<path>` and `cleanup-execution:<path>`. Guard
+receipts add `guard: {verdict, authority_required, authority_status, by, at}`. Both action receipts add
+`cleanup_action: {path, decision}`. These extend the existing verification receipt, not another report
+tree. Retain actual captured outputs and refresh affected proof when the candidate changes.
 
 Do not claim release approval or deployment. Stop at a behavior fork, uncertain destructive action,
 missing evidence, or the existing two-repair ceiling. The same terminal packet gains `completion`

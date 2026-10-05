@@ -38,7 +38,12 @@
       "receipts/check.json"
     ],
     "reproof_refs": [],
-    "handoff_ref": "receipts/check.json"
+    "handoff_ref": "receipts/check.json",
+    "instruction": {
+      "source_path": "/absolute/installed/.claude/skills/swiper-dont-swpe-me/SKILL.md",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "receipt_ref": "receipts/cleanup-instructions.json"
+    }
   },
   "completion": {
     "schema_version": 1,

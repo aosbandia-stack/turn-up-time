@@ -1,6 +1,7 @@
 """Semantic checks consumed by the existing project stage validator."""
 from __future__ import annotations
 
+import hashlib
 import re
 from pathlib import Path
 from typing import Any
@@ -171,6 +172,53 @@ def check_capabilities(project: Path, definition: dict[str, Any], tickets: list[
         errors.append(f'CAPABILITY {error["code"]} {error.get("capability", "")}')
 
 
+def check_cleanup_instruction(project: Path, cleanup: dict[str, Any], errors: list[str]) -> dict[str, Any] | None:
+    instruction = cleanup['instruction']
+    # Resolve only our known source/installed root. Never read a claimed arbitrary source path.
+    source = (CLAUDE_DIR / 'skills' / 'swiper-dont-swpe-me' / 'SKILL.md').resolve()
+    if instruction['source_path'] != str(source):
+        errors.append('CLEANUP_INSTRUCTION_SOURCE_MISMATCH')
+    try:
+        actual_hash = hashlib.sha256(source.read_bytes()).hexdigest()
+    except OSError:
+        errors.append('CLEANUP_INSTRUCTION_SOURCE_MISSING')
+        return None
+    if instruction['sha256'] != actual_hash:
+        errors.append('CLEANUP_INSTRUCTION_HASH_MISMATCH')
+    proof = check_proof(project, instruction['receipt_ref'], cleanup['baseline_identity'], errors, 'cleanup-instructions')
+    if proof and not any(ref['sha256'] == actual_hash for ref in proof['evidence_refs']):
+        errors.append('CLEANUP_INSTRUCTION_SNAPSHOT_MISSING')
+    return proof
+
+
+def check_cleanup_action(project: Path, action: dict[str, Any], cleanup: dict[str, Any], instruction: dict[str, Any] | None, checked_at: str, errors: list[str]) -> None:
+    path = action['path']
+    if not action.get('guard_ref') or not action.get('execution_ref'):
+        errors.append(f'CLEANUP_ACTION_GUARD_REQUIRED {path}')
+        return
+    guard = check_proof(project, action['guard_ref'], cleanup['baseline_identity'], errors, 'cleanup-guard:' + path)
+    execution = check_proof(project, action['execution_ref'], cleanup['build_identity'], errors, 'cleanup-execution:' + path)
+    expected = {'path': path, 'decision': action['decision']}
+    for label, proof in (('guard', guard), ('execution', execution)):
+        if proof and proof.get('cleanup_action') != expected:
+            errors.append(f'CLEANUP_ACTION_MISMATCH {label}:{path}')
+    if guard:
+        authority = guard.get('guard', {})
+        # Removal is consequential under the existing guard contract. A caller cannot
+        # waive human authority by relabeling this action NOT_REQUIRED.
+        if authority.get('verdict') != 'PROCEED' or authority.get('authority_required') is not True or authority.get('authority_status') != 'APPROVED' or not (authority.get('by') or '').strip() or not authority.get('at'):
+            errors.append(f'CLEANUP_ACTION_AUTHORITY_REQUIRED {path}')
+        elif timestamp(authority['at']) > timestamp(guard['checked_at']):
+            errors.append(f'CLEANUP_GUARD_PREDATES_APPROVAL {path}')
+        if instruction and timestamp(instruction['checked_at']) > timestamp(guard['checked_at']):
+            errors.append(f'CLEANUP_GUARD_PREDATES_INSTRUCTIONS {path}')
+    if execution:
+        if guard and timestamp(guard['checked_at']) > timestamp(execution['checked_at']):
+            errors.append(f'CLEANUP_ACTION_PREDATES_GUARD {path}')
+        if timestamp(execution['checked_at']) > timestamp(checked_at):
+            errors.append(f'CLEANUP_CLOSEOUT_PREDATES_ACTION {path}')
+
+
 def check_closeout(project: Path, definition: dict[str, Any] | None, build: str | None, errors: list[str]) -> dict[str, Any] | None:
     packet = read_contract(project / 'closeout' / 'terminal-state.json', 'terminal-state.schema.json', errors)
     if not packet:
@@ -179,6 +227,7 @@ def check_closeout(project: Path, definition: dict[str, Any] | None, build: str 
     if packet['terminal_state'] not in {'RELEASE_READY', 'YELLOW_ACCEPTANCE_REQUIRED'}:
         errors.append('CLOSEOUT_NOT_RELEASE_READY')
     cleanup = packet['cleanup']
+    instruction = check_cleanup_instruction(project, cleanup, errors)
     if cleanup['build_identity'] != build:
         errors.append('STALE_CLEANUP_BUILD')
     if cleanup['outcome'] == 'NO_CHANGE':
@@ -187,7 +236,9 @@ def check_closeout(project: Path, definition: dict[str, Any] | None, build: str 
     elif cleanup['baseline_identity'] == build or not cleanup['reproof_refs']:
         errors.append('CLEANUP_REPROOF_REQUIRED')
     for ref in cleanup['evidence_refs']:
-        check_proof(project, ref, build, errors, 'cleanup')
+        proof = check_proof(project, ref, build, errors, 'cleanup')
+        if proof and instruction and timestamp(instruction['checked_at']) > timestamp(proof['checked_at']):
+            errors.append('CLEANUP_PREDATES_INSTRUCTIONS')
     check_proof(project, cleanup['handoff_ref'], build, errors, 'handoff')
     refs = packet['evidence_refs'] + cleanup['reproof_refs']
     if definition and definition['ui']['applicable']:
@@ -199,6 +250,11 @@ def check_closeout(project: Path, definition: dict[str, Any] | None, build: str 
             if not expected.issubset(ids):
                 errors.append(f'UI_CLOSEOUT_PROOF_MISSING {route["route"]}')
     for action in cleanup['actions']:
+        uncertain = action['decision'] == 'INVESTIGATE' or action['dependencies'] == 'UNKNOWN' or action['external_callers'] == 'UNKNOWN'
+        if (uncertain or action.get('risk_ref')) and action.get('risk_ref') not in packet['open_risks']:
+            errors.append(f'CLEANUP_RISK_LINK_REQUIRED {action["path"]} owner={action["owner"]}')
+        if action['decision'] in {'REMOVE','CONSOLIDATE'}:
+            check_cleanup_action(project, action, cleanup, instruction, packet['checked_at'], errors)
         if action['decision'] in {'REMOVE','CONSOLIDATE'} and (action['dependencies'] != 'VERIFIED' or action['external_callers'] != 'VERIFIED'):
             errors.append(f'UNSAFE_CLEANUP_CALLERS {action["path"]}')
         for ref in action['dependency_evidence_refs']:

@@ -56,6 +56,19 @@ def proof(project, identifier, context=None):
     return ref
 
 
+def instruction_proof(project, baseline=BUILD):
+    source = (CLAUDE / 'skills/swiper-dont-swpe-me/SKILL.md').resolve()
+    reference = proof(project, 'cleanup-instructions')
+    receipt = read(project / reference)
+    snapshot = project / receipt['evidence_refs'][0]['path']
+    snapshot.write_bytes(source.read_bytes())
+    digest = hashlib.sha256(snapshot.read_bytes()).hexdigest()
+    receipt['build_identity'] = baseline
+    receipt['evidence_refs'][0]['sha256'] = digest
+    write(project / reference, receipt)
+    return {'source_path': str(source), 'sha256': digest, 'receipt_ref': reference}
+
+
 def make_project(tmp_path, ui=False):
     project = tmp_path / 'example-project'
     project.mkdir()
@@ -91,7 +104,7 @@ def make_project(tmp_path, ui=False):
         write(project / 'integration' / (phase + '-build-verdict.json'), seam)
     terminal = example('terminal-state.example.json')
     terminal.update(build_identity=BUILD, checked_at=STAMP, evidence_refs=[proof(project,'JRN-001')])
-    terminal['cleanup'].update(baseline_identity=BUILD, build_identity=BUILD, actions=[], evidence_refs=[proof(project,'cleanup')], handoff_ref=proof(project,'handoff'))
+    terminal['cleanup'].update(instruction=instruction_proof(project), baseline_identity=BUILD, build_identity=BUILD, actions=[], evidence_refs=[proof(project,'cleanup')], handoff_ref=proof(project,'handoff'))
     terminal['completion'].update(build_identity=BUILD, checked_at=STAMP, handoff_ref=proof(project,'handoff'))
     if ui:
         terminal['evidence_refs'] += [proof(project,'ui:/items:desktop'), proof(project,'ui:/items:mobile'), proof(project,'keyboard:/items')]
@@ -205,13 +218,14 @@ def test_real_runtime_release_validation_rejects_stale_cleanup(tmp_path):
 
 def test_changed_cleanup_reproof_and_unsafe_deletion(tmp_path):
     p = make_project(tmp_path)
-    edit(p,'closeout/terminal-state.json',lambda v:v['cleanup'].update(outcome='CHANGED',baseline_identity='prior-build',reproof_refs=['receipts/CHK-001.json']))
+    edit(p,'closeout/terminal-state.json',lambda v:v['cleanup'].update(outcome='CHANGED',baseline_identity='prior-build',instruction=instruction_proof(p,'prior-build'),reproof_refs=['receipts/CHK-001.json']))
     assert errors_for(p) == []
     action = {'path':'legacy.ps1','decision':'REMOVE','reason':'Candidate for removal.','owner':'maintainer','dependencies':'VERIFIED','external_callers':'UNKNOWN','dependency_evidence_refs':[proof(p,'dependencies:legacy.ps1')],'external_caller_evidence_refs':[proof(p,'external-callers:legacy.ps1')],'rollback':'Restore exact baseline version.'}
     edit(p,'closeout/terminal-state.json',lambda v:v['cleanup']['actions'].append(action))
     assert any('UNSAFE_CLEANUP_CALLERS' in error for error in errors_for(p))
-    edit(p,'closeout/terminal-state.json',lambda v:v['cleanup']['actions'][0].update(decision='KEEP'))
-    assert errors_for(p) == []
+    risk = 'legacy.ps1 callers remain unconfirmed'
+    edit(p,'closeout/terminal-state.json',lambda v:(v['cleanup']['actions'][0].update(decision='KEEP',risk_ref=risk),v.update(open_risks=[risk])))
+    assert errors_for(p, stage='RELEASE') == []
 
 
 def deployed(project):
