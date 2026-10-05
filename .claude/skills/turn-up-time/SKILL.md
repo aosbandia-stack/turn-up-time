@@ -133,9 +133,17 @@ assembly. The same seam surviving two repair waves returns to architecture.
 
 ## 9. Product closeout and release
 
-Run `/easily-irritated` against the approved Definition of Good and exact build. Then run
+Run `/easily-irritated` against the approved Definition of Good and exact build. After final repairs,
+explicitly load the installed `/swiper-dont-swpe-me` SKILL.md and run its changed-scope cleanup in the
+same CLOSEOUT stage. Retain the loaded instruction path/hash in cleanup evidence; mentioning its
+slash name does not prove invocation. Refresh affected proof on any changed build. Then run
 `/production-audit` and a fresh `fresh-release-judge`. Release requires a schema-valid
 `release/release-verdict.json`. Run `/guard-before-write` before deploy or other consequential action.
+
+Distinguish candidate verification, release approval, deployment execution and live verification.
+Populate `completion` in `closeout/terminal-state.json` for the approved scope before `DONE`. A graph
+event or recorded worker outcome alone proves no external action. Validate DONE with the same project
+validator; do not fabricate a deployment target for candidate-only work.
 
 ## 10. Workflow closeout
 

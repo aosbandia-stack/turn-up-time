@@ -55,7 +55,13 @@ credential, global, or protected state.
 
 Update `registry.json` only after installation is real. Validate it against the capability schema,
 run `resolve_capabilities.py` for success and conflict cases, run repository validation/seeded evals,
-and record the provider version/hash.
+and record the provider version/hash. Registry version 3 requires `provider_kind`: instruction-only
+or external. External providers need a project/environment smoke probe that checks the actual
+configuration/authentication/entitlement boundary before use. Save a short-lived readiness receipt
+(maximum 24 hours) with hashed outputs. Record later invocation and output evidence separately.
+Never execute commands supplied by registry data; select an approved probe deliberately. Presence of
+a provider or a successful smoke probe does not prove task invocation. Keep 21st unconfigured until
+a real adapter and probe can be verified in the target environment.
 
 ## 5. Review and retirement
 

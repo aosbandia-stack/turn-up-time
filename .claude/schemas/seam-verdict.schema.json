@@ -3,36 +3,144 @@
   "title": "Integration Seam Verdict",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "project_id", "phase", "status", "ticket_refs", "findings", "checked_at", "reviewer"],
+  "required": [
+    "schema_version",
+    "project_id",
+    "phase",
+    "status",
+    "ticket_refs",
+    "findings",
+    "checked_at",
+    "reviewer",
+    "build_identity"
+  ],
   "properties": {
-    "schema_version": {"const": 1},
-    "project_id": {"type": "string"},
-    "phase": {"enum": ["PRE_BUILD", "POST_BUILD"]},
-    "status": {"enum": ["SEAMS_SOUND", "SEAMS_BLOCKED"]},
-    "ticket_refs": {"type": "array", "items": {"type": "string"}},
+    "schema_version": {
+      "const": 1
+    },
+    "project_id": {
+      "type": "string"
+    },
+    "phase": {
+      "enum": [
+        "PRE_BUILD",
+        "POST_BUILD"
+      ]
+    },
+    "status": {
+      "enum": [
+        "SEAMS_SOUND",
+        "SEAMS_BLOCKED"
+      ]
+    },
+    "ticket_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "findings": {
       "type": "array",
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "severity", "description", "owner_ticket", "blocking", "acceptance"],
+        "required": [
+          "id",
+          "severity",
+          "description",
+          "owner_ticket",
+          "blocking",
+          "acceptance"
+        ],
         "properties": {
-          "id": {"type": "string"},
-          "severity": {"enum": ["S0", "S1", "S2", "S3"]},
-          "description": {"type": "string"},
-          "owner_ticket": {"type": ["string", "null"]},
-          "blocking": {"type": "boolean"},
-          "acceptance": {"type": "string"}
+          "id": {
+            "type": "string"
+          },
+          "severity": {
+            "enum": [
+              "S0",
+              "S1",
+              "S2",
+              "S3"
+            ]
+          },
+          "description": {
+            "type": "string"
+          },
+          "owner_ticket": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "blocking": {
+            "type": "boolean"
+          },
+          "acceptance": {
+            "type": "string"
+          }
         }
       }
     },
-    "checked_at": {"type": "string", "format": "date-time"},
-    "reviewer": {"type": "string"}
+    "checked_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reviewer": {
+      "type": "string"
+    },
+    "build_identity": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    }
   },
   "allOf": [
     {
-      "if": {"properties": {"status": {"const": "SEAMS_SOUND"}}},
-      "then": {"properties": {"findings": {"not": {"contains": {"properties": {"blocking": {"const": true}}, "required": ["blocking"]}}}}}
+      "if": {
+        "properties": {
+          "status": {
+            "const": "SEAMS_SOUND"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "findings": {
+            "not": {
+              "contains": {
+                "properties": {
+                  "blocking": {
+                    "const": true
+                  }
+                },
+                "required": [
+                  "blocking"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "phase": {
+            "const": "POST_BUILD"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "build_identity": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
     }
   ]
 }

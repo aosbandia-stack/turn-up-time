@@ -36,6 +36,7 @@ labeled `KEEP`, `ADAPT`, or `REPLACE`.
   → /boil-the-ocean       ticket execution and build receipts
   → integration-lead      POST_BUILD SEAMS_SOUND
   → /easily-irritated     independent product closeout
+  → /swiper-dont-swpe-me  bounded repository cleanup and IT handoff (same CLOSEOUT)
   → /production-audit     operational release evidence
   → fresh-release-judge   independent final judgment
   → /guard-before-write   consequential action gate
@@ -143,6 +144,11 @@ Agent prose cannot advance a stage. Direct manual ledger edits require reconcili
 Tickets request capabilities, not hard-coded skill stacks. Resolve project registry first, then user
 registry, then bundled registry. Load only the minimum conflict-free provider plan just in time.
 
+Every selected capability and its dependencies are required even when its provider is not bundled.
+Instruction-only providers require readable installed instructions. External tools also require a
+current project/environment readiness probe; integration requires actual invocation/output evidence.
+Installed, usable, and used are distinct claims. The resolver never executes registry shell commands.
+
 Providers are implementation libraries, not constitutions. Every provider declares authority, stage,
 inputs, outputs, dependencies, conflicts, evals, load policy, and removal contract. Missing optional
 providers block or trigger `/plug-it-in`; they are not silently replaced.
@@ -154,13 +160,20 @@ Release requires:
 - exact build identity across all receipts;
 - approved Definition of Good and ticket evidence;
 - POST_BUILD `SEAMS_SOUND`;
-- Easily Irritated terminal state compatible with release;
+- Easily Irritated terminal state compatible with release, followed by `/swiper-dont-swpe-me`;
+- current cleanup, dependency/external-caller, rollback and IT handoff evidence;
 - production-audit SHIP/SHIP_WITH_ACCEPTED_RISK;
 - fresh-release-judge GREEN;
 - human accepted-risk/release approval where required;
 - `/guard-before-write` receipt before consequential action.
 
-Auto-accept never overrides human accountability.
+Auto-accept never overrides human accountability. A changed candidate invalidates affected ticket,
+integration, journey, visual, cleanup and release evidence. Refresh those checks before judging it.
+
+`DONE` reports the approved scope. Candidate-only work ends at CANDIDATE_VERIFIED. Deployment work
+requires the approved exact candidate, target/environment, guard and execution receipt, live checks,
+and rollback/handoff owners. Graph events and worker reservations do not prove launch, supervision,
+deployment or live success. Completion lives in the existing closeout terminal packet.
 
 ## 12. Workflow improvement
 

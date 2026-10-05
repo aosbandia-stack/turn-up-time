@@ -30,7 +30,10 @@ policy writers.
 2. **Validate** a workflow defect versus product defect, one-off noise, or operator choice.
 3. **Locate** the earliest stage that could have prevented or cheaply detected it.
 4. **Research** established remedies, counterevidence, and applicability.
-5. **Propose** the smallest reversible change using `improvement-proposal.schema.json`.
+5. **Propose** the smallest reversible change using `improvement-proposal.schema.json`. Inspect
+   existing lint, test and CI controls first. Encode mechanical failures as deterministic checks;
+   reserve concise prose for judgment and navigation. Reuse existing files instead of accumulating
+   checklist documents. Preserve human promotion and seeded-failure gates.
 6. **Human decides:** approve, reject, defer, or project-only pilot.
 7. **Implement** an approved change as its own Turn Up Time project/ticket.
 8. **Seed and run** the original failure; require RED-before and GREEN-after.

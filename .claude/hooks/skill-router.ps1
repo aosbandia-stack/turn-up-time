@@ -33,7 +33,7 @@ try {
         $route = 'turn-up-time'
         $reason = 'Resume from the project ledger and drift-check current repository/build state.'
     }
-    elseif ($p -match '(?i)\b(build|design|implement|create|develop|automate|refactor|fix|repair|ship|set\s+up|wire\s+up)\b') {
+    elseif ($p -match '(?i)\b(build|design|implement|create|develop|automate|refactor|clean\s*up|cleanup|fix|repair|ship|set\s+up|wire\s+up)\b') {
         $route = 'turn-up-time'
         $reason = 'One control plane classifies Tier A/B/C and loads only justified stages and capabilities.'
     }

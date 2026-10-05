@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "project_id": "example-project",
+  "build_identity": "commit-or-artifact-id",
+  "terminal_state": "RELEASE_READY",
+  "checked_at": "2026-10-05T00:00:00Z",
+  "reviewer": "closeout-reviewer",
+  "evidence_refs": [
+    "receipts/check.json"
+  ],
+  "open_risks": [],
+  "round_history": [
+    "Round 1: critical journey passed."
+  ],
+  "cleanup": {
+    "scope": "CHANGED",
+    "baseline_identity": "commit-or-artifact-id",
+    "build_identity": "commit-or-artifact-id",
+    "outcome": "NO_CHANGE",
+    "actions": [
+      {
+        "path": "src/example.ts",
+        "decision": "KEEP",
+        "reason": "Owned entry point remains used.",
+        "owner": "project-maintainer",
+        "dependency_evidence_refs": [
+          "receipts/check.json"
+        ],
+        "external_caller_evidence_refs": [
+          "receipts/check.json"
+        ],
+        "rollback": "Revert candidate commit.",
+        "dependencies": "VERIFIED",
+        "external_callers": "VERIFIED"
+      }
+    ],
+    "evidence_refs": [
+      "receipts/check.json"
+    ],
+    "reproof_refs": [],
+    "handoff_ref": "receipts/check.json"
+  },
+  "completion": {
+    "schema_version": 1,
+    "project_id": "example-project",
+    "build_identity": "commit-or-artifact-id",
+    "scope": "CANDIDATE_ONLY",
+    "status": "CANDIDATE_VERIFIED",
+    "target": null,
+    "environment": null,
+    "execution_ref": null,
+    "live_verification_refs": [],
+    "rollback_owner": "project-maintainer",
+    "handoff_owner": "project-maintainer",
+    "handoff_ref": "receipts/check.json",
+    "checked_at": "2026-10-05T00:00:00Z"
+  }
+}

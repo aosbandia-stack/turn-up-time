@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "project_id": "example-project",
+  "build_identity": "commit-or-artifact-id",
+  "check_id": "CHK-001",
+  "status": "PASS",
+  "checked_at": "2026-10-05T00:00:00Z",
+  "evidence_refs": [
+    {
+      "path": "receipts/check-output.txt",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  ]
+}

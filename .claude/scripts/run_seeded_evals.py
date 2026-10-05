@@ -86,6 +86,11 @@ def main() -> int:
     registry = load(CLAUDE_DIR / "capabilities" / "registry.json")["capabilities"]
     code, output = resolver.resolve(["workflow-evals"], registry, [CLAUDE_DIR / "skills"])
     check("bundled-capability-resolves", code == 0 and output["status"] == "READY", "bundled provider exists")
+    code, output = resolver.resolve(["frontend-operate"], registry, [])
+    check("selected-unbundled-provider-blocks", code != 0 and any(error["code"] == "REQUIRED_PROVIDER_MISSING" and error["capability"] == "frontend-operate" for error in output["errors"]), "selected design provider cannot remain READY when absent")
+    check("transitive-browser-provider-blocks", code != 0 and any(error["code"] == "REQUIRED_PROVIDER_MISSING" and error["capability"] == "browser-e2e" for error in output["errors"]), "browser dependency is required even though unbundled")
+    code, output = resolver.resolve(["repository-cleanup"], registry, [CLAUDE_DIR / "skills"])
+    check("cleanup-provider-resolves", code == 0 and output["plan"][0]["usable"] and not output["plan"][0]["used"], "readable cleanup instructions resolve without a fabricated usage claim")
     code, output = resolver.resolve(["does-not-exist"], registry, [CLAUDE_DIR / "skills"])
     check("unknown-capability-blocks", code != 0 and output["status"] == "BLOCKED", "unknown capability cannot silently disappear")
     conflict_registry = json.loads(json.dumps(registry))

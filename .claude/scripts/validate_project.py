@@ -7,7 +7,9 @@ import json
 from pathlib import Path
 from typing import Any
 
-from jsonschema import Draft202012Validator
+from contract_evidence import check_identity, read_contract
+from project_contracts import (check_capabilities, check_closeout, check_completion,
+                               check_definition, check_release, check_traceability)
 
 
 CLAUDE_DIR = Path(__file__).resolve().parents[1]
@@ -23,20 +25,13 @@ def validate_file(path: Path, schema_name: str, errors: list[str]) -> Any | None
     if not path.is_file():
         errors.append(f"MISSING {path}")
         return None
-    try:
-        value = load(path)
-        schema = load(SCHEMAS / schema_name)
-        validation_errors = sorted(
-            Draft202012Validator(schema).iter_errors(value),
-            key=lambda error: list(error.path),
-        )
-        for error in validation_errors:
-            location = ".".join(str(part) for part in error.path) or "<root>"
-            errors.append(f"INVALID {path}:{location}: {error.message}")
-        return value
-    except Exception as exc:
-        errors.append(f"UNREADABLE {path}: {exc}")
-        return None
+    if schema_name == "definition-of-good.schema.json":
+        try:
+            if load(path).get("schema_version") != 2:
+                errors.append("MIGRATION_REQUIRED Definition of Good v2: see docs/INSTALL.md#active-project-migration; preserve approvals as historical and reapprove changed contracts")
+        except (ValueError, AttributeError):
+            pass
+    return read_contract(path, schema_name, errors)
 
 
 def artifact_status(project: Path, relative: str, schema: str, errors: list[str]) -> Any | None:
@@ -102,6 +97,7 @@ def validate_transition(project: Path, stage: str, errors: list[str]) -> None:
         if verdict and verdict.get("status") != "EVIDENCE_READY":
             errors.append("PREMISE_VERDICT_NOT_READY")
 
+    definition = None
     if target_index >= order.index("TICKETING"):
         definition = artifact_status(
             project,
@@ -111,6 +107,8 @@ def validate_transition(project: Path, stage: str, errors: list[str]) -> None:
         )
         if definition and definition.get("status") != "APPROVED":
             errors.append("DEFINITION_NOT_APPROVED")
+        if definition:
+            check_definition(project, definition, errors)
 
     tickets: list[dict[str, Any]] = []
     if target_index >= order.index("SEAM_REVIEW"):
@@ -138,6 +136,12 @@ def validate_transition(project: Path, stage: str, errors: list[str]) -> None:
                         f"OVERLAPPING_FILE_OWNERSHIP {filename}: {prior} and {ticket.get('ticket_id')}"
                     )
                 owners[filename] = str(ticket.get("ticket_id"))
+
+    build = ledger.get("build_identity")
+    if definition and target_index >= order.index("SEAM_REVIEW"):
+        integrated = target_index >= order.index("INTEGRATION")
+        check_traceability(project, definition, tickets, build, integrated, errors)
+        check_capabilities(project, definition, tickets, build, integrated, errors)
 
     if target_index >= order.index("BUILD"):
         seam = artifact_status(
@@ -167,24 +171,25 @@ def validate_transition(project: Path, stage: str, errors: list[str]) -> None:
             seam.get("phase") != "POST_BUILD" or seam.get("status") != "SEAMS_SOUND"
         ):
             errors.append("POST_BUILD_SEAMS_NOT_SOUND")
+        if seam:
+            check_identity(seam, project, build, errors, "post-build seam")
 
-    # Entering RELEASE requires the completed product closeout packet. The
-    # release verdict is produced inside RELEASE, so it must not be required
-    # until the graph advances to WORKFLOW_CLOSEOUT or DONE.
+    # CLOSEOUT performs product repair then cleanup. RELEASE may only consume
+    # a complete current packet; it produces, rather than requires, release verdicts.
+    packet = None
+    verdict = None
     if target_index >= order.index("RELEASE"):
-        closeout = project / "closeout" / "terminal-state.json"
-        if not closeout.is_file():
-            errors.append(f"MISSING {closeout}")
+        packet = check_closeout(project, definition, build, errors)
 
     if target_index >= order.index("WORKFLOW_CLOSEOUT"):
-        verdict = artifact_status(
-            project,
-            "release/release-verdict.json",
-            "release-verdict.schema.json",
-            errors,
-        )
-        if verdict and verdict.get("status") not in {"SHIP", "SHIP_WITH_ACCEPTED_RISK"}:
-            errors.append("RELEASE_BLOCKED")
+        verdict = artifact_status(project, "release/release-verdict.json", "release-verdict.schema.json", errors)
+        if verdict:
+            if verdict["status"] not in {"SHIP", "SHIP_WITH_ACCEPTED_RISK"}:
+                errors.append("RELEASE_BLOCKED")
+            check_release(project, build, verdict, packet, errors)
+
+    if target_index >= order.index("DONE") and definition:
+        check_completion(project, definition, build, packet, verdict, errors)
 
 
 def main() -> int:

@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "project_id": "example-project",
+  "environment": "local-test",
+  "receipts": [
+    {
+      "capability": "browser-e2e",
+      "provider": "e2e-testing",
+      "status": "PASS",
+      "checked_at": "2026-10-05T00:00:00Z",
+      "expires_at": "2026-10-05T01:00:00Z",
+      "evidence_refs": [
+        {
+          "path": "receipts/check-output.txt",
+          "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+        }
+      ]
+    }
+  ],
+  "usage": []
+}

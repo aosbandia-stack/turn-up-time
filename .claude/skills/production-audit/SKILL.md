@@ -18,7 +18,8 @@ Require:
 - all tickets evidence green;
 - POST_BUILD `SEAMS_SOUND`;
 - Easily Irritated terminal packet;
-- deployment target and configuration identity.
+- completed `/swiper-dont-swpe-me` cleanup and IT handoff on that candidate;
+- the declared completion scope, and deployment target/configuration identity when deployment is in scope.
 
 ## Audit lenses
 
@@ -30,24 +31,32 @@ Require:
 5. **Operations:** startup/env validation, health/dependency checks, logs/traces/metrics, alert/owner,
    degraded behavior, incident and support path.
 6. **Deployment:** exact steps, staged rollout where needed, rollback trigger and command.
-7. **Real environment:** one load-bearing live smoke against the candidate in the intended boundary.
+7. **Real environment:** one load-bearing smoke in the intended boundary. Candidate-only scope uses
+   its declared test environment and makes no live deployment claim. Deployment scope requires actual
+   execution and subsequent live proof before DONE; release readiness precedes that action.
 
 Do not run unapproved state-changing checks. Use `/guard-before-write` for consequential actions.
 
 ## Output
 
-Write `release/production-audit.json` containing:
+Write `release/production-audit.json` using `production-audit.schema.json` and its example:
 
 ```text
+schema_version: 1
 project_id
 build_identity
-verdict: SHIP | SHIP_WITH_ACCEPTED_RISK | BLOCK
-checks and evidence refs
-blockers
-accepted-risk candidates
-missing evidence
-rollback assessment
+status: SHIP | SHIP_WITH_ACCEPTED_RISK | BLOCK
+reviewer
+checked_at
+evidence_refs: verification receipt paths
+blockers: explicit unresolved failures or missing evidence
+accepted_risks: explicit owned risks
 ```
+
+The canonical field is `status`; a legacy `verdict` field is rejected, including conflicting copies.
+Receipts use `verification-receipt.schema.json`, name the exact project/build and hash their actual
+outputs. Include rollback and operational evidence there. Component judgment must follow final
+cleanup on the same candidate.
 
 Then dispatch the independent `fresh-release-judge`. The root composes both results into the
 schema-valid `release-verdict.json`.

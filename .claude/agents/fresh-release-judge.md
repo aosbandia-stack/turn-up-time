@@ -35,16 +35,23 @@ Do not receive implementation rationale unless a requirement explicitly requires
 
 ## Returns
 
-A structured result:
+Write `release/final-judge.json` using `final-judge.schema.json` and its example:
 
 ```text
-verdict: GREEN | RED | BLOCKED
-build_identity:
-checks_reproduced:
-failed_requirements:
-stale_or_missing_evidence:
-accepted_risk_observations:
+schema_version: 1
+project_id
+build_identity
+status: GREEN | RED | BLOCKED
+reviewer
+checked_at
+evidence_refs: reproduced verification receipt paths
+blockers: failed requirements or stale/missing evidence
+accepted_risks: explicit observations
 ```
+
+Use `status`, never `verdict`. The validator checks component agreement, exact candidate identity,
+current hashed proof, and judgment after final cleanup. A release decision does not prove deployment.
+Include independent reproduced outputs, not just a copied builder receipt.
 
 ## Stop and escalate
 

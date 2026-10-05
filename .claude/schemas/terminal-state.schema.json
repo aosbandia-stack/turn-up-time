@@ -1,0 +1,299 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "terminal-state",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "project_id",
+    "build_identity",
+    "terminal_state",
+    "checked_at",
+    "reviewer",
+    "evidence_refs",
+    "open_risks",
+    "round_history",
+    "cleanup",
+    "completion"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "project_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "build_identity": {
+      "type": "string",
+      "minLength": 1
+    },
+    "terminal_state": {
+      "enum": [
+        "RELEASE_READY",
+        "YELLOW_ACCEPTANCE_REQUIRED",
+        "BLOCKED_BY_DECISION",
+        "BLOCKED_BY_ENVIRONMENT",
+        "MAX_ROUNDS_REACHED",
+        "AUDIT_ONLY_COMPLETE"
+      ]
+    },
+    "checked_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reviewer": {
+      "type": "string",
+      "minLength": 1
+    },
+    "evidence_refs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "open_risks": {
+      "type": "array",
+      "minItems": 0,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "round_history": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "cleanup": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scope",
+        "baseline_identity",
+        "build_identity",
+        "outcome",
+        "actions",
+        "evidence_refs",
+        "reproof_refs",
+        "handoff_ref"
+      ],
+      "properties": {
+        "scope": {
+          "enum": [
+            "CHANGED",
+            "FULL"
+          ]
+        },
+        "baseline_identity": {
+          "type": "string",
+          "minLength": 1
+        },
+        "build_identity": {
+          "type": "string",
+          "minLength": 1
+        },
+        "outcome": {
+          "enum": [
+            "NO_CHANGE",
+            "CHANGED"
+          ]
+        },
+        "actions": {
+          "type": "array",
+          "minItems": 0,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "decision",
+              "reason",
+              "owner",
+              "dependency_evidence_refs",
+              "external_caller_evidence_refs",
+              "rollback",
+              "dependencies",
+              "external_callers"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "minLength": 1
+              },
+              "decision": {
+                "enum": [
+                  "KEEP",
+                  "REMOVE",
+                  "CONSOLIDATE",
+                  "INVESTIGATE"
+                ]
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1
+              },
+              "owner": {
+                "type": "string",
+                "minLength": 1
+              },
+              "dependency_evidence_refs": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "external_caller_evidence_refs": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "rollback": {
+                "type": "string",
+                "minLength": 1
+              },
+              "dependencies": {
+                "enum": [
+                  "VERIFIED",
+                  "UNKNOWN"
+                ]
+              },
+              "external_callers": {
+                "enum": [
+                  "VERIFIED",
+                  "UNKNOWN"
+                ]
+              }
+            }
+          }
+        },
+        "evidence_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "reproof_refs": {
+          "type": "array",
+          "minItems": 0,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "handoff_ref": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "completion": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "schema_version",
+            "project_id",
+            "build_identity",
+            "scope",
+            "status",
+            "target",
+            "environment",
+            "execution_ref",
+            "live_verification_refs",
+            "rollback_owner",
+            "handoff_owner",
+            "handoff_ref",
+            "checked_at"
+          ],
+          "properties": {
+            "schema_version": {
+              "const": 1
+            },
+            "project_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "build_identity": {
+              "type": "string",
+              "minLength": 1
+            },
+            "scope": {
+              "enum": [
+                "CANDIDATE_ONLY",
+                "DEPLOYED"
+              ]
+            },
+            "status": {
+              "enum": [
+                "CANDIDATE_VERIFIED",
+                "LIVE_VERIFIED"
+              ]
+            },
+            "target": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "minLength": 1
+            },
+            "environment": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "minLength": 1
+            },
+            "execution_ref": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "minLength": 1
+            },
+            "live_verification_refs": {
+              "type": "array",
+              "minItems": 0,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "rollback_owner": {
+              "type": "string",
+              "minLength": 1
+            },
+            "handoff_owner": {
+              "type": "string",
+              "minLength": 1
+            },
+            "handoff_ref": {
+              "type": "string",
+              "minLength": 1
+            },
+            "checked_at": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -26,6 +26,8 @@ Integration Lead
       ↓
 /easily-irritated
       ↓
+/swiper-dont-swpe-me (same CLOSEOUT stage)
+      ↓
 /production-audit + fresh release judge + release gate
       ↓
 /its-not-you-its-me
@@ -44,7 +46,7 @@ human decision. Re-reading the same prompt with the same evidence is rumination.
 
 ## What ships
 
-- 9 user-facing skills plus 1 internal eval provider.
+- 10 user-facing skills plus 1 internal eval provider.
 - 17 role-specific agents, with assurance roles mechanically read-only.
 - One prompt router that sends ordinary software work to `/turn-up-time`.
 - A plug-and-play capability registry for optional specialist providers.
@@ -143,6 +145,7 @@ See [docs/INSTALL.md](docs/INSTALL.md) and [docs/GRAPH-RUNTIME.md](docs/GRAPH-RU
 - `/omnidex` — compiles approved evidence into architecture and executable tickets.
 - `/boil-the-ocean` — executes approved tickets completely.
 - `/easily-irritated` — independent product-friction and consistency closeout.
+- `/swiper-dont-swpe-me` — bounded repository cleanup and IT handoff after final product repairs.
 - `/production-audit` — release readiness and operational risk.
 - `/its-not-you-its-me` — workflow self-improvement with approval and seeded evals.
 

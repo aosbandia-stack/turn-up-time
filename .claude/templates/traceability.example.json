@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "project_id": "example-project",
+  "requirements": [
+    {
+      "requirement_id": "REQ-001",
+      "design_ref": "architecture.md#behavior",
+      "ticket_ids": [
+        "EXAMPLE-001"
+      ],
+      "human_gate": null,
+      "owner": "implementation-engineer",
+      "acceptance_checks": [
+        {
+          "ticket_id": "EXAMPLE-001",
+          "check_id": "CHK-001"
+        }
+      ]
+    }
+  ],
+  "journeys": [
+    {
+      "journey_id": "JRN-001",
+      "design_ref": "architecture.md#behavior",
+      "ticket_ids": [
+        "EXAMPLE-001"
+      ],
+      "owner": "implementation-engineer",
+      "verification_owner": "ticket-verifier",
+      "evidence_refs": []
+    }
+  ]
+}

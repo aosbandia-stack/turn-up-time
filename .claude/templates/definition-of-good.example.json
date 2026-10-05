@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "project_id": "example-project",
   "status": "DRAFT",
   "requirements": [
@@ -7,14 +7,18 @@
       "id": "REQ-001",
       "statement": "The primary user can complete the critical task.",
       "priority": "MUST",
-      "evidence_refs": ["product:EVIDENCE-001"],
+      "evidence_refs": [
+        "product:EVIDENCE-001"
+      ],
       "acceptance": {
         "type": "experiential",
         "check": "Run critical journey JRN-001 from a clean state.",
         "expected": "The user reaches the declared success state without an undocumented workaround."
       },
       "owner_surface": "product",
-      "ticket_ids": []
+      "ticket_ids": [
+        "EXAMPLE-001"
+      ]
     }
   ],
   "critical_journeys": [
@@ -22,7 +26,10 @@
       "id": "JRN-001",
       "persona": "primary-user",
       "start_state": "clean first-use state",
-      "steps": ["Open the product", "Complete the primary action"],
+      "steps": [
+        "Open the product",
+        "Complete the primary action"
+      ],
       "success": "The intended result is visible and persisted.",
       "failure_and_recovery": "A failed action explains what happened and offers a valid recovery path.",
       "verification": "Browser or equivalent live end-to-end test."
@@ -31,5 +38,34 @@
   "non_goals": [],
   "human_gates": [],
   "approved_by": null,
-  "approved_at": null
+  "approved_at": null,
+  "ui": {
+    "applicable": false,
+    "reason": "Command-line utility with no product interface.",
+    "design_reference": null,
+    "component_owner": null,
+    "shared_components": [],
+    "route_states": [],
+    "viewports": [],
+    "keyboard_expectations": [],
+    "first_slice_journey_id": null
+  },
+  "non_ui_proof": [
+    "Run the command from a clean state and verify its persisted output and failure recovery."
+  ],
+  "deployment": {
+    "scope": "CANDIDATE_ONLY",
+    "target": null,
+    "environment": null
+  },
+  "maintainability": {
+    "owner": "project-maintainer",
+    "layout_ref": "architecture.md#layout",
+    "entrypoints": [
+      "src/example.ts"
+    ],
+    "generated_paths": [],
+    "temporary_paths": []
+  },
+  "execution_environment": "local-test"
 }
