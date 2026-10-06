@@ -100,6 +100,14 @@ def main() -> int:
     surfaces[0].update(platform="web", flags=["unknown-provider-flag"])
     code, output = resolver.resolve([], registry, [], ui_surfaces=surfaces)
     check("unknown-ui-flag-blocks", code != 0 and any(error["code"] == "UI_SELECTOR_UNAVAILABLE" for error in output["errors"]), "an unknown optional selector cannot silently disappear")
+    override_registry = json.loads(json.dumps(registry))
+    override_registry["browser-e2e"].pop("ui_selector")
+    override_registry["browser-e2e"]["provider_kind"] = "instruction-only"
+    surfaces[0].update(stack="react-tailwind", flags=[])
+    code, output = resolver.resolve([], override_registry, [], ui_surfaces=surfaces)
+    check("web-assurance-cannot-be-overridden-away", "browser-e2e" in output["ui_required"] and any(error["code"] == "UI_ASSURANCE_ADAPTER_INVALID" for error in output["errors"]), "a web override cannot erase or downgrade execution assurance")
+    code, output = resolver.resolve(["21st-generate"], registry, [], ui_surfaces=surfaces)
+    check("selected-generation-needs-surface-binding", any(error["code"] == "UI_CAPABILITY_SURFACE_REQUIRED" for error in output["errors"]), "ticket selection cannot bypass the declared surface flag and compatibility gate")
     conflict_registry = json.loads(json.dumps(registry))
     conflict_registry["taste-skill"] = {
         "provider": "taste-skill", "bundled": False, "authority": "production", "stages": ["BUILD"],

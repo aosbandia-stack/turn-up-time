@@ -54,7 +54,17 @@ def capability_closure(requested: list[str], registry: dict[str, Any]) -> tuple[
     return selected, errors
 
 
-def expand_ui(surfaces: list[dict[str, Any]], registry: dict[str, Any], project: Path | None = None) -> tuple[dict[str, list[str]], list[dict[str, str]]]:
+EXTERNAL_UI_FLAGS = frozenset({'21st-catalog', '21st-generate'})
+
+
+def external_ui_flag(name: str, entry: dict[str, Any]) -> str | None:
+    # An override chooses the provider, not whether a canonical capability's
+    # external outcome and entitlement requirements still apply.
+    flag = name if name in EXTERNAL_UI_FLAGS else entry.get('ui_selector', {}).get('flag')
+    return flag if flag in EXTERNAL_UI_FLAGS else None
+
+
+def expand_ui(surfaces: list[dict[str, Any]], registry: dict[str, Any]) -> tuple[dict[str, list[str]], list[dict[str, str]]]:
     """One registry expansion for CLI and stage gates; selectors are not provider APIs."""
     expanded: dict[str, list[str]] = {}
     errors: list[dict[str, str]] = []
@@ -64,12 +74,14 @@ def expand_ui(surfaces: list[dict[str, Any]], registry: dict[str, Any], project:
         if platform not in {'web', 'native'} or purpose not in {'operate', 'persuade', 'read', 'experience'}:
             errors.append({'code':'UNKNOWN_UI_SELECTOR', 'capability':label})
             continue
-        names = []
+        names = ['browser-e2e'] if platform == 'web' else []
         for flag in [None, *surface.get('flags', [])]:
             matches = [name for name, entry in registry.items()
                        if entry.get('ui_selector', {}).get('flag') == flag
                        and platform in entry.get('ui_selector', {}).get('platforms', [])
                        and purpose in entry.get('ui_selector', {}).get('purposes', [])]
+            if flag in EXTERNAL_UI_FLAGS:
+                matches.append(flag)
             if not matches or (flag is None and not any(registry[name]['authority'] == 'production' for name in matches)):
                 errors.append({'code':'UI_SELECTOR_UNAVAILABLE', 'capability':str(flag or purpose)})
             names.extend(matches)
@@ -83,30 +95,45 @@ def expand_ui(surfaces: list[dict[str, Any]], registry: dict[str, Any], project:
         names.extend(verification)
         selected, failures = capability_closure(names, registry)
         errors.extend(failures)
-        for name in selected:
-            entry = registry[name]
-            if entry.get('supported_platforms') and platform not in entry['supported_platforms']:
+        expanded[label] = selected
+    return expanded, errors
+
+
+def check_ui_compatibility(selected: list[str], registry: dict[str, Any], surfaces: list[dict[str, Any]], bindings: dict[str, list[str]], project: Path | None) -> list[dict[str, str]]:
+    """Check the final ticket/dependency closure against its declared surfaces."""
+    errors: list[dict[str, str]] = []
+    for name in selected:
+        entry = registry[name]
+        flag = external_ui_flag(name, entry)
+        bound = [surface for surface in surfaces if name in bindings.get(surface.get('id', 'cli'), [])]
+        if flag:
+            bound = [surface for surface in bound if flag in surface.get('flags', [])]
+        if not bound and (flag or (surfaces and (entry.get('supported_platforms') or entry.get('compatible_stacks')))):
+            errors.append({'code':'UI_CAPABILITY_SURFACE_REQUIRED', 'capability':name})
+        for surface in bound:
+            platform = surface['platform']
+            if (flag or entry.get('supported_platforms')) and platform not in entry.get('supported_platforms', []):
                 errors.append({'code':'UI_PLATFORM_INCOMPATIBLE', 'capability':name})
-            if entry.get('compatible_stacks') and surface.get('stack') not in entry['compatible_stacks']:
+            if (flag or entry.get('compatible_stacks')) and surface.get('stack') not in entry.get('compatible_stacks', []):
                 errors.append({'code':'UI_STACK_INCOMPATIBLE', 'capability':name})
             # A nonstandard 21st mapping needs an explicit reviewed adapter in
             # addition to its stack declaration, never an invented native API.
-            if entry.get('ui_selector', {}).get('flag') in {'21st-catalog','21st-generate'} and surface.get('stack') != 'react-tailwind':
+            if flag and surface.get('stack') != 'react-tailwind':
                 failures = []
                 if not project or not entry.get('stack_adapter_ref'):
                     failures.append('UI_STACK_ADAPTER_REQUIRED')
                 else:
                     local_path(project, entry['stack_adapter_ref'], failures)
                 errors.extend({'code':code, 'capability':name} for code in failures)
-        expanded[label] = selected
-    return expanded, errors
+    return errors
 
 
 def resolve(requested: list[str], registry: dict[str, Any], provider_roots: list[Path], *, readiness: dict[str, Any] | None = None, project: Path | None = None, environment: str | None = None, build_identity: str | None = None, require_use: bool = False, ui_surfaces: list[dict[str, Any]] | None = None) -> tuple[int, dict[str, Any]]:
-    surfaces, errors = expand_ui(ui_surfaces or [], registry, project)
+    surfaces, errors = expand_ui(ui_surfaces or [], registry)
     ui_required = list(dict.fromkeys(name for names in surfaces.values() for name in names))
     selected, failures = capability_closure(requested + ui_required, registry)
     errors.extend(failures)
+    errors.extend(check_ui_compatibility(selected, registry, ui_surfaces or [], surfaces, project))
     plan = []
     for name in selected:
         entry = registry[name]
@@ -114,8 +141,10 @@ def resolve(requested: list[str], registry: dict[str, Any], provider_roots: list
         installed = provider_exists(provider, provider_roots)
         kind = entry.get('provider_kind')
         local_errors: list[str] = []
-        flag = entry.get('ui_selector', {}).get('flag')
-        if flag in {'21st-catalog','21st-generate'} and kind != 'external':
+        flag = external_ui_flag(name, entry)
+        if name == 'browser-e2e' and (entry.get('authority') != 'assurance' or kind != 'external' or 'web' not in entry.get('supported_platforms', [])):
+            local_errors.append('UI_ASSURANCE_ADAPTER_INVALID')
+        if flag and kind != 'external':
             local_errors.append('UI_EXTERNAL_PROVIDER_REQUIRED')
         if not installed:
             local_errors.append('REQUIRED_PROVIDER_MISSING')
@@ -144,7 +173,7 @@ def resolve(requested: list[str], registry: dict[str, Any], provider_roots: list
                         proof_errors.append('READINESS_EVIDENCE_MISSING')
                     check_assets(project, receipt['evidence_refs'], proof_errors)
                     required_checks = set(entry.get('readiness_requirements', []))
-                    if flag in {'21st-catalog','21st-generate'}:
+                    if flag:
                         required_checks.add('tool_access')
                     if flag == '21st-generate':
                         required_checks.add('entitlement')

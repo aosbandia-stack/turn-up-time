@@ -130,7 +130,7 @@ def test_override_cannot_relabel_external_generation_as_installed_instructions(t
     override=copy.deepcopy(registry()['21st-generate'])
     if mutation=='instruction-only': override['provider_kind']='instruction-only'
     else:
-        override['readiness_requirements']=[]
+        override.pop('readiness_requirements')
         edit(project,'capability-readiness.json',lambda v:v['receipts'][-1].update(checks={'tool_access':'PASS'}))
     write(project/'capability-registry.json',{'schema_version':3,'capabilities':{'21st-generate':override}})
     with pytest.raises(TransitionError,match=expected):
@@ -150,3 +150,110 @@ def test_new_direction_requires_comparables_but_supplied_evidence_can_be_offline
     (project/assets[0]['path']).write_text('changed capture')
     with pytest.raises(TransitionError,match='EVIDENCE_HASH_MISMATCH'):
         validate_project_for_target(ROOT,project,Stage.BUILD)
+
+
+@pytest.mark.parametrize('mutation,expected', [
+    ('instruction-only','UI_ASSURANCE_ADAPTER_INVALID'),
+    ('wrong-authority','UI_ASSURANCE_ADAPTER_INVALID'),
+    ('wrong-platform','UI_ASSURANCE_ADAPTER_INVALID'),
+    ('removed-selector-and-ticket','UI_TICKET_CAPABILITY_COVERAGE_MISSING'),
+])
+def test_web_assurance_override_cannot_remove_required_execution(tmp_path, mutation, expected):
+    project = make_project(tmp_path, ui=True)
+    override = copy.deepcopy(registry()['browser-e2e'])
+    if mutation == 'instruction-only': override['provider_kind'] = 'instruction-only'
+    elif mutation == 'wrong-authority': override['authority'] = 'production'
+    elif mutation == 'wrong-platform': override['supported_platforms'] = ['native']
+    else:
+        override.pop('ui_selector')
+        edit(project, 'tickets/EXAMPLE-001.json', lambda value:value.update(required_capabilities=['ui-operate']))
+    write(project / 'capability-registry.json', {'schema_version':3,'capabilities':{'browser-e2e':override}})
+    (project / 'capability-readiness.json').unlink()
+    with pytest.raises(TransitionError, match=expected):
+        validate_project_for_target(ROOT, project, Stage.DONE)
+
+
+@pytest.mark.parametrize('transitive', [False, True])
+def test_ticket_selected_generation_requires_a_declared_surface_binding(tmp_path, transitive):
+    project = make_project(tmp_path, ui=True)
+    edit(project, 'definition-of-good.json', lambda value:value['ui']['surfaces'][0].update(stack='vue-css'))
+    capability = '21st-generate'
+    if transitive:
+        capability = 'generation-wrapper'
+        wrapper = copy.deepcopy(registry()['workflow-evals'])
+        wrapper['requires'] = ['21st-generate']
+        write(project / 'capability-registry.json', {'schema_version':3,'capabilities':{capability:wrapper}})
+    edit(project, 'tickets/EXAMPLE-001.json', lambda value:value['required_capabilities'].append(capability))
+    ready_provider(project, '21st-generate', '21st-ui', {'tool_access':'PASS','entitlement':'PASS'})
+    with pytest.raises(TransitionError, match='UI_CAPABILITY_SURFACE_REQUIRED'):
+        validate_project_for_target(ROOT, project, Stage.DONE)
+
+
+def test_web_provider_can_be_substituted_without_a_selector(tmp_path):
+    project = make_project(tmp_path, ui=True)
+    override = copy.deepcopy(registry()['browser-e2e'])
+    override.pop('ui_selector')
+    override['provider'] = 'project-browser-runner'
+    write(project / 'capability-registry.json', {'schema_version':3,'capabilities':{'browser-e2e':override}})
+    (project / '.claude/skills/e2e-testing/SKILL.md').unlink()
+    ready_provider(project, 'browser-e2e', 'project-browser-runner')
+    validate_project_for_target(ROOT, project, Stage.DONE)
+    merged = {**registry(), 'browser-e2e':override}
+    code, result = resolve([], merged, [project / '.claude/skills'], readiness=read(project / 'capability-readiness.json'),
+        project=project, environment='local-test', build_identity=BUILD, require_use=True, ui_surfaces=[ui_surface()])
+    assert code == 0, result
+    assert 'browser-e2e' in result['ui_required']
+    assert next(row for row in result['plan'] if row['capability'] == 'browser-e2e')['provider'] == 'project-browser-runner'
+
+
+@pytest.mark.parametrize('mutation,expected', [
+    ('instruction-only','UI_EXTERNAL_PROVIDER_REQUIRED'),
+    ('tool-access','READINESS_CHECK_REQUIRED:tool_access'),
+    ('entitlement','READINESS_CHECK_REQUIRED:entitlement'),
+])
+def test_canonical_generation_minima_survive_removed_selector(tmp_path, mutation, expected):
+    project = make_project(tmp_path, ui=True)
+    flagged(project, '21st-generate')
+    override = copy.deepcopy(registry()['21st-generate'])
+    override.pop('ui_selector')
+    override.pop('readiness_requirements')
+    if mutation == 'instruction-only': override['provider_kind'] = 'instruction-only'
+    else:
+        check = mutation.replace('-', '_')
+        edit(project, 'capability-readiness.json', lambda value:value['receipts'][-1]['checks'].pop(check))
+    write(project / 'capability-registry.json', {'schema_version':3,'capabilities':{'21st-generate':override}})
+    with pytest.raises(TransitionError, match=expected):
+        validate_project_for_target(ROOT, project, Stage.DONE)
+
+
+def test_supported_project_stack_adapter_survives_removed_selector(tmp_path):
+    project = make_project(tmp_path, ui=True)
+    flagged(project, '21st-generate')
+    edit(project, 'definition-of-good.json', lambda value:value['ui']['surfaces'][0].update(stack='vue-css'))
+    override = copy.deepcopy(registry()['21st-generate'])
+    override.pop('ui_selector')
+    override.update(compatible_stacks=['vue-css'], stack_adapter_ref='evidence/reviewed-adapter.md')
+    (project / 'evidence/reviewed-adapter.md').write_text('Fixture reviewed adapter maps output into the incumbent Vue components.\n')
+    write(project / 'capability-registry.json', {'schema_version':3,'capabilities':{'21st-generate':override}})
+    validate_project_for_target(ROOT, project, Stage.DONE)
+    (project / 'evidence/reviewed-adapter.md').unlink()
+    with pytest.raises(TransitionError, match='MISSING_EVIDENCE'):
+        validate_project_for_target(ROOT, project, Stage.DONE)
+
+
+def test_web_generation_is_not_compared_to_unrelated_native_surface(tmp_path):
+    project = make_project(tmp_path, ui=True)
+    flagged(project, '21st-generate')
+    native = ui_surface(id='native', platform='native', stack='swiftui', routes=['native/items'],
+                        verification_capabilities=['native-ui-assurance'])
+    edit(project, 'definition-of-good.json', lambda value:(value['ui']['surfaces'].append(native),
+         value['ui']['route_states'].append({'route':'native/items','states':['loading','empty','error','success']})))
+    adapter = copy.deepcopy(registry()['browser-e2e'])
+    adapter.pop('ui_selector')
+    adapter.update(provider='fixture-native-runner', supported_platforms=['native'], compatible_stacks=['swiftui'])
+    write(project / 'capability-registry.json', {'schema_version':3,'capabilities':{'native-ui-assurance':adapter}})
+    ready_provider(project, 'native-ui-assurance', 'fixture-native-runner')
+    edit(project, 'tickets/EXAMPLE-001.json', lambda value:value['required_capabilities'].append('native-ui-assurance'))
+    evidence = [proof(project,'ui:native/items:desktop'), proof(project,'ui:native/items:mobile'), proof(project,'keyboard:native/items')]
+    edit(project, 'closeout/terminal-state.json', lambda value:value['evidence_refs'].extend(evidence))
+    validate_project_for_target(ROOT, project, Stage.DONE)

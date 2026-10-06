@@ -134,6 +134,12 @@ The defaults select one Impeccable purpose capability and, for web, `browser-e2e
 explicit external assurance capability with `supported_platforms: ["native"]` and a real readiness/
 use receipt; no React/browser adapter is inferred. A project override replaces the named capability,
 including its selector/compatibility declaration, so retain that metadata when replacing providers.
+Required outcomes survive overrides: every web surface includes canonical `browser-e2e`, whose
+mapping must remain assurance-owned, external and web-compatible even without selector metadata.
+Project overrides may substitute the actual provider. Direct or transitive 21st selection must bind
+to a declared surface's matching flag; final-closure compatibility checks apply to those bound
+surfaces, not unrelated native surfaces. Canonical 21st IDs retain their external/tool-access/
+entitlement requirements when selector metadata is absent.
 
 `polish` selects installed polish instructions. `21st-catalog` and `21st-generate` are separate
 external capabilities. Both require a successful `checks.tool_access` readiness probe; generation
