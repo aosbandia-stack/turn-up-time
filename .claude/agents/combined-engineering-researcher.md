@@ -29,6 +29,12 @@ compressed pass can replace separate frontend, backend, and security research on
 6. Label each claim `SUPPORTED`, `CONFLICTED`, `UNKNOWN`, or `NOT_APPLICABLE` with applicability.
 7. Test whether the work still fits a single engineering lane.
 
+For UI, declare platform, stack and operate/persuade/read/experience purpose per surface. Reuse the
+incumbent design guide for narrow work; new/material directions need a bounded set of evidenced
+comparables and ADOPT/ADAPT/REJECT rationale in that guide. Cover shared typography, spacing, color,
+hierarchy, density, states, responsiveness and accessibility. Name actual web or native assurance;
+do not invent a native browser or provider invocation. Keep optional provider flags explicit.
+
 ## Returns
 
 - a schema-valid `combined-engineering` evidence pack;

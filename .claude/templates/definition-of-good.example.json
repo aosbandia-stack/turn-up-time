@@ -48,7 +48,9 @@
     "route_states": [],
     "viewports": [],
     "keyboard_expectations": [],
-    "first_slice_journey_id": null
+    "first_slice_journey_id": null,
+    "surfaces": [],
+    "design_loop": null
   },
   "non_ui_proof": [
     "Run the command from a clean state and verify its persisted output and failure recovery."

@@ -177,4 +177,21 @@ Large design and testing packages are not vendored into the core. Tickets reques
 `frontend-operate` or `browser-e2e`; the registry maps them to approved providers. `/plug-it-in`
 evaluates placement, overlap, authority, conflicts, evals, cost, and removal before activation.
 
+UI work declares each surface's platform, stack and purpose before building:
+
+| Purpose | Design emphasis |
+| --- | --- |
+| `operate` | Clear actions, feedback, recovery and useful density |
+| `persuade` | Message hierarchy, credible evidence and a clear next action |
+| `read` | Legibility, navigation, content hierarchy and reading rhythm |
+| `experience` | Interaction and pacing, with accessible input and motion |
+
+The approved project guide governs all four. Impeccable supplies the default instruction baseline;
+`polish`, `21st-catalog` and `21st-generate` are explicit optional flags. Web requires browser proof;
+native requires a real native assurance adapter. 21st needs compatible output, tool access and actual
+invocation evidence; generation also needs entitlement. A registry entry does not install or invoke
+a provider. Narrow refinements reuse the incumbent guide; new directions need bounded evidenced
+comparables. An opt-in design loop pins anchored criteria and budgets inside Easily Irritated; its
+ordinary one-batch/one-confirmation flow stays the default.
+
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full ownership and loop model.

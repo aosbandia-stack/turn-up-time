@@ -20,6 +20,16 @@ instruction-only providers need readable installed instructions. Use `--project`
 use. Unselected optional providers do not block. Resolve gaps through `/plug-it-in`. Load only selected
 modes, and never claim 21st ran from its installation alone.
 
+Resolve the approved per-surface platform/purpose/flags through that same registry. The CLI exposes
+`--ui-platform`, `--ui-purpose`, `--ui-stack`, repeated `--ui-flag` and
+`--ui-verification-capability`. Tickets must cover the expanded plan, including transitive and flag
+capabilities. Load each selected provider's installed `SKILL.md` once; a slash-name mention is not
+proof it loaded. Impeccable provides the design baseline; bounded polish is an optional flag. The
+separate 21st catalog/generation flags require real tool access, generation entitlement and actual
+use evidence, plus a compatible stack or reviewed project adapter. No 21st polish API is assumed.
+Native surfaces require their configured native assurance adapter. Follow the incumbent guide and
+shared components; builders do not change locked rubrics or grade their own candidate.
+
 ## Dispatch and accounting
 
 Prefer one capable builder when work does not genuinely divide. Otherwise assign one implementation

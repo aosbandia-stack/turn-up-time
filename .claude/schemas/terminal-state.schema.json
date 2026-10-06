@@ -339,6 +339,19 @@
           }
         }
       ]
+    },
+    "design_stop_reason": {
+      "enum": [
+        null,
+        "THRESHOLD_MET",
+        "ROUND_LIMIT",
+        "TIME_LIMIT",
+        "COST_LIMIT",
+        "STAGNATION",
+        "REGRESSION",
+        "ENVIRONMENT",
+        "DECISION"
+      ]
     }
   }
 }

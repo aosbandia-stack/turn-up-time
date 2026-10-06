@@ -94,7 +94,22 @@
         "seeded-broken-journey-must-fail"
       ],
       "uninstall": "Remove the provider mapping. Preserve generated evidence unless the human approves deletion.",
-      "provider_kind": "external"
+      "provider_kind": "external",
+      "ui_selector": {
+        "platforms": [
+          "web"
+        ],
+        "purposes": [
+          "operate",
+          "persuade",
+          "read",
+          "experience"
+        ],
+        "flag": null
+      },
+      "supported_platforms": [
+        "web"
+      ]
     },
     "ai-regression": {
       "provider": "ai-regression-testing",
@@ -201,6 +216,353 @@
         "stale-cleanup-proof-must-block"
       ],
       "uninstall": "Remove only with an approved replacement closeout contract; preserve product and evidence."
+    },
+    "ui-operate": {
+      "provider": "impeccable",
+      "bundled": false,
+      "authority": "production",
+      "stages": [
+        "BUILD",
+        "CLOSEOUT"
+      ],
+      "mode": "operate",
+      "load_policy": "conditional",
+      "consumes": [
+        "definition-of-good",
+        "frontend-evidence",
+        "ticket"
+      ],
+      "produces": [
+        "frontend-code",
+        "ui-receipt"
+      ],
+      "requires": [],
+      "conflicts": [],
+      "evals": [
+        "critical-journey-e2e",
+        "seeded-broken-state-must-fail"
+      ],
+      "uninstall": "Remove the provider mapping. Do not delete product files.",
+      "provider_kind": "instruction-only",
+      "ui_selector": {
+        "platforms": [
+          "web",
+          "native"
+        ],
+        "purposes": [
+          "operate"
+        ],
+        "flag": null
+      },
+      "supported_platforms": [
+        "web",
+        "native"
+      ],
+      "provenance": {
+        "source": "https://github.com/pbakaus/impeccable/blob/a40571a45f51625ddc5cd3399bbbe82796eed992/.claude/skills/impeccable/SKILL.md",
+        "ref": "a40571a45f51625ddc5cd3399bbbe82796eed992 (observed version4.5.0)",
+        "license": "Apache-2.0"
+      }
+    },
+    "ui-persuade": {
+      "provider": "impeccable",
+      "bundled": false,
+      "authority": "production",
+      "stages": [
+        "BUILD",
+        "CLOSEOUT"
+      ],
+      "mode": "persuade",
+      "load_policy": "conditional",
+      "consumes": [
+        "definition-of-good",
+        "frontend-evidence",
+        "ticket"
+      ],
+      "produces": [
+        "frontend-code",
+        "ui-receipt"
+      ],
+      "requires": [],
+      "conflicts": [],
+      "evals": [
+        "critical-journey-e2e",
+        "seeded-broken-state-must-fail"
+      ],
+      "uninstall": "Remove the provider mapping. Do not delete product files.",
+      "provider_kind": "instruction-only",
+      "ui_selector": {
+        "platforms": [
+          "web",
+          "native"
+        ],
+        "purposes": [
+          "persuade"
+        ],
+        "flag": null
+      },
+      "supported_platforms": [
+        "web",
+        "native"
+      ],
+      "provenance": {
+        "source": "https://github.com/pbakaus/impeccable/blob/a40571a45f51625ddc5cd3399bbbe82796eed992/.claude/skills/impeccable/SKILL.md",
+        "ref": "a40571a45f51625ddc5cd3399bbbe82796eed992 (observed version4.5.0)",
+        "license": "Apache-2.0"
+      }
+    },
+    "ui-read": {
+      "provider": "impeccable",
+      "bundled": false,
+      "authority": "production",
+      "stages": [
+        "BUILD",
+        "CLOSEOUT"
+      ],
+      "mode": "read",
+      "load_policy": "conditional",
+      "consumes": [
+        "definition-of-good",
+        "frontend-evidence",
+        "ticket"
+      ],
+      "produces": [
+        "frontend-code",
+        "ui-receipt"
+      ],
+      "requires": [],
+      "conflicts": [],
+      "evals": [
+        "critical-journey-e2e",
+        "seeded-broken-state-must-fail"
+      ],
+      "uninstall": "Remove the provider mapping. Do not delete product files.",
+      "provider_kind": "instruction-only",
+      "ui_selector": {
+        "platforms": [
+          "web",
+          "native"
+        ],
+        "purposes": [
+          "read"
+        ],
+        "flag": null
+      },
+      "supported_platforms": [
+        "web",
+        "native"
+      ],
+      "provenance": {
+        "source": "https://github.com/pbakaus/impeccable/blob/a40571a45f51625ddc5cd3399bbbe82796eed992/.claude/skills/impeccable/SKILL.md",
+        "ref": "a40571a45f51625ddc5cd3399bbbe82796eed992 (observed version4.5.0)",
+        "license": "Apache-2.0"
+      }
+    },
+    "ui-experience": {
+      "provider": "impeccable",
+      "bundled": false,
+      "authority": "production",
+      "stages": [
+        "BUILD",
+        "CLOSEOUT"
+      ],
+      "mode": "experience",
+      "load_policy": "conditional",
+      "consumes": [
+        "definition-of-good",
+        "frontend-evidence",
+        "ticket"
+      ],
+      "produces": [
+        "frontend-code",
+        "ui-receipt"
+      ],
+      "requires": [],
+      "conflicts": [],
+      "evals": [
+        "critical-journey-e2e",
+        "seeded-broken-state-must-fail"
+      ],
+      "uninstall": "Remove the provider mapping. Do not delete product files.",
+      "provider_kind": "instruction-only",
+      "ui_selector": {
+        "platforms": [
+          "web",
+          "native"
+        ],
+        "purposes": [
+          "experience"
+        ],
+        "flag": null
+      },
+      "supported_platforms": [
+        "web",
+        "native"
+      ],
+      "provenance": {
+        "source": "https://github.com/pbakaus/impeccable/blob/a40571a45f51625ddc5cd3399bbbe82796eed992/.claude/skills/impeccable/SKILL.md",
+        "ref": "a40571a45f51625ddc5cd3399bbbe82796eed992 (observed version4.5.0)",
+        "license": "Apache-2.0"
+      }
+    },
+    "ui-polish": {
+      "provider": "polish",
+      "bundled": false,
+      "authority": "production",
+      "stages": [
+        "BUILD",
+        "CLOSEOUT"
+      ],
+      "mode": "polish",
+      "load_policy": "conditional",
+      "consumes": [
+        "definition-of-good",
+        "frontend-evidence",
+        "ticket"
+      ],
+      "produces": [
+        "frontend-code",
+        "ui-receipt"
+      ],
+      "requires": [],
+      "conflicts": [],
+      "evals": [
+        "critical-journey-e2e",
+        "seeded-broken-state-must-fail"
+      ],
+      "uninstall": "Remove the provider mapping. Do not delete product files.",
+      "provider_kind": "instruction-only",
+      "supported_platforms": [
+        "web",
+        "native"
+      ],
+      "ui_selector": {
+        "platforms": [
+          "web",
+          "native"
+        ],
+        "purposes": [
+          "operate",
+          "persuade",
+          "read",
+          "experience"
+        ],
+        "flag": "polish"
+      },
+      "provenance": {
+        "source": "https://github.com/pbakaus/impeccable/blob/a40571a45f51625ddc5cd3399bbbe82796eed992/.claude/skills/impeccable/SKILL.md",
+        "ref": "a40571a45f51625ddc5cd3399bbbe82796eed992 (observed version4.5.0)",
+        "license": "Apache-2.0"
+      }
+    },
+    "21st-catalog": {
+      "provider": "21st-ui",
+      "bundled": false,
+      "authority": "production",
+      "stages": [
+        "BUILD",
+        "CLOSEOUT"
+      ],
+      "mode": "catalog",
+      "load_policy": "conditional",
+      "consumes": [
+        "definition-of-good",
+        "frontend-evidence",
+        "ticket"
+      ],
+      "produces": [
+        "frontend-code",
+        "ui-receipt"
+      ],
+      "requires": [],
+      "conflicts": [],
+      "evals": [
+        "critical-journey-e2e",
+        "seeded-broken-state-must-fail"
+      ],
+      "uninstall": "Remove the provider mapping. Do not delete product files.",
+      "provider_kind": "external",
+      "supported_platforms": [
+        "web"
+      ],
+      "compatible_stacks": [
+        "react-tailwind"
+      ],
+      "readiness_requirements": [
+        "tool_access"
+      ],
+      "ui_selector": {
+        "platforms": [
+          "web"
+        ],
+        "purposes": [
+          "operate",
+          "persuade",
+          "read",
+          "experience"
+        ],
+        "flag": "21st-catalog"
+      },
+      "provenance": {
+        "source": "https://github.com/21st-dev/magic-mcp/blob/6b5299e8a83ceffa73d4fc4e148905bb3eeeeb55/skills/21st-ui/SKILL.md",
+        "ref": "6b5299e8a83ceffa73d4fc4e148905bb3eeeeb55",
+        "license": "ISC for integration repository only; hosted service and catalog item terms are separate"
+      }
+    },
+    "21st-generate": {
+      "provider": "21st-ui",
+      "bundled": false,
+      "authority": "production",
+      "stages": [
+        "BUILD",
+        "CLOSEOUT"
+      ],
+      "mode": "generation",
+      "load_policy": "conditional",
+      "consumes": [
+        "definition-of-good",
+        "frontend-evidence",
+        "ticket"
+      ],
+      "produces": [
+        "frontend-code",
+        "ui-receipt"
+      ],
+      "requires": [],
+      "conflicts": [],
+      "evals": [
+        "critical-journey-e2e",
+        "seeded-broken-state-must-fail"
+      ],
+      "uninstall": "Remove the provider mapping. Do not delete product files.",
+      "provider_kind": "external",
+      "supported_platforms": [
+        "web"
+      ],
+      "compatible_stacks": [
+        "react-tailwind"
+      ],
+      "readiness_requirements": [
+        "tool_access",
+        "entitlement"
+      ],
+      "ui_selector": {
+        "platforms": [
+          "web"
+        ],
+        "purposes": [
+          "operate",
+          "persuade",
+          "read",
+          "experience"
+        ],
+        "flag": "21st-generate"
+      },
+      "provenance": {
+        "source": "https://github.com/21st-dev/magic-mcp/blob/6b5299e8a83ceffa73d4fc4e148905bb3eeeeb55/skills/21st-ui/SKILL.md",
+        "ref": "6b5299e8a83ceffa73d4fc4e148905bb3eeeeb55",
+        "license": "ISC for integration repository only; hosted service and catalog item terms are separate"
+      }
     }
   }
 }

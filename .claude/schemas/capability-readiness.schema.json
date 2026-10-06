@@ -80,6 +80,16 @@
                 }
               }
             }
+          },
+          "checks": {
+            "type": "object",
+            "additionalProperties": {
+              "enum": [
+                "PASS",
+                "FAIL",
+                "UNKNOWN"
+              ]
+            }
           }
         }
       }

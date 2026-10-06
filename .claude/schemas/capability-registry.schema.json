@@ -122,6 +122,104 @@
               "instruction-only",
               "external"
             ]
+          },
+          "ui_selector": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "platforms",
+              "purposes",
+              "flag"
+            ],
+            "properties": {
+              "platforms": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "enum": [
+                    "web",
+                    "native"
+                  ]
+                },
+                "uniqueItems": true
+              },
+              "purposes": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "enum": [
+                    "operate",
+                    "persuade",
+                    "read",
+                    "experience"
+                  ]
+                },
+                "uniqueItems": true
+              },
+              "flag": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1
+              }
+            }
+          },
+          "supported_platforms": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "enum": [
+                "web",
+                "native"
+              ]
+            },
+            "uniqueItems": true
+          },
+          "compatible_stacks": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true
+          },
+          "stack_adapter_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "readiness_requirements": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true
+          },
+          "provenance": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "source",
+              "ref",
+              "license"
+            ],
+            "properties": {
+              "source": {
+                "type": "string",
+                "minLength": 1
+              },
+              "ref": {
+                "type": "string",
+                "minLength": 1
+              },
+              "license": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
           }
         }
       }
