@@ -11,7 +11,6 @@ Dry-run is the default. The following command prints the complete plan without w
 ```powershell
 .\scripts\install.ps1 `
   -EnableNotifications `
-  -EnableAutoAccept `
   -ReplaceGlobalConstitution `
   -EnableGraphRuntime
 ```
@@ -22,7 +21,6 @@ Dry-run is the default. The following command prints the complete plan without w
 .\scripts\install.ps1 `
   -Apply `
   -EnableNotifications `
-  -EnableAutoAccept `
   -ReplaceGlobalConstitution `
   -EnableGraphRuntime
 ```
@@ -30,7 +28,7 @@ Dry-run is the default. The following command prints the complete plan without w
 Use a single line when copying through a system that may alter PowerShell backticks:
 
 ```powershell
-.\scripts\install.ps1 -Apply -EnableNotifications -EnableAutoAccept -ReplaceGlobalConstitution -EnableGraphRuntime
+.\scripts\install.ps1 -Apply -EnableNotifications -ReplaceGlobalConstitution -EnableGraphRuntime
 ```
 
 The graph runtime requires Python 3.11 or newer. To select a specific interpreter:
@@ -153,3 +151,23 @@ migrate a copy, retain the old records, and reapprove changed requirements/ticke
 Templates show shape, not evidence: replace placeholder hashes/builds/times with observed outputs.
 The existing installer discovers the new skill and helper scripts; there is no second installation
 path. Global installation and Windows provider wiring require validation in that actual environment.
+
+## Runtime hardening migration
+
+This source integrates the durable runtime with Swiper's existing proof contracts. Read
+[HARDENING.md](HARDENING.md) and [SECURITY-BOUNDARY.md](SECURITY-BOUNDARY.md) before upgrading an active
+project. Preserve its ledger, event log, graph checkpoint and `.runtime/operations.sqlite` together.
+The scaffold refuses to overwrite initialized state, even with `--force`.
+
+The runtime alone writes initialized ledgers. Use metadata operations for artifacts, spawn reservation/
+completion and derived assembled identity. Gated transitions require an expiring owner-signed
+`--approval-ref`; a typed approver name is insufficient. Provision the trust file and signing key
+through the trusted operator, outside worker authority. Installation supplies neither keys nor an OS
+sandbox. Auto-accept remains an explicit optional flag.
+
+Regenerate old string `check_results` from independent verification: one structured PASS per acceptance
+ID, assurance evaluator identity, exact assembled build, evidence_ref and its SHA-256. That reference
+must be the same schema-checked Swiper verification receipt referenced by the acceptance check, not
+an alternate raw-output format. Existing Swiper instruction, risk, removal guard, cleanup, release and
+completion requirements remain in force. Both project capability files are included in signed
+manifests; changing either after approval requires a renewed signature.

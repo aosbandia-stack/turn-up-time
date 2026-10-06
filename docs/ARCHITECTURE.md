@@ -16,8 +16,9 @@
 | RELEASE | `/production-audit`, fresh judge, guard | closeout packet, target environment | `release-verdict.json`: SHIP / SHIP_WITH_ACCEPTED_RISK / BLOCK | Operational action only after gate |
 | WORKFLOW_CLOSEOUT | `/its-not-you-its-me` | project traces, rework, costs | proposal(s) or NO_WORKFLOW_CHANGE_PROPOSED | No automatic workflow edit |
 
-The root session is the sole project-ledger writer. Agents return artifacts; they never race project
-state.
+The root requests control operations; only the runtime writes an initialized ledger. Agents return
+artifacts and never race project state. A journal and exclusive writer lock precede projections;
+recovery restores the recorded checkpoint update without repeating external work.
 
 ## Stage prerequisites
 
@@ -37,8 +38,10 @@ WORKFLOW_CLOSEOUT requires agreeing production-audit/final-judge components and 
 DONE            requires scope-appropriate completion proof in the same terminal packet
 ```
 
-The ledger records the artifact path, SHA-256, status, schema, approval, stage verdict, and receipt
-references before advancing.
+Runtime operations record artifact path/hash, reserve and complete spawns, and derive the assembled
+build identity. Gated transitions require signed approvals binding code, ledger and the evidence
+manifest, including `capability-readiness.json` and `capability-registry.json`. Metadata operations
+cannot grant approval or change a stage.
 
 ## Project workspace
 
@@ -72,6 +75,9 @@ references before advancing.
     guard-receipt.json               # when required
     release-verdict.json
   improvements/
+  requests/                         # metadata payloads
+  approvals/                        # signed envelopes, excluded from signature manifest
+  .runtime/operations.sqlite         # durable operation journal
 ```
 
 ## Loop map
@@ -153,3 +159,16 @@ facts. Reservations, graph events and caller-reported outcomes do not supervise 
 Source or cleanup repairs change build identity. Re-run affected ticket, seam, journey, UI, cleanup
 and release proof before proceeding. Keep a no-change cleanup when the reviewed scope is already
 maintainable; do not create churn to satisfy a quota.
+
+## Reconciled runtime and ticket evidence
+
+Structured ticket results identify one assurance evaluator and PASS per acceptance ID. Their
+`evidence_ref` equals the acceptance check's reference and their SHA-256 hashes that existing Swiper
+verification receipt. Its project/check/build/status and underlying output hashes are validated by the
+same project gate. There is no second closeout/release validator. Assurance labels are attributed
+claims; isolation and independent reproduction still require a trusted execution arrangement.
+
+The runtime rejects missing validators and stale assembled identities from INTEGRATION onward.
+Signatures bind both project capability files. OS-account home resolution protects default trust and
+validator lookup from HOME/USERPROFILE substitution; explicit trusted operator overrides and the
+remaining same-account limits are documented in [SECURITY-BOUNDARY.md](SECURITY-BOUNDARY.md).

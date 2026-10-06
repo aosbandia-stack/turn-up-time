@@ -4,7 +4,7 @@ from __future__ import annotations
 import hashlib
 import json
 from datetime import datetime, timezone
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any
 
 from jsonschema import Draft202012Validator, FormatChecker
@@ -26,6 +26,13 @@ def read_contract(path: Path, schema_name: str, errors: list[str]) -> dict[str, 
 
 
 def local_path(project: Path, reference: str, errors: list[str]) -> Path | None:
+    if not isinstance(reference, str) or not reference.strip():
+        errors.append('EVIDENCE_REFERENCE_REQUIRED')
+        return None
+    relative = PurePosixPath(reference)
+    if relative.is_absolute() or '..' in relative.parts or "\\" in reference or ':' in reference:
+        errors.append(f'EVIDENCE_OUTSIDE_PROJECT unsafe portable path: {reference}')
+        return None
     path = (project / reference).resolve()
     if Path(reference).is_absolute() or not path.is_relative_to(project.resolve()):
         errors.append(f'EVIDENCE_OUTSIDE_PROJECT {reference}')

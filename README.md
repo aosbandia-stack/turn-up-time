@@ -102,8 +102,10 @@ SQLite checkpoint + events.jsonl
   runtime recovery and append-only execution history
 ```
 
-The graph runtime blocks illegal transitions, loop exhaustion, missing human approvers, missing
-evidence deltas on repair edges, and checkpoint/ledger drift.
+The graph runtime blocks illegal transitions, loop exhaustion, unsigned/stale human approvals,
+missing evidence deltas, missing validators, stale assembled builds, and checkpoint/ledger drift.
+Per-project locks and durable journaled intents support stable-ID retries and process-death recovery.
+It records work; it does not launch workers, provide OS isolation, or deploy applications.
 
 ## Install
 
@@ -112,7 +114,6 @@ Clone or update the repository, then preview:
 ```powershell
 .\scripts\install.ps1 `
   -EnableNotifications `
-  -EnableAutoAccept `
   -ReplaceGlobalConstitution `
   -EnableGraphRuntime
 ```
@@ -123,7 +124,6 @@ The preview changes nothing. After reviewing it, apply:
 .\scripts\install.ps1 `
   -Apply `
   -EnableNotifications `
-  -EnableAutoAccept `
   -ReplaceGlobalConstitution `
   -EnableGraphRuntime
 ```
@@ -137,7 +137,9 @@ Verify:
 & "$HOME\.claude\scripts\turn-up-time-graph.ps1" validate-topology
 ```
 
-See [docs/INSTALL.md](docs/INSTALL.md) and [docs/GRAPH-RUNTIME.md](docs/GRAPH-RUNTIME.md).
+See [docs/INSTALL.md](docs/INSTALL.md), [docs/GRAPH-RUNTIME.md](docs/GRAPH-RUNTIME.md), and
+[the hardening/migration guide](docs/HARDENING.md) for signed approval provisioning. Auto-accept is an
+explicit optional setting; installation does not provision signing keys or worker isolation.
 
 ## Core commands
 
