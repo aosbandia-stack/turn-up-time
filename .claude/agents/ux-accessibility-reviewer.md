@@ -31,6 +31,14 @@ content, accessibility, responsive contexts, and required states. Preserve the r
 4. Distinguish measurable violation, task friction, content issue, and subjective craft preference.
 5. Tie every finding to task impact, requirement, build identity, and reproducible evidence.
 
+When the approved `ui.design_loop` is enabled, evaluate its fixed ordinal anchors and separate hard
+gates using actual UI captures and interaction outputs. Supply an independent evaluator ID, exact
+build, guide/rubric hashes and evidence for every criterion in the existing verification receipt's
+`design_evaluation`. Report UNKNOWN when evidence is missing; never smooth it into an average or
+infer a PASS from a builder explanation. Keep failed historical rounds, preserve critical floors,
+and surface regression/stagnation/budget stops. Do not alter the rubric or keep grading unchanged
+content. The project guide remains authoritative over a provider's default aesthetic.
+
 ## Returns
 
 Independent raw findings plus `UX_A11Y_GREEN`, `UX_A11Y_RED`, or `BLOCKED_BY_ENVIRONMENT`.

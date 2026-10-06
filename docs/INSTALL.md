@@ -152,6 +152,25 @@ Templates show shape, not evidence: replace placeholder hashes/builds/times with
 The existing installer discovers the new skill and helper scripts; there is no second installation
 path. Global installation and Windows provider wiring require validation in that actual environment.
 
+UI contracts now also require `ui.surfaces` when UI is applicable: platform, purpose, stack, route
+coverage, flags, change scope, research disposition and verification capabilities. Map all expanded
+capabilities to approved tickets. Keep non-UI `surfaces: []` and `design_loop: null`; neither optional
+21st nor an evaluator loop is required. Narrow refinements can use REUSE_GUIDE. For new/material
+directions, place bounded comparable observations and their evidence/rationale in the existing design
+guide; see [the UI contract](ARCHITECTURE.md#ui-surfaces-and-provider-flags) for the exact shape.
+
+Project overrides must retain selector semantics and compatibility. Native work must name a real
+external native assurance adapter. The 21st flags declare optional source mappings, not installed
+tools: verify the actual provider, tool access, generation entitlement, stack adapter when needed,
+and fresh project/environment probe before use; retain actual invocation/output receipts afterward.
+Do not auto-install upstream hooks/binaries or invoke paid generation while migrating metadata.
+
+Opt into `design_loop` only with approved anchors, hard gates, fixed guide/rubric hashes and shared
+round/time/stagnation/optional cost budgets. Preserve failed historical evaluation receipts in the
+existing terminal `round_history`, then record `design_stop_reason`. The final exact build must meet
+every threshold. Ordinary UI closeout retains one batched pass plus confirmation. Reapprove changed
+contracts; do not copy historical PASS labels into new receipts.
+
 ## Runtime hardening migration
 
 This source integrates the durable runtime with Swiper's existing proof contracts. Read

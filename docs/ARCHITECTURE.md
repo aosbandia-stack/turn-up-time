@@ -121,6 +121,89 @@ current project/environment probe and separate actual-use proof at integration. 
 Providers are loaded only by approved tickets. `frontend-operate` maps dashboards/product interfaces
 to Impeccable `operate`; marketing Taste rules are not a dashboard default.
 
+### UI surfaces and provider flags
+
+`ui.surfaces` in Definition of Good names `id`, `platform` (`web`/`native`), `purpose`
+(`operate`/`persuade`/`read`/`experience`), `stack`, `routes`, `flags`, `change_scope`,
+`research_disposition`, `research`, and `verification_capabilities`. Every declared route must be
+covered. Registry `ui_selector` metadata expands platform/purpose/flags using the same function in
+the CLI and project validator. Expanded direct/transitive capabilities must be ticketed; dropping a
+flag from a ticket cannot drop its provider checks. Legacy web aliases remain valid.
+
+The defaults select one Impeccable purpose capability and, for web, `browser-e2e`. Native needs an
+explicit external assurance capability with `supported_platforms: ["native"]` and a real readiness/
+use receipt; no React/browser adapter is inferred. A project override replaces the named capability,
+including its selector/compatibility declaration, so retain that metadata when replacing providers.
+
+`polish` selects installed polish instructions. `21st-catalog` and `21st-generate` are separate
+external capabilities. Both require a successful `checks.tool_access` readiness probe; generation
+also requires `checks.entitlement`. Both need actual invocation/output evidence at integration.
+Default compatibility is `react-tailwind`; a reviewed nonstandard project mapping must declare its
+compatible stack and resolve `stack_adapter_ref`. No 21st polish API is assumed. Pinned upstream
+source/ref/license metadata records provenance, not installed version, permission to call paid tools,
+or the license of hosted/catalog content. The 21st integration repository is ISC; hosted service and
+individual catalog terms remain separate. No upstream hook or binary is downloaded automatically.
+
+For example, an incumbent tool surface can declare:
+
+```json
+{"id":"main","platform":"web","purpose":"operate","stack":"react-tailwind",
+ "routes":["/items"],"flags":["polish"],"change_scope":"REFINEMENT",
+ "research_disposition":"REUSE_GUIDE","research":[],"verification_capabilities":[]}
+```
+
+CLI equivalent: `resolve_capabilities.py --ui-platform web --ui-purpose operate --ui-stack
+react-tailwind --ui-flag polish`, plus the actual project/provider/readiness arguments. These are
+Turn Up Time selectors, not invented provider command flags. `--ui-verification-capability` selects
+a configured assurance adapter, especially for native. Readable instruction-only inputs, current
+external readiness and actual use remain three distinct claims.
+
+The authoritative `ui.design_reference` contains typography, spacing, color, hierarchy, density,
+states, responsiveness, accessibility and component ownership. `NEW`/`REDESIGN` surfaces require
+`COMPARABLES`: one to three records with `source`, OBSERVED/SUPPLIED `basis`, `observation`,
+ADOPT/ADAPT/REJECT `disposition`, `rationale`, a `guide_ref` in that same guide, and hashed
+`evidence_refs`. Supplied captures work offline; a missing source is not invented observation.
+`REFINEMENT` may `REUSE_GUIDE` with no new research. Hashes establish evidence integrity, not honesty.
+
+### Optional design evaluation contract
+
+Ordinary UI closeout retains one batched visual pass plus one confirmation. Opting into
+`ui.design_loop` uses Easily Irritated's existing overall `max_rounds` (default 4, declared in the
+approved contract), not another allowance. The object records:
+
+- `rubric_version`, `locked_at`, `guide_sha256`, `rubric_sha256`;
+- `criteria`: unique `id`, `critical`, `minimum` (1–4), and project-specific `anchors` for all scores
+  `"0"` through `"4"`; every minimum must pass, including each critical floor;
+- named `hard_gates`, independent of judgment scores;
+- positive `max_rounds`, `max_elapsed_seconds`, `max_stagnant_rounds`, and `cost_ceiling` (null, or
+  positive `amount` and `unit`).
+
+Hash the complete guide file, even when the reference includes a heading. Use
+`project_contracts.rubric_digest(loop)` to SHA-256 the sorted compact JSON object excluding only its
+own `rubric_sha256`; it includes anchors, thresholds, version, guide hash and budgets. Lock before
+building. Amending the guide/rubric uses the existing definition approval path and invalidates grades.
+
+Each ordered `terminal-state.round_history` reference is an existing verification receipt with
+`check_id: "design-evaluation"`. Its `design_evaluation` names the locked hashes, `evaluator_role:
+"assurance"`, a fresh `evaluator_id`, `started_at`, and criterion/hard-gate rows. Each row has `id`,
+PASS/FAIL/UNKNOWN `status` and hashed `evidence_refs`; criteria also have ordinal `score` (null for
+UNKNOWN). Receipt status agrees with all individual outcomes. No mean or total score is accepted.
+The receipt's ordinary project/build/time/output fields still apply. These attributed claims require
+actual captures/tests from independent review; they do not attest to model cognition or OS isolation.
+
+Historical FAIL receipts are schema/hash-checked against their own builds. Only the final receipt
+must PASS on the final build. Changed content and a fresh evaluator are required each round; changing
+only the commit while retaining the same content hash is not a new candidate. Any criterion or gate
+regression stops. Lack of improvement consumes the stagnation budget. Elapsed time includes gaps
+between rounds. With a cost ceiling, every round needs actual `cumulative_cost`, matching `cost_unit`
+and hashed `cost_evidence_refs`; unknown cost is not zero.
+
+`design_stop_reason` is THRESHOLD_MET, ROUND_LIMIT, TIME_LIMIT, COST_LIMIT, STAGNATION, REGRESSION,
+ENVIRONMENT or DECISION. Only THRESHOLD_MET supports release entry, and a later pass cannot erase an
+earlier stop. Other reasons preserve failed history and use the existing blocked/max-round terminal
+states. These checks consume recorded budgets, not a new evaluator service or worker termination
+mechanism. The ordinary journey, UI/keyboard, Swiper and release checks remain required.
+
 ## Role authority
 
 - Control roles live in the root session.

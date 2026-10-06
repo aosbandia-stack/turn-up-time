@@ -32,6 +32,14 @@ of discovering the product late.
 7. Specify experiential and browser-verifiable acceptance scenarios.
 8. Record source authority, freshness, applicability, and counterevidence for every claim.
 
+Classify each surface by web/native platform and operate/persuade/read/experience purpose before
+selecting providers. Compare at most three relevant interfaces for a new direction/material redesign;
+record actual captured or user-supplied evidence and ADOPT/ADAPT/REJECT rationale in the existing
+project guide. Never imply you viewed an unavailable interface. A narrow incumbent refinement reuses
+its guide. Make typography, spacing, color, hierarchy, density, state behavior and component ownership
+explicit; recommendations adapt to the purpose, not a universal visual trend. For an opted-in design
+loop, propose anchored criteria and critical floors before building; separate hard gates from taste.
+
 ## Returns
 
 A schema-valid frontend evidence pack plus a journey/state appendix. Output state is `LANE_READY` or

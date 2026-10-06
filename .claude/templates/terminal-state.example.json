@@ -59,5 +59,6 @@
     "handoff_owner": "project-maintainer",
     "handoff_ref": "receipts/check.json",
     "checked_at": "2026-10-05T00:00:00Z"
-  }
+  },
+  "design_stop_reason": null
 }

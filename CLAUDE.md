@@ -81,7 +81,10 @@ evaluator, or a human decision.
   repairs escalates.
 - Integration gets at most two repair waves before architecture escalation.
 - Easily Irritated obeys `max_rounds` and explicit terminal states.
-- Visual polish gets one batched pass and at most one confirmation.
+- Visual polish gets one batched pass and at most one confirmation by default. An explicitly
+  approved design loop shares Easily Irritated's overall round budget, pins guide/rubric before
+  building, requires fresh independent evidence on changed content, and stops on regression,
+  stagnation or configured elapsed/cost limits. A score never overrides a hard gate or criterion floor.
 - Release is a gate, not a design loop.
 - Workflow improvements are promoted, rejected, deferred, piloted, or retired—never accumulated by
   default.
@@ -159,6 +162,13 @@ Installed, usable, and used are distinct claims. The resolver never executes reg
 Providers are implementation libraries, not constitutions. Every provider declares authority, stage,
 inputs, outputs, dependencies, conflicts, evals, load policy, and removal contract. Missing optional
 providers block or trigger `/plug-it-in`; they are not silently replaced.
+
+UI surfaces declare platform, purpose, stack and optional flags. The existing resolver expands that
+registry-backed selection into required ticket capabilities. Web requires browser assurance; native
+requires a real configured native adapter. Impeccable is the default design instruction baseline;
+21st catalog/generation stay optional and require actual external readiness/use and compatible stack.
+Provider provenance does not authorize installation, paid calls or external egress. The approved
+project guide and its shared components govern implementation and grading.
 
 ## 11. Release and mutation
 

@@ -94,6 +94,12 @@ def main() -> int:
     check("cleanup-provider-resolves", code == 0 and output["plan"][0]["usable"] and not output["plan"][0]["used"], "readable cleanup instructions resolve without a fabricated usage claim")
     code, output = resolver.resolve(["does-not-exist"], registry, [CLAUDE_DIR / "skills"])
     check("unknown-capability-blocks", code != 0 and output["status"] == "BLOCKED", "unknown capability cannot silently disappear")
+    surfaces = [{"id":"native", "platform":"native", "purpose":"operate", "stack":"swiftui", "flags":[], "verification_capabilities":[]}]
+    code, output = resolver.resolve([], registry, [], ui_surfaces=surfaces)
+    check("native-needs-real-assurance", code != 0 and any(error["code"] == "NATIVE_ASSURANCE_REQUIRED" for error in output["errors"]) and "browser-e2e" not in output["selected"], "native does not inherit a fictional browser adapter")
+    surfaces[0].update(platform="web", flags=["unknown-provider-flag"])
+    code, output = resolver.resolve([], registry, [], ui_surfaces=surfaces)
+    check("unknown-ui-flag-blocks", code != 0 and any(error["code"] == "UI_SELECTOR_UNAVAILABLE" for error in output["errors"]), "an unknown optional selector cannot silently disappear")
     conflict_registry = json.loads(json.dumps(registry))
     conflict_registry["taste-skill"] = {
         "provider": "taste-skill", "bundled": False, "authority": "production", "stages": ["BUILD"],
@@ -158,6 +164,29 @@ def main() -> int:
         risky["cleanup"].update(outcome="CHANGED", baseline_identity="baseline-before-cleanup", reproof_refs=["receipts/cleanup.json"])
         action.update(decision="REMOVE", external_callers="VERIFIED")
         check("swiper-removal-guard-required", any("CLEANUP_ACTION_GUARD_REQUIRED" in error for error in closeout_errors(risky)), "removal cannot reuse a generic PASS or deployment guard")
+
+        loop = {"rubric_version":"seed-v1", "rubric_sha256":"0"*64, "guide_sha256":hashlib.sha256(b"Seeded guide").hexdigest(),
+                "locked_at":"2025-12-31T00:00:00Z", "criteria":[{"id":"clarity", "critical":True, "minimum":3,
+                "anchors":{str(i):"Seeded project anchor "+str(i) for i in range(5)}}], "hard_gates":["keyboard"],
+                "max_rounds":4, "max_elapsed_seconds":60, "max_stagnant_rounds":1, "cost_ceiling":None}
+        loop["rubric_sha256"] = contracts.rubric_digest(loop)
+        reference = receipt("design-evaluation")
+        evaluation = load(project / reference)
+        assets = evaluation["evidence_refs"]
+        evaluation["design_evaluation"] = {"rubric_sha256":loop["rubric_sha256"], "guide_sha256":loop["guide_sha256"],
+            "evaluator_role":"assurance", "evaluator_id":"independent-seeded-reviewer", "started_at":evaluation["checked_at"],
+            "criteria":[{"id":"clarity", "score":2, "status":"FAIL", "evidence_refs":assets}],
+            "hard_gates":[{"id":"keyboard", "status":"PASS", "evidence_refs":assets}],
+            "cumulative_cost":None, "cost_unit":None, "cost_evidence_refs":[]}
+        packet.update(round_history=[reference], design_stop_reason="THRESHOLD_MET")
+        def design_errors() -> list[str]:
+            (project / reference).write_text(json.dumps(evaluation), encoding="utf-8")
+            failures: list[str] = []
+            contracts.check_design_loop(project, {"design_loop":loop}, packet, build, failures)
+            return failures
+        check("critical-design-floor-blocks", any("DESIGN_FINAL_BUILD_NOT_PASS" in error for error in design_errors()), "a PASS label cannot conceal a failed critical criterion")
+        evaluation["design_evaluation"]["criteria"][0].update(score=3, status="PASS")
+        check("anchored-design-pass-valid", not design_errors(), "independent actual-output receipt meets every criterion and gate")
 
     failed = [row for row in RESULTS if not row[1]]
     for identifier, ok, detail in RESULTS:

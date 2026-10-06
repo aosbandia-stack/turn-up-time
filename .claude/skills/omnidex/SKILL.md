@@ -43,6 +43,25 @@ and have the human decide. Name shared tokens/components and their owner, route 
 success states, desktop/mobile expectations and keyboard behavior. Map the first vertical journey
 to a ticket; later frontend tickets depend on it. Verify that slice before route fanout.
 
+Declare `ui.surfaces`: platform (`web` or `native`), purpose (`operate`, `persuade`, `read`,
+`experience`), stack, routes, requested flags, change scope and verification capabilities. Use the
+registry's selector expansion; every expanded capability belongs to a ticket. Web requires browser
+proof. Native names a real external assurance adapter for its stack, not a fictional browser test.
+
+Keep the project guide at `ui.design_reference` authoritative over provider suggestions. Record
+typography, spacing, color, hierarchy, density, states, responsiveness, accessibility and shared
+component ownership there. New directions/material redesigns require at most three comparable-app
+observations with captured or supplied evidence, ADOPT/ADAPT/REJECT rationale, and an anchor in that
+same guide. A narrow refinement uses `REUSE_GUIDE`; it does not trigger fresh broad research. Separate
+observed/supplied evidence from inference and never invent a viewed interface.
+
+Only when requested, define `ui.design_loop` before building: project-specific ordinal anchors,
+per-criterion minima and critical flags, separate hard gates, rubric version, guide/rubric hashes,
+lock time, shared overall `max_rounds`, elapsed/stagnation limits, and optional cost ceiling. No
+aggregate score substitutes for a failed criterion. Changes use the existing Definition of Good
+amendment/approval path and invalidate affected grades. The bounded contract is documented in
+`docs/ARCHITECTURE.md`; do not create another evaluator or closeout stage.
+
 Also preserve critical journeys, non-goals, and human gates. A number is used only when sourced or
 measured and meaningful. Otherwise use an observable check, calibrated rubric, or human gate.
 

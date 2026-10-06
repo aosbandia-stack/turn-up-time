@@ -8,7 +8,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-from contract_evidence import check_assets, read_contract, timestamp
+from contract_evidence import check_assets, local_path, read_contract, timestamp
 
 
 def load_json(path: Path) -> dict[str, Any]:
@@ -37,11 +37,10 @@ def provider_exists(provider: str, roots: list[Path]) -> bool:
     return False
 
 
-def resolve(requested: list[str], registry: dict[str, Any], provider_roots: list[Path], *, readiness: dict[str, Any] | None = None, project: Path | None = None, environment: str | None = None, build_identity: str | None = None, require_use: bool = False) -> tuple[int, dict[str, Any]]:
+def capability_closure(requested: list[str], registry: dict[str, Any]) -> tuple[list[str], list[dict[str, str]]]:
     queue = list(dict.fromkeys(requested))
     selected: list[str] = []
     errors: list[dict[str, str]] = []
-    plan = []
     while queue:
         name = queue.pop(0)
         if name in selected:
@@ -52,12 +51,72 @@ def resolve(requested: list[str], registry: dict[str, Any], provider_roots: list
             continue
         selected.append(name)
         queue.extend(item for item in entry.get('requires', []) if item not in selected and item not in queue)
+    return selected, errors
+
+
+def expand_ui(surfaces: list[dict[str, Any]], registry: dict[str, Any], project: Path | None = None) -> tuple[dict[str, list[str]], list[dict[str, str]]]:
+    """One registry expansion for CLI and stage gates; selectors are not provider APIs."""
+    expanded: dict[str, list[str]] = {}
+    errors: list[dict[str, str]] = []
+    for surface in surfaces:
+        label = surface.get('id', 'cli')
+        platform, purpose = surface.get('platform'), surface.get('purpose')
+        if platform not in {'web', 'native'} or purpose not in {'operate', 'persuade', 'read', 'experience'}:
+            errors.append({'code':'UNKNOWN_UI_SELECTOR', 'capability':label})
+            continue
+        names = []
+        for flag in [None, *surface.get('flags', [])]:
+            matches = [name for name, entry in registry.items()
+                       if entry.get('ui_selector', {}).get('flag') == flag
+                       and platform in entry.get('ui_selector', {}).get('platforms', [])
+                       and purpose in entry.get('ui_selector', {}).get('purposes', [])]
+            if not matches or (flag is None and not any(registry[name]['authority'] == 'production' for name in matches)):
+                errors.append({'code':'UI_SELECTOR_UNAVAILABLE', 'capability':str(flag or purpose)})
+            names.extend(matches)
+        verification = surface.get('verification_capabilities', [])
+        if platform == 'native' and not verification:
+            errors.append({'code':'NATIVE_ASSURANCE_REQUIRED', 'capability':label})
+        for name in verification:
+            entry = registry.get(name, {})
+            if entry.get('authority') != 'assurance' or entry.get('provider_kind') != 'external' or platform not in entry.get('supported_platforms', []):
+                errors.append({'code':'UI_ASSURANCE_ADAPTER_INVALID', 'capability':name})
+        names.extend(verification)
+        selected, failures = capability_closure(names, registry)
+        errors.extend(failures)
+        for name in selected:
+            entry = registry[name]
+            if entry.get('supported_platforms') and platform not in entry['supported_platforms']:
+                errors.append({'code':'UI_PLATFORM_INCOMPATIBLE', 'capability':name})
+            if entry.get('compatible_stacks') and surface.get('stack') not in entry['compatible_stacks']:
+                errors.append({'code':'UI_STACK_INCOMPATIBLE', 'capability':name})
+            # A nonstandard 21st mapping needs an explicit reviewed adapter in
+            # addition to its stack declaration, never an invented native API.
+            if entry.get('ui_selector', {}).get('flag') in {'21st-catalog','21st-generate'} and surface.get('stack') != 'react-tailwind':
+                failures = []
+                if not project or not entry.get('stack_adapter_ref'):
+                    failures.append('UI_STACK_ADAPTER_REQUIRED')
+                else:
+                    local_path(project, entry['stack_adapter_ref'], failures)
+                errors.extend({'code':code, 'capability':name} for code in failures)
+        expanded[label] = selected
+    return expanded, errors
+
+
+def resolve(requested: list[str], registry: dict[str, Any], provider_roots: list[Path], *, readiness: dict[str, Any] | None = None, project: Path | None = None, environment: str | None = None, build_identity: str | None = None, require_use: bool = False, ui_surfaces: list[dict[str, Any]] | None = None) -> tuple[int, dict[str, Any]]:
+    surfaces, errors = expand_ui(ui_surfaces or [], registry, project)
+    ui_required = list(dict.fromkeys(name for names in surfaces.values() for name in names))
+    selected, failures = capability_closure(requested + ui_required, registry)
+    errors.extend(failures)
+    plan = []
     for name in selected:
         entry = registry[name]
         provider = str(entry.get('provider', ''))
         installed = provider_exists(provider, provider_roots)
         kind = entry.get('provider_kind')
         local_errors: list[str] = []
+        flag = entry.get('ui_selector', {}).get('flag')
+        if flag in {'21st-catalog','21st-generate'} and kind != 'external':
+            local_errors.append('UI_EXTERNAL_PROVIDER_REQUIRED')
         if not installed:
             local_errors.append('REQUIRED_PROVIDER_MISSING')
         if kind not in {'instruction-only', 'external'}:
@@ -84,6 +143,14 @@ def resolve(requested: list[str], registry: dict[str, Any], provider_roots: list
                     if not receipt['evidence_refs']:
                         proof_errors.append('READINESS_EVIDENCE_MISSING')
                     check_assets(project, receipt['evidence_refs'], proof_errors)
+                    required_checks = set(entry.get('readiness_requirements', []))
+                    if flag in {'21st-catalog','21st-generate'}:
+                        required_checks.add('tool_access')
+                    if flag == '21st-generate':
+                        required_checks.add('entitlement')
+                    for check in sorted(required_checks):
+                        if receipt.get('checks', {}).get(check) != 'PASS':
+                            proof_errors.append('READINESS_CHECK_REQUIRED:' + check)
                 except (KeyError, ValueError, TypeError):
                     proof_errors.append('INVALID_READINESS_PROOF')
                 local_errors.extend(proof_errors)
@@ -105,14 +172,14 @@ def resolve(requested: list[str], registry: dict[str, Any], provider_roots: list
             local_errors.append('ACTUAL_USE_PROOF_REQUIRED')
         for code in local_errors:
             errors.append({'code': code, 'capability': name, 'provider': provider})
-        plan.append({'capability': name, 'provider': provider, 'provider_kind': kind, 'installed': installed, 'usable': usable, 'used': used, 'bundled': bool(entry.get('bundled')), 'authority': entry.get('authority'), 'stages': entry.get('stages', []), 'mode': entry.get('mode', 'default'), 'load_policy': entry.get('load_policy')})
-    output = {'requested': requested, 'selected': selected, 'plan': plan, 'errors': errors, 'status': 'BLOCKED' if errors else 'READY'}
+        plan.append({'capability': name, 'provider': provider, 'provider_kind': kind, 'installed': installed, 'usable': usable, 'used': used, 'bundled': bool(entry.get('bundled')), 'authority': entry.get('authority'), 'stages': entry.get('stages', []), 'mode': entry.get('mode', 'default'), 'load_policy': entry.get('load_policy'), 'provenance':entry.get('provenance')})
+    output = {'requested': requested, 'selected': selected, 'ui_required':ui_required, 'ui_surfaces':surfaces, 'plan': plan, 'errors': errors, 'status': 'BLOCKED' if errors else 'READY'}
     return (2 if errors else 0), output
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument('capabilities', nargs='+')
+    parser.add_argument('capabilities', nargs='*')
     parser.add_argument('--registry', type=Path, default=Path(__file__).resolve().parents[1] / 'capabilities' / 'registry.json')
     parser.add_argument('--user-registry', type=Path, default=Path.home() / '.claude' / 'capabilities' / 'registry.json')
     parser.add_argument('--project-registry', type=Path)
@@ -122,6 +189,11 @@ def main() -> int:
     parser.add_argument('--environment')
     parser.add_argument('--build-identity')
     parser.add_argument('--require-use', action='store_true')
+    parser.add_argument('--ui-platform')
+    parser.add_argument('--ui-purpose')
+    parser.add_argument('--ui-stack')
+    parser.add_argument('--ui-flag', action='append', default=[])
+    parser.add_argument('--ui-verification-capability', action='append', default=[])
     args = parser.parse_args()
     errors: list[str] = []
     registry = {}
@@ -135,7 +207,13 @@ def main() -> int:
         print(json.dumps({'status':'BLOCKED', 'errors':errors}, indent=2))
         return 2
     roots = args.provider_root + [Path.cwd() / '.claude' / 'skills', Path.home() / '.claude' / 'skills', Path(__file__).resolve().parents[1] / 'skills']
-    code, output = resolve(args.capabilities, registry, roots, readiness=readiness, project=args.project.resolve() if args.project else None, environment=args.environment, build_identity=args.build_identity, require_use=args.require_use)
+    surfaces = []
+    if args.ui_platform or args.ui_purpose or args.ui_stack or args.ui_flag or args.ui_verification_capability:
+        surfaces = [{'id':'cli', 'platform':args.ui_platform, 'purpose':args.ui_purpose, 'stack':args.ui_stack,
+                     'flags':args.ui_flag, 'verification_capabilities':args.ui_verification_capability}]
+    if not args.capabilities and not surfaces:
+        parser.error('request a capability or UI platform/purpose')
+    code, output = resolve(args.capabilities, registry, roots, readiness=readiness, project=args.project.resolve() if args.project else None, environment=args.environment, build_identity=args.build_identity, require_use=args.require_use, ui_surfaces=surfaces)
     print(json.dumps(output, indent=2, sort_keys=True))
     return code
 

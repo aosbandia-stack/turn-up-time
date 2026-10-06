@@ -70,6 +70,27 @@ def instruction_proof(project, baseline=BUILD):
     return {'source_path': str(source), 'sha256': digest, 'receipt_ref': reference}
 
 
+def ui_surface(**overrides):
+    return {'id':'main','platform':'web','purpose':'operate','stack':'react-tailwind','routes':['/items'],
+            'flags':[],'change_scope':'REFINEMENT','research_disposition':'REUSE_GUIDE','research':[],
+            'verification_capabilities':[], **overrides}
+
+
+def ready_provider(project, capability, provider, checks=None):
+    instructions = project / '.claude/skills' / provider / 'SKILL.md'
+    instructions.parent.mkdir(parents=True, exist_ok=True)
+    instructions.write_text('# Disposable fixture provider instructions\n')
+    assets = read(project / proof(project, capability + '-probe'))['evidence_refs']
+    now = datetime.now(timezone.utc)
+    path = project / 'capability-readiness.json'
+    readiness = read(path) if path.exists() else {'schema_version':1,'project_id':project.name,'environment':'local-test','receipts':[],'usage':[]}
+    readiness['receipts'].append({'capability':capability,'provider':provider,'status':'PASS',
+        'checked_at':(now-timedelta(minutes=1)).isoformat(),'expires_at':(now+timedelta(minutes=30)).isoformat(),
+        'evidence_refs':assets,'checks':checks or {}})
+    readiness['usage'].append({'capability':capability,'provider':provider,'build_identity':BUILD,'invocation_refs':assets,'output_refs':assets})
+    write(path, readiness)
+
+
 def make_project(tmp_path, ui=False):
     project = tmp_path / 'example-project'
     project.mkdir()
@@ -88,7 +109,11 @@ def make_project(tmp_path, ui=False):
     dog = example('definition-of-good.example.json')
     dog.update(status='APPROVED', approved_by='fixture-human', approved_at=STAMP)
     if ui:
-        dog['ui'] = {'applicable':True, 'reason':'Product interface is in scope.', 'design_reference':'architecture.md#design', 'component_owner':'frontend-owner', 'shared_components':['Button','FormField'], 'route_states':[{'route':'/items','states':['loading','empty','error','success']}], 'viewports':['desktop','mobile'], 'keyboard_expectations':['Tab through the form and submit with Enter.'], 'first_slice_journey_id':'JRN-001'}
+        dog['ui'] = {'applicable':True, 'reason':'Product interface is in scope.', 'design_reference':'architecture.md#design', 'component_owner':'frontend-owner', 'shared_components':['Button','FormField'], 'route_states':[{'route':'/items','states':['loading','empty','error','success']}], 'viewports':['desktop','mobile'], 'keyboard_expectations':['Tab through the form and submit with Enter.'], 'first_slice_journey_id':'JRN-001', 'surfaces':[ui_surface()], 'design_loop':None}
+        instructions = project / '.claude/skills/impeccable/SKILL.md'
+        instructions.parent.mkdir(parents=True)
+        instructions.write_text('# Disposable fixture design instructions\n')
+        ready_provider(project, 'browser-e2e', 'e2e-testing')
     write(project / 'definition-of-good.json', dog)
     trace = example('traceability.example.json')
     trace['journeys'][0]['evidence_refs'] = [proof(project,'JRN-001')]
@@ -96,6 +121,8 @@ def make_project(tmp_path, ui=False):
     ticket = example('ticket.example.json')
     ticket['status'] = 'EVIDENCE_GREEN'
     ticket['required_capabilities'] = ['workflow-evals']
+    if ui:
+        ticket['required_capabilities'] += ['ui-operate','browser-e2e']
     ticket['acceptance_checks'][0]['evidence'] = proof(project,'CHK-001')
     check_ref = ticket['acceptance_checks'][0]['evidence']
     ticket['build_receipt'] = {'build_identity':BUILD,'changed_files':['src/example.ts'],
@@ -301,7 +328,7 @@ def test_runtime_build_rejects_frontend_capability_with_ui_disabled(tmp_path, tr
     p = make_project(tmp_path, ui=True)
     for provider in ('impeccable', 'e2e-testing'):
         instructions = p / '.claude' / 'skills' / provider / 'SKILL.md'
-        instructions.parent.mkdir(parents=True)
+        instructions.parent.mkdir(parents=True, exist_ok=True)
         instructions.write_text('# Installed fixture provider\n')
     capability = 'frontend-operate'
     if transitive:
@@ -309,7 +336,7 @@ def test_runtime_build_rejects_frontend_capability_with_ui_disabled(tmp_path, tr
         wrapper = copy.deepcopy(read(CLAUDE / 'capabilities/registry.json')['capabilities']['workflow-evals'])
         wrapper['requires'] = ['frontend-operate']
         write(p / 'capability-registry.json', {'schema_version': 3, 'capabilities': {capability: wrapper}})
-    edit(p, 'tickets/EXAMPLE-001.json', lambda value: value.update(required_capabilities=[capability]))
+    edit(p, 'tickets/EXAMPLE-001.json', lambda value: value.update(required_capabilities=[capability, 'ui-operate']))
     now = datetime.now(timezone.utc)
     probe = proof(p, 'provider-probe')
     write(p / 'capability-readiness.json', {

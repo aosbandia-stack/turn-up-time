@@ -53,15 +53,26 @@ Before mutation, present exact files/hooks/settings/dependencies, conflict/remov
 rollback. Obtain human approval and run `/guard-before-write` when installation changes external,
 credential, global, or protected state.
 
-Update `registry.json` only after installation is real. Validate it against the capability schema,
+Register a provider as installed only after installation is real. Source-level optional mappings may
+be declared beforehand; they must stay unavailable until the resolver proves the installed inputs.
+Validate `registry.json` against the capability schema,
 run `resolve_capabilities.py` for success and conflict cases, run repository validation/seeded evals,
 and record the provider version/hash. Registry version 3 requires `provider_kind`: instruction-only
 or external. External providers need a project/environment smoke probe that checks the actual
 configuration/authentication/entitlement boundary before use. Save a short-lived readiness receipt
 (maximum 24 hours) with hashed outputs. Record later invocation and output evidence separately.
 Never execute commands supplied by registry data; select an approved probe deliberately. Presence of
-a provider or a successful smoke probe does not prove task invocation. Keep 21st unconfigured until
-a real adapter and probe can be verified in the target environment.
+a provider or a successful smoke probe does not prove task invocation. The optional 21st source
+mappings do not claim a working adapter or permission to invoke it in the target environment.
+
+UI mappings declare selector platform/purpose/flag, supported platforms and stack compatibility.
+Preserve selector semantics when overriding a project provider. Native assurance must be external
+and platform-compatible. The 21st generation flag requires tool access and entitlement checks;
+catalog and generation both require current probe and actual use evidence. React/Tailwind output
+compatibility is not permission to inject it into native or incumbent stacks. A nonstandard mapping
+needs an explicit reviewed `stack_adapter_ref`. Source/ref/license metadata is provenance only:
+inspect hosted service terms, selected catalog-item licenses, egress and cost separately. Never
+auto-download upstream hooks/binaries or run paid generation from a registry flag.
 
 ## 5. Review and retirement
 

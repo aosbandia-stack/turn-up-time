@@ -2,12 +2,13 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import re
 from pathlib import Path
 from typing import Any
 
-from contract_evidence import check_identity, check_proof, local_path, read_contract, timestamp
-from resolve_capabilities import resolve
+from contract_evidence import check_assets, check_identity, check_proof, local_path, read_contract, timestamp
+from resolve_capabilities import capability_closure, resolve
 
 CLAUDE_DIR = Path(__file__).resolve().parents[1]
 
@@ -46,6 +47,41 @@ def check_definition(project: Path, definition: dict[str, Any], errors: list[str
         for route in routes:
             if not {'loading', 'empty', 'error', 'success'}.issubset(route['states']):
                 errors.append(f'UI_ROUTE_STATES_INCOMPLETE {route["route"]}')
+        check_ui_definition(project, definition['ui'], errors)
+    elif definition['ui'].get('surfaces') or definition['ui'].get('design_loop'):
+        errors.append('UI_APPLICABILITY_CONFLICT surfaces or design loop selected')
+
+
+def rubric_digest(loop: dict[str, Any]) -> str:
+    value = {key:value for key,value in loop.items() if key != 'rubric_sha256'}
+    return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(',', ':'), allow_nan=False).encode()).hexdigest()
+
+
+def check_ui_definition(project: Path, ui: dict[str, Any], errors: list[str]) -> None:
+    surfaces = ui.get('surfaces', [])
+    unique([surface['id'] for surface in surfaces], 'UI surfaces', errors)
+    declared = {route['route'] for route in ui['route_states']}
+    if {route for surface in surfaces for route in surface['routes']} != declared:
+        errors.append('UI_SURFACE_ROUTE_COVERAGE_MISMATCH')
+    for surface in surfaces:
+        research = surface['research']
+        if surface['change_scope'] in {'NEW','REDESIGN'} and surface['research_disposition'] != 'COMPARABLES':
+            errors.append('UI_COMPARABLE_RESEARCH_REQUIRED ' + surface['id'])
+        if surface['research_disposition'] == 'COMPARABLES' and not research:
+            errors.append('UI_COMPARABLE_RESEARCH_REQUIRED ' + surface['id'])
+        for row in research:
+            check_assets(project, row['evidence_refs'], errors)
+            design_ref(project, row['guide_ref'], errors)
+            if row['guide_ref'].partition('#')[0] != ui['design_reference'].partition('#')[0]:
+                errors.append('UI_RESEARCH_OUTSIDE_DESIGN_GUIDE ' + surface['id'])
+    loop = ui.get('design_loop')
+    if loop:
+        unique([criterion['id'] for criterion in loop['criteria']], 'design criteria', errors)
+        if rubric_digest(loop) != loop['rubric_sha256']:
+            errors.append('DESIGN_RUBRIC_HASH_MISMATCH')
+        guide = local_path(project, ui['design_reference'].partition('#')[0], errors)
+        if guide and hashlib.sha256(guide.read_bytes()).hexdigest() != loop['guide_sha256']:
+            errors.append('DESIGN_GUIDE_HASH_MISMATCH')
 
 
 def source_ref(project: Path, reference: str, errors: list[str]) -> None:
@@ -96,6 +132,9 @@ def check_traceability(project: Path, definition: dict[str, Any], tickets: list[
             receipt = ticket['build_receipt']
             if not receipt or receipt['build_identity'] != build:
                 errors.append(f'TICKET_BUILD_MISMATCH {tid}')
+            loop = definition['ui'].get('design_loop')
+            if loop and receipt and timestamp(loop['locked_at']) > timestamp(receipt['completed_at']):
+                errors.append('DESIGN_RUBRIC_LOCKED_AFTER_BUILD ' + tid)
             for check in ticket['acceptance_checks']:
                 if not check['evidence']:
                     errors.append(f'ACCEPTANCE_EVIDENCE_MISSING {tid}:{check["id"]}')
@@ -149,7 +188,7 @@ def check_traceability(project: Path, definition: dict[str, Any], tickets: list[
         first = journey_map.get(definition['ui']['first_slice_journey_id'], {})
         first_tickets = set(first.get('ticket_ids', []))
         for ticket in tickets:
-            if any(c.startswith('frontend-') for c in ticket['required_capabilities']) and ticket['ticket_id'] not in first_tickets and not first_tickets.intersection(ticket['dependencies']):
+            if any(c.startswith(('frontend-', 'ui-', '21st-')) for c in ticket['required_capabilities']) and ticket['ticket_id'] not in first_tickets and not first_tickets.intersection(ticket['dependencies']):
                 errors.append(f'FIRST_SLICE_DEPENDENCY_MISSING {ticket["ticket_id"]}')
 
 
@@ -164,12 +203,134 @@ def check_capabilities(project: Path, definition: dict[str, Any], tickets: list[
     readiness = read_contract(readiness_path, 'capability-readiness.schema.json', errors) if readiness_path.exists() else None
     requested = list(dict.fromkeys(c for t in tickets for c in t['required_capabilities']))
     roots = [project / '.claude' / 'skills', CLAUDE_DIR / 'skills', Path.home() / '.claude' / 'skills']
-    _, result = resolve(requested, registry, roots, readiness=readiness, project=project, environment=definition['execution_environment'], build_identity=build, require_use=integration)
-    selected_frontend = [name for name in result['selected'] if name.startswith('frontend-')]
+    _, result = resolve(requested, registry, roots, readiness=readiness, project=project, environment=definition['execution_environment'], build_identity=build, require_use=integration, ui_surfaces=definition['ui'].get('surfaces', []))
+    ticket_capabilities, _ = capability_closure(requested, registry)
+    missing = set(result['ui_required']) - set(ticket_capabilities)
+    if missing:
+        errors.append('UI_TICKET_CAPABILITY_COVERAGE_MISSING ' + ','.join(sorted(missing)))
+    selected_frontend = [name for name in result['selected'] if name.startswith(('frontend-', 'ui-', '21st-')) or registry[name].get('ui_selector')]
     if selected_frontend and not definition['ui']['applicable']:
         errors.append('UI_APPLICABILITY_CONFLICT selected=' + ','.join(selected_frontend))
     for error in result['errors']:
         errors.append(f'CAPABILITY {error["code"]} {error.get("capability", "")}')
+
+
+def check_design_loop(project: Path, ui: dict[str, Any], packet: dict[str, Any], build: str | None, errors: list[str]) -> None:
+    """Consume the existing round receipts. Historical failures are valid evidence.
+
+    Per-criterion floors and hard gates decide; no average can erase a failure.
+    Budgets validate the record, not termination of an external worker process.
+    """
+    loop = ui.get('design_loop')
+    if not loop:
+        if packet.get('design_stop_reason'):
+            errors.append('DESIGN_LOOP_NOT_CONFIGURED')
+        return
+    criteria = {row['id']:row for row in loop['criteria']}
+    gates = set(loop['hard_gates'])
+    history = packet['round_history']
+    if len(history) > loop['max_rounds']:
+        errors.append('DESIGN_ROUND_LIMIT_EXCEEDED')
+    builds: set[str] = set()
+    evaluators: set[str] = set()
+    first_started = previous_checked = None
+    previous_scores = previous_gates = None
+    previous_cost = None
+    stagnant = 0
+    reason = None
+    for index, reference in enumerate(history):
+        if reason:
+            errors.append('DESIGN_CONTINUED_AFTER_STOP ' + reason)
+        path = local_path(project, reference, errors)
+        receipt = read_contract(path, 'verification-receipt.schema.json', errors) if path else None
+        if not receipt:
+            continue
+        check_identity(receipt, project, receipt['build_identity'], errors, reference)
+        check_assets(project, receipt['evidence_refs'], errors)
+        evaluation = receipt.get('design_evaluation')
+        if not evaluation or receipt['check_id'] != 'design-evaluation':
+            errors.append('DESIGN_EVALUATION_REQUIRED ' + reference)
+            continue
+        if evaluation['rubric_sha256'] != loop['rubric_sha256'] or evaluation['guide_sha256'] != loop['guide_sha256']:
+            errors.append('DESIGN_EVALUATION_CONTRACT_MISMATCH ' + reference)
+        if evaluation['evaluator_role'] != 'assurance' or not evaluation['evaluator_id'].strip():
+            errors.append('DESIGN_INDEPENDENT_EVALUATOR_REQUIRED ' + reference)
+        if evaluation['evaluator_id'] in evaluators:
+            errors.append('DESIGN_FRESH_EVALUATOR_REQUIRED ' + reference)
+        evaluators.add(evaluation['evaluator_id'])
+        identity = receipt['build_identity']
+        content_identity = identity.rsplit(':', 1)[-1] if identity.startswith('git:') else identity
+        if content_identity in builds:
+            errors.append('DESIGN_UNCHANGED_BUILD_REGRADED ' + reference)
+        builds.add(content_identity)
+        started, checked = timestamp(evaluation['started_at']), timestamp(receipt['checked_at'])
+        if timestamp(loop['locked_at']) > started or started > checked or (previous_checked and started < previous_checked):
+            errors.append('DESIGN_EVALUATION_TIME_ORDER ' + reference)
+        first_started = first_started or started
+        previous_checked = checked
+        if checked > timestamp(packet['checked_at']):
+            errors.append('DESIGN_CLOSEOUT_PREDATES_EVALUATION')
+        scores = {row['id']:row for row in evaluation['criteria']}
+        hard = {row['id']:row for row in evaluation['hard_gates']}
+        unique([row['id'] for row in evaluation['criteria']], 'evaluated criteria', errors)
+        unique([row['id'] for row in evaluation['hard_gates']], 'evaluated hard gates', errors)
+        if set(scores) != set(criteria) or set(hard) != gates:
+            errors.append('DESIGN_CRITERION_COVERAGE_MISMATCH ' + reference)
+        for row in [*scores.values(), *hard.values()]:
+            check_assets(project, row['evidence_refs'], errors)
+        for key, row in scores.items():
+            if key not in criteria:
+                continue
+            if row['status'] == 'UNKNOWN':
+                consistent = row['score'] is None
+            else:
+                consistent = row['score'] is not None and (row['status'] == 'PASS') == (row['score'] >= criteria[key]['minimum'])
+            if not consistent:
+                errors.append('DESIGN_CRITERION_VERDICT_CONTRADICTION ' + key)
+        threshold = set(scores) == set(criteria) and set(hard) == gates
+        threshold = threshold and all(row['status'] == 'PASS' for row in hard.values())
+        threshold = threshold and all(row['status'] == 'PASS' and row['score'] is not None and row['score'] >= criteria[key]['minimum'] for key,row in scores.items())
+        if (receipt['status'] == 'PASS') != bool(threshold):
+            errors.append('DESIGN_VERDICT_CONTRADICTION ' + reference)
+        current_scores = {key:row['score'] if row['score'] is not None and row['status'] != 'UNKNOWN' else -1 for key,row in scores.items()}
+        current_gates = {key:{'UNKNOWN':-1,'FAIL':0,'PASS':1}[row['status']] for key,row in hard.items()}
+        regression = False
+        if previous_scores is not None:
+            regression = any(current_scores.get(key, -1) < score for key,score in previous_scores.items()) or any(current_gates.get(key, -1) < score for key,score in previous_gates.items())
+            improved = any(score > previous_scores.get(key, -1) for key,score in current_scores.items()) or any(score > previous_gates.get(key, -1) for key,score in current_gates.items())
+            stagnant = 0 if improved else stagnant + 1
+        previous_scores, previous_gates = current_scores, current_gates
+        cost_exceeded = False
+        ceiling = loop['cost_ceiling']
+        if ceiling:
+            cost = evaluation['cumulative_cost']
+            if cost is None or evaluation['cost_unit'] != ceiling['unit'] or not evaluation['cost_evidence_refs']:
+                errors.append('DESIGN_ACTUAL_COST_REQUIRED ' + reference)
+            else:
+                check_assets(project, evaluation['cost_evidence_refs'], errors)
+                if previous_cost is not None and cost < previous_cost:
+                    errors.append('DESIGN_COST_REGRESSION')
+                previous_cost = cost
+                cost_exceeded = cost > ceiling['amount']
+        if (checked - first_started).total_seconds() > loop['max_elapsed_seconds']:
+            reason = 'TIME_LIMIT'
+        elif cost_exceeded:
+            reason = 'COST_LIMIT'
+        elif regression:
+            reason = 'REGRESSION'
+        elif stagnant >= loop['max_stagnant_rounds']:
+            reason = 'STAGNATION'
+        elif threshold:
+            reason = 'THRESHOLD_MET'
+        elif index + 1 >= loop['max_rounds']:
+            reason = 'ROUND_LIMIT'
+        if index == len(history) - 1 and (receipt['build_identity'] != build or not threshold or receipt['status'] != 'PASS'):
+            errors.append('DESIGN_FINAL_BUILD_NOT_PASS')
+    expected = reason or packet.get('design_stop_reason')
+    if packet.get('design_stop_reason') != expected or expected not in {'THRESHOLD_MET','ENVIRONMENT','DECISION','ROUND_LIMIT','TIME_LIMIT','COST_LIMIT','STAGNATION','REGRESSION'}:
+        errors.append('DESIGN_STOP_REASON_MISMATCH')
+    if expected != 'THRESHOLD_MET':
+        errors.append('DESIGN_LOOP_BLOCKED ' + str(expected))
 
 
 def check_cleanup_instruction(project: Path, cleanup: dict[str, Any], errors: list[str]) -> dict[str, Any] | None:
@@ -226,6 +387,8 @@ def check_closeout(project: Path, definition: dict[str, Any] | None, build: str 
     check_identity(packet, project, build, errors, 'closeout')
     if packet['terminal_state'] not in {'RELEASE_READY', 'YELLOW_ACCEPTANCE_REQUIRED'}:
         errors.append('CLOSEOUT_NOT_RELEASE_READY')
+    if definition:
+        check_design_loop(project, definition['ui'], packet, build, errors)
     cleanup = packet['cleanup']
     instruction = check_cleanup_instruction(project, cleanup, errors)
     if cleanup['build_identity'] != build:
