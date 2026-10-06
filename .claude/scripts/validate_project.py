@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from contract_evidence import check_identity, read_contract
+from evidence_contracts import check_ticket_evidence, check_ticket_graph
 from project_contracts import (check_capabilities, check_closeout, check_completion,
                                check_definition, check_release, check_traceability)
 
@@ -127,15 +128,7 @@ def validate_transition(project: Path, stage: str, errors: list[str]) -> None:
                     errors.append(
                         f"TICKET_NOT_APPROVED {path.name} status={ticket.get('status')}"
                     )
-        owners: dict[str, str] = {}
-        for ticket in tickets:
-            for filename in ticket.get("owned_files", []):
-                prior = owners.get(filename)
-                if prior and prior != ticket.get("ticket_id"):
-                    errors.append(
-                        f"OVERLAPPING_FILE_OWNERSHIP {filename}: {prior} and {ticket.get('ticket_id')}"
-                    )
-                owners[filename] = str(ticket.get("ticket_id"))
+        check_ticket_graph(tickets, errors)
 
     build = ledger.get("build_identity")
     if definition and target_index >= order.index("SEAM_REVIEW"):
@@ -159,6 +152,8 @@ def validate_transition(project: Path, stage: str, errors: list[str]) -> None:
         for ticket in tickets:
             if ticket.get("status") != "EVIDENCE_GREEN" or ticket.get("build_receipt") is None:
                 errors.append(f"TICKET_NOT_EVIDENCE_GREEN {ticket.get('ticket_id')}")
+            else:
+                check_ticket_evidence(project, ticket, errors)
 
     if target_index >= order.index("CLOSEOUT"):
         seam = artifact_status(

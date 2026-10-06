@@ -7,7 +7,7 @@
   "properties": {
     "schema_version": {"const": 1},
     "event_id": {"type": "string", "minLength": 1},
-    "event_type": {"const": "EDGE_TRAVERSED"},
+    "event_type": {"enum": ["EDGE_TRAVERSED", "CONTROL_OPERATION"]},
     "project_id": {"type": "string", "minLength": 1},
     "thread_id": {"type": "string", "minLength": 1},
     "from_stage": {"type": "string"},

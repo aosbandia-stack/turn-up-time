@@ -134,7 +134,7 @@ def main() -> int:
             reference = "receipts/" + identifier + ".json"
             value = {"schema_version": 1, "project_id": project.name, "build_identity": build,
                      "check_id": identifier, "status": "PASS", "checked_at": "2026-01-01T00:00:00Z",
-                     "evidence_refs": [{"path": str(output.relative_to(project)), "sha256": hashlib.sha256(content).hexdigest()}]}
+                     "evidence_refs": [{"path": output.relative_to(project).as_posix(), "sha256": hashlib.sha256(content).hexdigest()}]}
             (project / reference).write_text(json.dumps(value), encoding="utf-8")
             return reference
         source = (CLAUDE_DIR / "skills/swiper-dont-swpe-me/SKILL.md").resolve()

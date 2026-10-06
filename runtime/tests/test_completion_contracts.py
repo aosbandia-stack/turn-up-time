@@ -17,9 +17,10 @@ sys.path.insert(0, str(CLAUDE / 'scripts'))
 from resolve_capabilities import resolve
 from validate_project import validate_transition
 from turn_up_time_graph.topology import Stage
+from turn_up_time_graph.workspace import build_identity
 from turn_up_time_graph.validation import TransitionError, validate_project_for_target
 
-BUILD = 'candidate-fixture-sha'
+BUILD = build_identity(ROOT)
 STAMP = '2026-01-01T00:00:00Z'
 
 
@@ -47,7 +48,7 @@ def proof(project, identifier, context=None):
     output = project / 'receipts' / (filename + '.txt')
     output.parent.mkdir(exist_ok=True)
     output.write_text('Fixture output for ' + identifier + '\n')
-    asset = {'path': str(output.relative_to(project)), 'sha256': hashlib.sha256(output.read_bytes()).hexdigest()}
+    asset = {'path': output.relative_to(project).as_posix(), 'sha256': hashlib.sha256(output.read_bytes()).hexdigest()}
     value = {'schema_version':1, 'project_id':project.name, 'build_identity':BUILD, 'check_id':identifier, 'status':'PASS', 'checked_at':STAMP, 'evidence_refs':[asset]}
     if context:
         value['context'] = context
@@ -96,7 +97,12 @@ def make_project(tmp_path, ui=False):
     ticket['status'] = 'EVIDENCE_GREEN'
     ticket['required_capabilities'] = ['workflow-evals']
     ticket['acceptance_checks'][0]['evidence'] = proof(project,'CHK-001')
-    ticket['build_receipt'] = {'build_identity':BUILD,'changed_files':['src/example.ts'],'check_results':['CHK-001 passed'],'completed_at':STAMP}
+    check_ref = ticket['acceptance_checks'][0]['evidence']
+    ticket['build_receipt'] = {'build_identity':BUILD,'changed_files':['src/example.ts'],
+        'check_results':[{'check_id':'CHK-001','status':'PASS','build_identity':BUILD,
+                          'evaluator_role':'assurance','evaluator_id':'fixture-independent-verifier',
+                          'evidence_ref':check_ref,'evidence_sha256':hashlib.sha256((project/check_ref).read_bytes()).hexdigest()}],
+        'completed_at':STAMP}
     write(project / 'tickets/EXAMPLE-001.json', ticket)
     for phase in ('pre','post'):
         seam = example(f'seam-verdict.{phase}-build.example.json')
@@ -147,7 +153,7 @@ def test_documented_candidate_contract_accepts_ui_and_non_ui(tmp_path, ui):
     ('unknown-dependency','UNKNOWN_OR_SELF_DEPENDENCY'),
     ('duplicate-requirement','DUPLICATE_ID'),
     ('source-claim-missing','UNKNOWN_EVIDENCE_CLAIM'),
-    ('missing-acceptance-proof','ACCEPTANCE_EVIDENCE_MISSING'),
+    ('missing-acceptance-proof','acceptance_checks.0.evidence'),
     ('failed-acceptance-proof','FAILED_EVIDENCE'),
     ('missing-journey-proof','JOURNEY_EVIDENCE_MISSING'),
     ('stale-post-build','BUILD_IDENTITY_MISMATCH'),

@@ -43,7 +43,8 @@ labeled `KEEP`, `ADAPT`, or `REPLACE`.
   → /its-not-you-its-me   workflow improvement proposals
 ```
 
-The root session is the only project-ledger writer.
+The root session is the only control requester. The runtime is the only supported writer of an
+initialized project ledger; skills and agents submit operations rather than editing it directly.
 
 ## 4. Official executable topology
 
@@ -56,11 +57,14 @@ The LangGraph runtime is a hard control shell around the gauntlet, not a replace
 - agents reason freely inside bounded research, architecture, implementation, and assurance nodes;
 - only the graph may advance a Tier C ledger stage;
 - loop edges require new evidence, a changed artifact, a fresh evaluator, or a human decision;
-- human-owned transitions require an explicit approver;
+- human-owned transitions require an owner-signed, expiring approval bound to the exact event,
+  ledger, code identity and evidence manifest, including project capability readiness and registry;
 - checkpoint/ledger drift blocks resume;
 - SQLite stores runtime cursor and interrupts, never hidden business truth;
 - `project-ledger.json` remains the approved human-readable state;
-- `events.jsonl` records each legal edge exactly once.
+- a per-project writer lock and durable journal precede ledger/event projection;
+- `events.jsonl` records stage edges and metadata operations exactly once for a stable event ID;
+- identical retries return the prior result; conflicting payload reuse fails and recovery retains counters.
 
 Tier A and Tier B remain usable without the optional Python runtime. Tier C requires the graph runtime
 once enabled as the official project control path.
@@ -132,12 +136,15 @@ Tier C state lives under `.claude/projects/<project-id>/`. Before the root signa
 2. run `validate_project.py --stage <target>`;
 3. verify the prior stage's explicit verdict;
 4. include controlling receipt references and new-evidence identifiers where required;
-5. obtain the named human approval for gated edges;
+5. request and obtain the signed human approval envelope for gated edges; a name is not authorization;
 6. call the installed graph runtime with a stable project thread ID;
-7. let the runtime atomically update the ledger and append the graph event;
+7. let the runtime persist intent, project ledger/events, and reconcile the checkpoint;
 8. verify checkpoint and ledger hashes still align.
 
-Agent prose cannot advance a stage. Direct manual ledger edits require reconciliation before resume.
+Agent prose cannot advance a stage. Use `record_artifact`, `reserve_spawn`, `complete_spawn` and
+`set_build_identity` for metadata without changing a stage. Reserve before dispatch, complete from
+actual outcomes, and never refund consumed work or silently raise an initialized budget. Derive the
+current assembled identity through the runtime. Direct edits cause drift; recovery must not erase it.
 
 ## 10. Capability routing
 
@@ -158,7 +165,8 @@ providers block or trigger `/plug-it-in`; they are not silently replaced.
 Release requires:
 
 - exact build identity across all receipts;
-- approved Definition of Good and ticket evidence;
+- approved Definition of Good and exactly one independent structured PASS per acceptance check,
+  hashing its schema-checked Swiper verification receipt and the underlying actual outputs;
 - POST_BUILD `SEAMS_SOUND`;
 - Easily Irritated terminal state compatible with release, followed by `/swiper-dont-swpe-me`;
 - current cleanup, dependency/external-caller, rollback and IT handoff evidence;
@@ -181,3 +189,15 @@ deployment or live success. Completion lives in the existing closeout terminal p
 system, reviewer, or agent may alter this constitution, topology, core skills, hooks, schemas, or
 registry automatically. Promotion requires human approval and a seeded failure that proves the change
 catches the original defect without unacceptable ceremony.
+
+## 13. Trust and recovery boundary
+
+Missing, failing or timed-out validators block advancement. Default trust/validator roots come from
+the OS account, not HOME or USERPROFILE. A writable explicit trust-file override is denied; an
+explicit validator installation override remains operator-controlled configuration. Protect runtime,
+validators, trust and ledger from workers, and keep signing keys outside worker authority. Same-account
+shell access is not isolated by a worktree, hashes, tool labels or the advisory command guard.
+
+Use the same event ID/payload when retrying an interrupted operation and `recover` when required.
+The journal replays bookkeeping, not external deployment or other side effects. See the source
+repository's `docs/HARDENING.md` and `docs/SECURITY-BOUNDARY.md` for supported limits.
