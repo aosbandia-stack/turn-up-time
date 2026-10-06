@@ -25,7 +25,9 @@ scope, or make yourself the verifier.
 1. Re-run the ticket's current-state probes before editing.
 2. Confirm no other ticket owns the same file or shared writer.
 3. Load only providers in the resolved capability plan.
-4. Implement the whole ticket, including in-scope error and recovery paths.
+4. Implement the whole ticket, including in-scope error and recovery paths. Reuse shared components
+   and modules; assign new files a purpose/owner, keep generated/temporary work in declared locations,
+   and update canonical documentation instead of producing duplicate summaries.
 5. Run every acceptance check; use live/browser evidence when the ticket requires it.
 6. Search for mirror contracts and update only mirrors inside approved scope; escalate missing scope.
 7. Record exact changed files, build identity, check results, and rollback in the build receipt.

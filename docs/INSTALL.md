@@ -116,3 +116,40 @@ The uninstaller:
 - retains the manifest when modified artifacts were skipped so recovery information is not lost.
 
 It never guesses ownership from a path name.
+
+## Active project migration
+
+This candidate changes Definition of Good to version 2 and capability registries to version 3. Do not
+silently reinterpret an active project's old approvals. Pin the prior workflow for historical runs or
+migrate a copy, retain the old records, and reapprove changed requirements/tickets through Turn Up Time.
+
+1. Add the DoG's UI applicability/reason, execution environment, deployment scope and maintainability
+   fields from the new example. For UI add one authoritative design reference, shared ownership,
+   route states, desktop/mobile and keyboard expectations, and a first vertical journey. For non-UI
+   declare actual command/integration proof; never invent UI or deployment work.
+2. Create schema-valid traceability against real architecture headings, requirement/ticket IDs and
+   acceptance check IDs. Link actual acceptance/journey receipts before INTEGRATION. POST_BUILD seams
+   now require the exact reviewed build identity.
+3. Add `provider_kind` to registry entries. Gather required external readiness probes in the declared
+   project/environment, then record actual-use outputs separately. No missing selected provider may
+   remain READY. Installation alone does not prove the bots used it.
+4. After final product repair, load the installed Swiper instructions. Extend the existing closeout
+   packet with cleanup, caller checks, rollback, handoff and current proof. `cleanup.instruction`
+   records the known installed source path/hash and a baseline `cleanup-instructions` receipt with
+   the captured bytes. It verifies integrity, not model cognition. Unknown callers/dependencies and
+   INVESTIGATE actions link `risk_ref` to an existing `open_risks` entry, retaining the action owner.
+   REMOVE/CONSOLIDATE actions require baseline `guard_ref` and resulting-build `execution_ref`, both
+   bound to the exact path/decision through `cleanup_action`. The guard carries PROCEED and required
+   APPROVED authority with `by`/`at`; capture its six checks as hashed outputs. Guard time must precede
+   execution. Existing authorization is valid evidence; never fabricate approval or label it
+   NOT_REQUIRED. Known KEEP/NO_CHANGE need no removal guard. Migrate legacy ad hoc packets with the
+   consumed terminal/verification schemas and preserve historical findings.
+5. Produce production-audit and final-judge packets with canonical `status` and their schema fields.
+   Renaming a field alone does not recreate stale evidence or authorize release. Complete the same
+   terminal packet's `completion` only for the scope actually verified.
+6. Run `validate_project.py --stage <next-target>` and repair its named failures. Run repository,
+   seeded and runtime tests before rollout. Preview installation and review the diff before applying.
+
+Templates show shape, not evidence: replace placeholder hashes/builds/times with observed outputs.
+The existing installer discovers the new skill and helper scripts; there is no second installation
+path. Global installation and Windows provider wiring require validation in that actual environment.

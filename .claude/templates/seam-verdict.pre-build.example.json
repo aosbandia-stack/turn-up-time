@@ -3,8 +3,11 @@
   "project_id": "example-project",
   "phase": "PRE_BUILD",
   "status": "SEAMS_SOUND",
-  "ticket_refs": ["tickets/EXAMPLE-001.json"],
+  "ticket_refs": [
+    "tickets/EXAMPLE-001.json"
+  ],
   "findings": [],
   "checked_at": "2026-08-21T00:00:00Z",
-  "reviewer": "integration-lead"
+  "reviewer": "integration-lead",
+  "build_identity": null
 }

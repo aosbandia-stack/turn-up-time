@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "project_id": "example-project",
+  "build_identity": "commit-or-artifact-id",
+  "status": "SHIP",
+  "reviewer": "production-audit-reviewer",
+  "checked_at": "2026-10-05T00:00:00Z",
+  "evidence_refs": [
+    "receipts/check.json"
+  ],
+  "blockers": [],
+  "accepted_risks": []
+}

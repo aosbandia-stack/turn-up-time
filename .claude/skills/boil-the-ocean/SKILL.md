@@ -22,9 +22,15 @@ Require:
 
 ## Resolve capabilities
 
-For each ticket, run the deterministic resolver. A ticket does not start when a capability is unknown,
-conflicted, or a required bundled provider is missing. Optional providers that are not installed are
-reported to Turn Up Time and handled through `/plug-it-in`; they are not silently substituted.
+For each ticket, run the deterministic resolver. All selected direct and transitive providers are
+required, including providers distributed separately. A missing or conflicted provider blocks the
+ticket. External tools need a current project/environment `capability-readiness.json` probe, then
+actual invocation/output evidence for INTEGRATION. Instruction-only skills require readable installed
+instructions. Readiness probes do not count as real task use. Resolve gaps through `/plug-it-in`.
+
+Use `--project <workspace> --environment <DoG execution_environment> --readiness <file>` for external
+providers; add `--build-identity <candidate> --require-use` when verifying actual use. Never claim
+21st or another provider ran from its installation alone. Unselected optional providers do not block.
 
 Load only the selected providers and modes. Do not stack multiple frontend constitutions.
 
@@ -42,9 +48,14 @@ is preferred; do not create a fleet for ceremony.
 ## Ticket loop
 
 1. Re-run current-state probes and confirm file ownership.
-2. Implement the complete approved ticket, including in-scope errors and recovery.
+2. Implement the complete approved ticket, including in-scope errors and recovery. Reuse established
+   modules/components; give each new file a purpose and owner, keep temporary/generated output in its
+   declared location, and update existing navigation rather than adding duplicate documents. Prove the
+   first UI slice before dependent routes fan out.
 3. Run every acceptance check and required live/browser proof.
-4. Record build identity, changed files, deciding outputs, and rollback in the ticket receipt.
+4. Record build identity, changed files, deciding outputs, and rollback in the ticket receipt. Each
+   acceptance check links a `verification-receipt.schema.json` receipt with its check ID, exact build,
+   timestamp, PASS/FAIL and hashed actual output. Journey proof is linked from traceability.
 5. Repair concrete failures.
 
 A repeat is justified only by a failing check and a changed implementation. The same check surviving

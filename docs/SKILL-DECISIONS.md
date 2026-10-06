@@ -6,6 +6,8 @@
 - `/omnidex` — evidence compiler, architecture handoff, traceability, and ticket factory.
 - `/boil-the-ocean` — ticket execution only.
 - `/easily-irritated` — independent product closeout.
+- `/swiper-dont-swpe-me` — bounded cleanup and IT handoff in the existing CLOSEOUT stage.
+  Default changed scope; explicit full-repository scope; unknown callers prevent removal.
 - `/production-audit` — operational release evidence.
 - `/its-not-you-its-me` — workflow closeout and improvement proposals.
 
@@ -46,3 +48,10 @@ dependencies, conflicts, evals, cost, and uninstall contract in the schema-backe
 
 Retired material may remain externally available or manually invoked, but it is not loaded by the Turn
 Up Time router or core conveyor.
+
+## Provider evidence
+
+No 21st provider is registered by this change. A visible installed skill is insufficient evidence of
+configuration, usable tools, or invocation. `/plug-it-in` may add an approved real adapter after a
+probe in the target environment. The registry separates instruction-only skills from external tool
+providers, and the resolver blocks unavailable direct and transitive selections.

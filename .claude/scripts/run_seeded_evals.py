@@ -2,6 +2,7 @@
 """Behavioral seeded failures for the workflow itself."""
 from __future__ import annotations
 
+import hashlib
 import importlib.util
 import json
 import subprocess
@@ -86,6 +87,11 @@ def main() -> int:
     registry = load(CLAUDE_DIR / "capabilities" / "registry.json")["capabilities"]
     code, output = resolver.resolve(["workflow-evals"], registry, [CLAUDE_DIR / "skills"])
     check("bundled-capability-resolves", code == 0 and output["status"] == "READY", "bundled provider exists")
+    code, output = resolver.resolve(["frontend-operate"], registry, [])
+    check("selected-unbundled-provider-blocks", code != 0 and any(error["code"] == "REQUIRED_PROVIDER_MISSING" and error["capability"] == "frontend-operate" for error in output["errors"]), "selected design provider cannot remain READY when absent")
+    check("transitive-browser-provider-blocks", code != 0 and any(error["code"] == "REQUIRED_PROVIDER_MISSING" and error["capability"] == "browser-e2e" for error in output["errors"]), "browser dependency is required even though unbundled")
+    code, output = resolver.resolve(["repository-cleanup"], registry, [CLAUDE_DIR / "skills"])
+    check("cleanup-provider-resolves", code == 0 and output["plan"][0]["usable"] and not output["plan"][0]["used"], "readable cleanup instructions resolve without a fabricated usage claim")
     code, output = resolver.resolve(["does-not-exist"], registry, [CLAUDE_DIR / "skills"])
     check("unknown-capability-blocks", code != 0 and output["status"] == "BLOCKED", "unknown capability cannot silently disappear")
     conflict_registry = json.loads(json.dumps(registry))
@@ -113,6 +119,45 @@ def main() -> int:
         check("ready-intake-allows-discovery", result.returncode == 0, "ready intake advances to discovery")
         result = run([sys.executable, str(CLAUDE_DIR / "scripts" / "validate_project.py"), str(project), "--stage", "EVIDENCE_REVIEW"])
         check("missing-evidence-blocks-review", result.returncode != 0 and "MISSING" in result.stdout, "missing discovery packs block evidence review")
+
+    # Exercise the consumed Swiper boundary without adding a runtime-test dependency.
+    contracts = load_module("project_contracts", CLAUDE_DIR / "scripts" / "project_contracts.py")
+    with tempfile.TemporaryDirectory() as temp:
+        project = Path(temp) / "example-project"
+        (project / "receipts").mkdir(parents=True)
+        (project / "closeout").mkdir()
+        packet = load(CLAUDE_DIR / "templates" / "terminal-state.example.json")
+        build = packet["build_identity"]
+        def receipt(identifier: str, content: bytes = b"Seeded captured output") -> str:
+            output = project / "receipts" / (identifier + ".txt")
+            output.write_bytes(content)
+            reference = "receipts/" + identifier + ".json"
+            value = {"schema_version": 1, "project_id": project.name, "build_identity": build,
+                     "check_id": identifier, "status": "PASS", "checked_at": "2026-01-01T00:00:00Z",
+                     "evidence_refs": [{"path": str(output.relative_to(project)), "sha256": hashlib.sha256(content).hexdigest()}]}
+            (project / reference).write_text(json.dumps(value), encoding="utf-8")
+            return reference
+        source = (CLAUDE_DIR / "skills/swiper-dont-swpe-me/SKILL.md").resolve()
+        instruction = {"source_path": str(source), "sha256": hashlib.sha256(source.read_bytes()).hexdigest(),
+                       "receipt_ref": receipt("cleanup-instructions", source.read_bytes())}
+        packet["evidence_refs"] = [receipt("journey")]
+        packet["cleanup"].update(actions=[], instruction=instruction, evidence_refs=[receipt("cleanup")], handoff_ref=receipt("handoff"))
+        def closeout_errors(value: dict[str, Any]) -> list[str]:
+            (project / "closeout/terminal-state.json").write_text(json.dumps(value), encoding="utf-8")
+            failures: list[str] = []
+            contracts.check_closeout(project, None, build, failures)
+            return failures
+        check("swiper-no-change-valid", not closeout_errors(packet), "instruction-bound no-change cleanup remains valid")
+        missing = json.loads(json.dumps(packet)); missing["cleanup"].pop("instruction")
+        check("swiper-instructions-required", bool(closeout_errors(missing)), "unbound instruction claim blocks release entry")
+        risky = json.loads(json.dumps(packet))
+        action = load(CLAUDE_DIR / "templates" / "terminal-state.example.json")["cleanup"]["actions"][0]
+        action.update(decision="INVESTIGATE", external_callers="UNKNOWN")
+        risky["cleanup"]["actions"] = [action]
+        check("swiper-risk-link-required", any("CLEANUP_RISK_LINK_REQUIRED" in error for error in closeout_errors(risky)), "unknown caller investigation cannot disappear from open risks")
+        risky["cleanup"].update(outcome="CHANGED", baseline_identity="baseline-before-cleanup", reproof_refs=["receipts/cleanup.json"])
+        action.update(decision="REMOVE", external_callers="VERIFIED")
+        check("swiper-removal-guard-required", any("CLEANUP_ACTION_GUARD_REQUIRED" in error for error in closeout_errors(risky)), "removal cannot reuse a generic PASS or deployment guard")
 
     failed = [row for row in RESULTS if not row[1]]
     for identifier, ok, detail in RESULTS:

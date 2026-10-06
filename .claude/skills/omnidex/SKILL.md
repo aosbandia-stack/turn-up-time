@@ -33,6 +33,16 @@ owner_surface
 ticket_ids
 ```
 
+Use Definition of Good schema version 2. Declare UI applicability and its reason, execution
+environment, deployment scope, and maintainability owner/layout/entry points/generated and temporary
+paths. Non-UI work declares command or integration proof.
+
+For UI work choose one authoritative design reference before implementation. Reuse an existing
+system; when a new direction is genuinely needed, compare a small set using the same real content
+and have the human decide. Name shared tokens/components and their owner, route loading/empty/error/
+success states, desktop/mobile expectations and keyboard behavior. Map the first vertical journey
+to a ticket; later frontend tickets depend on it. Verify that slice before route fanout.
+
 Also preserve critical journeys, non-goals, and human gates. A number is used only when sourced or
 measured and meaningful. Otherwise use an observable check, calibrated rubric, or human gate.
 
@@ -48,6 +58,10 @@ tradeoffs. Architect owns technical coherence inside those boundaries. Turn Up T
 it cannot overrule either authority.
 
 ## 3. Produce `traceability.json`
+
+Use `traceability.schema.json` and the consumed example. Design references point to real architecture
+headings; acceptance mappings name actual ticket check IDs. A human gate is valid only for a declared
+human-gate acceptance, never as a silent waiver of implementation.
 
 Prove:
 

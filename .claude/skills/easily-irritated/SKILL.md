@@ -77,15 +77,22 @@ Terminal states:
 - `MAX_ROUNDS_REACHED`
 - `AUDIT_ONLY_COMPLETE`
 
-Write `closeout/terminal-state.json` with build identity, scenario/coverage refs, counts by disposition,
-open risks, terminal state, and round history. `RELEASE_READY` does not itself authorize deployment.
+Write `closeout/terminal-state.json` using `terminal-state.schema.json`: exact build, reviewer/time,
+scenario proof, open risks and round history. Keep finding dispositions in the linked evidence. After
+final product repairs, Turn Up Time loads `/swiper-dont-swpe-me` to extend this same packet with cleanup
+and IT handoff proof. Use `completion: null` until completion is evidenced. `RELEASE_READY` does not
+itself authorize deployment; release entry requires the finished current cleanup packet.
 
 ## Visual closeout
 
 For product interfaces and dashboards, resolve `frontend-operate`; do not auto-load marketing Taste.
 Visual work begins only after S0/S1 workflow blockers and major interaction/IA decisions are stable.
-Use one batched desktop/mobile pass and at most one confirmation pass. Re-run accessibility and the
-full journey after visual changes.
+Use one batched desktop/mobile pass and at most one confirmation pass. Compare actual route content
+against the approved design and shared tokens/components, including loading/empty/error/success.
+Record real screenshots and browser outputs in verification receipts named `ui:<route>:<viewport>`
+and keyboard proof named `keyboard:<route>` for every declared route. Evaluate behavior, visual
+fidelity and independent usability judgment separately. Never refresh screenshot baselines or delete
+failing checks just to pass. Re-run accessibility and the full journey after visual changes.
 
 ## Boundaries
 

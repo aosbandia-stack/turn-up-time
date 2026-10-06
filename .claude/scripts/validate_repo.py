@@ -16,7 +16,7 @@ ROOT = CLAUDE_DIR.parent
 ERRORS: list[str] = []
 CORE_SKILLS = {
     "turn-up-time", "grill-me", "omnidex", "boil-the-ocean", "easily-irritated",
-    "production-audit", "its-not-you-its-me", "plug-it-in", "guard-before-write", "eval-harness",
+    "production-audit", "swiper-dont-swpe-me", "its-not-you-its-me", "plug-it-in", "guard-before-write", "eval-harness",
 }
 EXPECTED_AGENTS = {
     "architect", "backend-systems-researcher", "combined-engineering-researcher",
@@ -27,6 +27,13 @@ EXPECTED_AGENTS = {
 }
 ASSURANCE = EXPECTED_AGENTS - {"implementation-engineer"}
 SCHEMA_EXAMPLES = {
+    "capability-readiness.schema.json": "capability-readiness.example.json",
+    "traceability.schema.json": "traceability.example.json",
+    "verification-receipt.schema.json": "verification-receipt.example.json",
+    "production-audit.schema.json": "production-audit.example.json",
+    "final-judge.schema.json": "final-judge.example.json",
+    "terminal-state.schema.json": "terminal-state.example.json",
+
     "intake-readiness.schema.json": "intake-readiness.json",
     "definition-of-good.schema.json": "definition-of-good.example.json",
     "evidence-pack.schema.json": "evidence-pack.example.json",

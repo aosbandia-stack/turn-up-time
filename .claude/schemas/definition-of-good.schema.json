@@ -3,35 +3,105 @@
   "title": "Definition of Good",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "project_id", "status", "requirements", "critical_journeys", "non_goals", "human_gates", "approved_by", "approved_at"],
+  "required": [
+    "schema_version",
+    "project_id",
+    "status",
+    "requirements",
+    "critical_journeys",
+    "non_goals",
+    "human_gates",
+    "approved_by",
+    "approved_at",
+    "ui",
+    "non_ui_proof",
+    "deployment",
+    "maintainability",
+    "execution_environment"
+  ],
   "properties": {
-    "schema_version": {"const": 1},
-    "project_id": {"type": "string", "minLength": 1},
-    "status": {"enum": ["DRAFT", "APPROVED", "SUPERSEDED"]},
+    "schema_version": {
+      "const": 2
+    },
+    "project_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "enum": [
+        "DRAFT",
+        "APPROVED",
+        "SUPERSEDED"
+      ]
+    },
     "requirements": {
       "type": "array",
       "minItems": 1,
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "statement", "priority", "evidence_refs", "acceptance", "owner_surface", "ticket_ids"],
+        "required": [
+          "id",
+          "statement",
+          "priority",
+          "evidence_refs",
+          "acceptance",
+          "owner_surface",
+          "ticket_ids"
+        ],
         "properties": {
-          "id": {"type": "string"},
-          "statement": {"type": "string"},
-          "priority": {"enum": ["MUST", "SHOULD", "OPTIONAL"]},
-          "evidence_refs": {"type": "array", "items": {"type": "string"}},
+          "id": {
+            "type": "string"
+          },
+          "statement": {
+            "type": "string"
+          },
+          "priority": {
+            "enum": [
+              "MUST",
+              "SHOULD",
+              "OPTIONAL"
+            ]
+          },
+          "evidence_refs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "acceptance": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["type", "check", "expected"],
+            "required": [
+              "type",
+              "check",
+              "expected"
+            ],
             "properties": {
-              "type": {"enum": ["deterministic", "experiential", "human_gate"]},
-              "check": {"type": "string"},
-              "expected": {"type": "string"}
+              "type": {
+                "enum": [
+                  "deterministic",
+                  "experiential",
+                  "human_gate"
+                ]
+              },
+              "check": {
+                "type": "string"
+              },
+              "expected": {
+                "type": "string"
+              }
             }
           },
-          "owner_surface": {"type": "string"},
-          "ticket_ids": {"type": "array", "items": {"type": "string"}}
+          "owner_surface": {
+            "type": "string"
+          },
+          "ticket_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
         }
       }
     },
@@ -40,21 +110,337 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "persona", "start_state", "steps", "success", "failure_and_recovery", "verification"],
+        "required": [
+          "id",
+          "persona",
+          "start_state",
+          "steps",
+          "success",
+          "failure_and_recovery",
+          "verification"
+        ],
         "properties": {
-          "id": {"type": "string"},
-          "persona": {"type": "string"},
-          "start_state": {"type": "string"},
-          "steps": {"type": "array", "minItems": 1, "items": {"type": "string"}},
-          "success": {"type": "string"},
-          "failure_and_recovery": {"type": "string"},
-          "verification": {"type": "string"}
+          "id": {
+            "type": "string"
+          },
+          "persona": {
+            "type": "string"
+          },
+          "start_state": {
+            "type": "string"
+          },
+          "steps": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "success": {
+            "type": "string"
+          },
+          "failure_and_recovery": {
+            "type": "string"
+          },
+          "verification": {
+            "type": "string"
+          }
         }
       }
     },
-    "non_goals": {"type": "array", "items": {"type": "string"}},
-    "human_gates": {"type": "array", "items": {"type": "string"}},
-    "approved_by": {"type": ["string", "null"]},
-    "approved_at": {"type": ["string", "null"], "format": "date-time"}
-  }
+    "non_goals": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "human_gates": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "approved_by": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "approved_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "ui": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "applicable",
+        "reason",
+        "design_reference",
+        "component_owner",
+        "shared_components",
+        "route_states",
+        "viewports",
+        "keyboard_expectations",
+        "first_slice_journey_id"
+      ],
+      "properties": {
+        "applicable": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "design_reference": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "component_owner": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "shared_components": {
+          "type": "array",
+          "minItems": 0,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "route_states": {
+          "type": "array",
+          "minItems": 0,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "route",
+              "states"
+            ],
+            "properties": {
+              "route": {
+                "type": "string",
+                "minLength": 1
+              },
+              "states": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          }
+        },
+        "viewports": {
+          "type": "array",
+          "minItems": 0,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "keyboard_expectations": {
+          "type": "array",
+          "minItems": 0,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "first_slice_journey_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        }
+      }
+    },
+    "non_ui_proof": {
+      "type": "array",
+      "minItems": 0,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "deployment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scope",
+        "target",
+        "environment"
+      ],
+      "properties": {
+        "scope": {
+          "enum": [
+            "CANDIDATE_ONLY",
+            "DEPLOYED"
+          ]
+        },
+        "target": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "environment": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        }
+      }
+    },
+    "maintainability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "owner",
+        "layout_ref",
+        "entrypoints",
+        "generated_paths",
+        "temporary_paths"
+      ],
+      "properties": {
+        "owner": {
+          "type": "string",
+          "minLength": 1
+        },
+        "layout_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "entrypoints": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "generated_paths": {
+          "type": "array",
+          "minItems": 0,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "temporary_paths": {
+          "type": "array",
+          "minItems": 0,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "execution_environment": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "ui": {
+            "properties": {
+              "applicable": {
+                "const": true
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "critical_journeys": {
+            "minItems": 1
+          },
+          "ui": {
+            "properties": {
+              "design_reference": {
+                "type": "string",
+                "minLength": 1
+              },
+              "component_owner": {
+                "type": "string",
+                "minLength": 1
+              },
+              "shared_components": {
+                "minItems": 1
+              },
+              "route_states": {
+                "minItems": 1
+              },
+              "viewports": {
+                "minItems": 2
+              },
+              "keyboard_expectations": {
+                "minItems": 1
+              },
+              "first_slice_journey_id": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "non_ui_proof": {
+            "minItems": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "deployment": {
+            "properties": {
+              "scope": {
+                "const": "DEPLOYED"
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "deployment": {
+            "properties": {
+              "target": {
+                "type": "string",
+                "minLength": 1
+              },
+              "environment": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
 }
