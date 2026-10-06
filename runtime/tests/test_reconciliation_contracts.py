@@ -2,10 +2,12 @@
 import copy
 import hashlib
 import json
+from pathlib import Path, PureWindowsPath
 
 import pytest
 
-from .test_completion_contracts import ROOT, edit, make_project, read
+from .test_completion_contracts import BUILD, ROOT, edit, make_project, proof, read
+from contract_evidence import check_proof
 from turn_up_time_graph.topology import Stage
 from turn_up_time_graph.validation import TransitionError, validate_project_for_target
 
@@ -13,6 +15,24 @@ from turn_up_time_graph.validation import TransitionError, validate_project_for_
 def test_independent_result_and_swiper_receipt_advance_integration(tmp_path):
     project = make_project(tmp_path)
     validate_project_for_target(ROOT, project, Stage.INTEGRATION)
+
+
+def test_receipt_writer_normalizes_windows_paths_and_rejects_unsafe_claims(tmp_path, monkeypatch):
+    project = tmp_path / 'example-project'
+    project.mkdir()
+    relative_to = Path.relative_to
+    with monkeypatch.context() as patch:
+        patch.setattr(Path, 'relative_to', lambda path, *args: PureWindowsPath(relative_to(path, *args).as_posix()))
+        reference = proof(project, 'portable')
+    assert read(project / reference)['evidence_refs'][0]['path'] == 'receipts/portable.txt'
+    failures = []
+    check_proof(project, reference, BUILD, failures, 'portable')
+    assert failures == []
+    for unsafe in ('receipts\\portable.txt', '../outside.txt'):
+        edit(project, reference, lambda value: value['evidence_refs'][0].update(path=unsafe))
+        failures = []
+        check_proof(project, reference, BUILD, failures, 'portable')
+        assert any('EVIDENCE_OUTSIDE_PROJECT' in failure for failure in failures)
 
 
 @pytest.mark.parametrize('mutation,expected', [

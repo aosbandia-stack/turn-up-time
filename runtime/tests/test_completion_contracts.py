@@ -48,7 +48,7 @@ def proof(project, identifier, context=None):
     output = project / 'receipts' / (filename + '.txt')
     output.parent.mkdir(exist_ok=True)
     output.write_text('Fixture output for ' + identifier + '\n')
-    asset = {'path': str(output.relative_to(project)), 'sha256': hashlib.sha256(output.read_bytes()).hexdigest()}
+    asset = {'path': output.relative_to(project).as_posix(), 'sha256': hashlib.sha256(output.read_bytes()).hexdigest()}
     value = {'schema_version':1, 'project_id':project.name, 'build_identity':BUILD, 'check_id':identifier, 'status':'PASS', 'checked_at':STAMP, 'evidence_refs':[asset]}
     if context:
         value['context'] = context
