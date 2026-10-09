@@ -44,6 +44,11 @@ checkpoint/resume, and event history. It does not replace the specialist skills 
 A repeat is justified only by new evidence, a changed artifact, a fresh independent evaluator, or a
 human decision. Re-reading the same prompt with the same evidence is rumination.
 
+Turn Up Time loads its [communication guidance](.claude/skills/turn-up-time/references/BOT.md) and
+[voice guidance](.claude/skills/turn-up-time/references/PERSONALITY.md) for human-facing work:
+executive reviews, compact progress snapshots and honest completion status. The optional
+[read-only review example](.claude/skills/turn-up-time/assets/executive-review.html) shows the format.
+
 ## What ships
 
 - 10 user-facing skills plus 1 internal eval provider.

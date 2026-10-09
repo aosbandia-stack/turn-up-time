@@ -4,6 +4,12 @@ The repository runs project-scoped as cloned. The optional installer copies the 
 agents, hooks, capability registry, schemas, templates, profiles, evals, and runtime wrapper scripts to
 `~/.claude/`. The LangGraph runtime is opt-in and is installed into its own virtual environment.
 
+Turn Up Time's [BOT](../.claude/skills/turn-up-time/references/BOT.md),
+[PERSONALITY](../.claude/skills/turn-up-time/references/PERSONALITY.md) and optional
+[executive review example](../.claude/skills/turn-up-time/assets/executive-review.html) travel with the
+skill through the existing recursive resource copy. They add communication guidance, not another
+skill, runtime dependency or approval mechanism. Existing modified-file protection still applies.
+
 ## Preview first
 
 Dry-run is the default. The following command prints the complete plan without writing files:

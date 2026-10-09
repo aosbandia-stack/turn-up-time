@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Turn Up Time — Executive Review Example</title>
+<style>
+  :root { color-scheme: light; --ink:#172b31; --muted:#52666a; --line:#dce5e3; --teal:#175b57; --paper:#fff; --wash:#f4f5f1; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--wash); color:var(--ink); font:16px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+  main { max-width:1160px; margin:32px auto; padding:32px 42px 26px; background:var(--paper); border:1px solid var(--line); border-radius:20px; }
+  .masthead { display:flex; justify-content:space-between; align-items:center; gap:16px; padding-bottom:20px; border-bottom:1px solid var(--line); }
+  .brand { font-size:13px; font-weight:750; letter-spacing:.11em; text-transform:uppercase; }
+  .tag { display:inline-block; padding:5px 11px; border:1px solid #e1cbaa; border-radius:30px; background:#fff5e5; color:#704a13; font-size:12px; font-weight:650; }
+  .hero { display:grid; grid-template-columns:1.65fr 1fr; gap:42px; align-items:center; padding:28px 0 26px; }
+  .eyebrow { margin:0 0 8px; color:var(--teal); font-size:12px; font-weight:750; letter-spacing:.08em; text-transform:uppercase; }
+  h1 { max-width:680px; margin:0 0 12px; font-size:clamp(32px,3.7vw,46px); line-height:1.08; letter-spacing:-.04em; }
+  h2 { margin:0 0 14px; font-size:21px; line-height:1.2; letter-spacing:-.02em; }
+  p { margin:0; }
+  .lead { max-width:600px; color:var(--muted); }
+  .intent { padding:20px; border-left:3px solid var(--teal); background:#eff6f3; border-radius:0 10px 10px 0; }
+  .intent strong { display:block; margin-bottom:6px; font-size:17px; }
+  .intent p { color:#34534f; font-size:14px; }
+  .changes { border:1px solid var(--line); border-radius:12px; overflow:hidden; }
+  .change { display:grid; grid-template-columns:1fr 1.2fr 1.8fr; gap:24px; padding:12px 18px; border-top:1px solid var(--line); align-items:baseline; }
+  .change:first-child { border-top:0; }
+  .change.header { background:#f2f5f4; color:var(--muted); font-size:11px; font-weight:750; letter-spacing:.07em; text-transform:uppercase; }
+  .change strong { font-size:14px; }
+  .change p { font-size:14px; }
+  .current { color:var(--muted); }
+  .proposed { color:var(--teal); font-weight:550; }
+  .mobile-label { display:none; }
+  .snapshot { margin-top:24px; }
+  .snapshot-head { display:flex; justify-content:space-between; align-items:center; gap:16px; margin-bottom:12px; }
+  .snapshot-head h2 { margin:0; }
+  .state { color:var(--muted); font-size:12px; }
+  .progress { display:grid; grid-template-columns:repeat(4,1fr); gap:18px; padding:18px; background:#f6f8f7; border:1px solid var(--line); border-radius:12px; }
+  .progress h3 { margin:0 0 7px; font-size:12px; letter-spacing:.03em; }
+  .progress p { font-size:13px; color:var(--muted); }
+  .decision { display:grid; grid-template-columns:1.2fr 1fr; gap:28px; margin:24px 0; }
+  .decision h2 { margin-bottom:8px; font-size:17px; }
+  .decision p { font-size:14px; }
+  .tradeoff { margin-top:8px; color:var(--muted); }
+  details { border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+  summary { padding:13px 0; font-size:14px; font-weight:650; cursor:pointer; }
+  summary:focus-visible { outline:3px solid #237e76; outline-offset:4px; border-radius:3px; }
+  .evidence { padding:4px 0 20px; }
+  .evidence p { font-size:13px; color:var(--muted); }
+  dl { display:grid; grid-template-columns:repeat(5,1fr); gap:15px; margin:16px 0; }
+  dt { font-size:12px; font-weight:750; }
+  dd { margin:4px 0 0; font-size:12px; color:var(--muted); }
+  footer { display:flex; justify-content:space-between; gap:24px; margin-top:15px; font-size:11px; color:var(--muted); }
+  @media (max-width:720px) {
+    main { margin:0; padding:22px 20px; border:0; border-radius:0; }
+    .masthead { align-items:flex-start; }
+    .brand { font-size:11px; padding-top:5px; }
+    .tag { max-width:145px; text-align:center; font-size:11px; }
+    .hero { grid-template-columns:1fr; gap:22px; padding:26px 0; }
+    .hero h1 { font-size:36px; }
+    .intent { padding:15px 18px; }
+    .change { grid-template-columns:1fr; gap:6px; padding:15px 16px; }
+    .change.header { display:none; }
+    .mobile-label { display:inline; font-weight:650; }
+    .snapshot-head { align-items:flex-start; flex-direction:column; gap:5px; }
+    .progress { grid-template-columns:1fr 1fr; gap:18px 16px; padding:16px; }
+    .decision { grid-template-columns:1fr; gap:20px; }
+    dl { grid-template-columns:1fr 1fr; }
+    footer { flex-direction:column; gap:4px; }
+  }
+  @media print { body { background:#fff; } main { margin:0; border:0; padding:0; } .hero { gap:24px; } footer { margin-top:10px; } }
+</style>
+</head>
+<body>
+<main aria-labelledby="review-title">
+  <header class="masthead">
+    <span class="brand">Turn Up Time / Executive review</span>
+    <span class="tag">Illustrative · Read-only</span>
+  </header>
+  <section class="hero" aria-label="Outcome and need">
+    <div>
+      <p class="eyebrow">Proposed interaction changes</p>
+      <h1 id="review-title">Clear decisions.<br>Less scrolling.</h1>
+      <p class="lead">See what changes, why it matters and whether the work is actually finished—without sorting through build logs.</p>
+    </div>
+    <aside class="intent" aria-label="User need">
+      <strong>Keep you informed and in control.</strong>
+      <p>Make material choices easy to review. Keep risks visible and engineering evidence available when you want the detail.</p>
+    </aside>
+  </section>
+  <section aria-labelledby="changes-title">
+    <p class="eyebrow">01 / The proposal</p>
+    <h2 id="changes-title">Four changes to how we work together</h2>
+    <div class="changes" role="table" aria-label="Current friction and proposed interaction">
+      <div class="change header" role="row"><span role="columnheader">Focus</span><span role="columnheader">Current friction</span><span role="columnheader">Proposed response</span></div>
+      <div class="change" role="row"><strong role="rowheader">Review decisions</strong><p class="current" role="cell"><span class="mobile-label">From: </span>Dense Markdown approvals</p><p class="proposed" role="cell"><span class="mobile-label">To: </span>A short executive brief with meaningful visuals</p></div>
+      <div class="change" role="row"><strong role="rowheader">See progress</strong><p class="current" role="cell"><span class="mobile-label">From: </span>Having to ask “We good?”</p><p class="proposed" role="cell"><span class="mobile-label">To: </span>Small, honest snapshots at meaningful milestones</p></div>
+      <div class="change" role="row"><strong role="rowheader">Hold the finish line</strong><p class="current" role="cell"><span class="mobile-label">From: </span>Adjacent ideas extend the task</p><p class="proposed" role="cell"><span class="mobile-label">To: </span>A stable outcome; other ideas parked with an owner</p></div>
+      <div class="change" role="row"><strong role="rowheader">Choose the depth</strong><p class="current" role="cell"><span class="mobile-label">From: </span>Implementation detail comes first</p><p class="proposed" role="cell"><span class="mobile-label">To: </span>Recommendation first; supporting evidence one layer deeper</p></div>
+    </div>
+  </section>
+  <section class="snapshot" aria-labelledby="snapshot-title">
+    <div class="snapshot-head"><h2 id="snapshot-title">Example progress snapshot</h2><span class="state">Sample status · Draft ready for review</span></div>
+    <div class="progress">
+      <div><h3>Finished</h3><p>The review format and communication guidance are drafted.</p></div>
+      <div><h3>Working on</h3><p>Waiting for independent review.</p></div>
+      <div><h3>Remaining</h3><p>Independent reviewer: assess the draft. Coordinator: integrate after checks.</p></div>
+      <div><h3>Need from you</h3><p>Nothing right now. Tone and level of detail remain your choice.</p></div>
+    </div>
+  </section>
+  <section class="decision" aria-label="Recommendation and decision">
+    <div><h2>Recommendation</h2><p>Use this format for material plans and reviews. Keep routine fixes to a short result.</p><p class="tradeoff"><strong>Tradeoff:</strong> less implementation detail upfront; material risks stay visible and supporting evidence remains discoverable.</p></div>
+    <div><h2>Decision &amp; next step</h2><p>No input needed to continue. Next: independent review, then integrate the source change after required checks.</p></div>
+  </section>
+  <details>
+    <summary>Engineering detail &amp; completion proof</summary>
+    <div class="evidence">
+      <p>A real review fills these evidence facets with observed facts and links to its existing receipts. Choosing a presentation style does not sign approval or authorize installation or deployment.</p>
+      <dl><div><dt>Built</dt><dd>Draft ready</dd></div><div><dt>Tested</dt><dd>Review pending</dd></div><div><dt>Merged</dt><dd>Not yet</dd></div><div><dt>Installed</dt><dd>Not requested</dd></div><div><dt>Live</dt><dd>Not applicable</dd></div></dl>
+      <p><strong>Completion proof:</strong> linked guidance, a readable desktop/phone example, valid repository links, passing existing checks and independent review.</p>
+    </div>
+  </details>
+  <footer><span>Turn Up Time · Communication guidance</span><span>Executive first. Evidence within reach.</span></footer>
+</main>
+</body>
+</html>
