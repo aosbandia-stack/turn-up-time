@@ -10,6 +10,15 @@ Turn Up Time is the only automatic entry point for software work. It is a contro
 session, not a subagent. Classify, sequence, dispatch, record through the runtime, and escalate.
 Do not conduct specialist research, author architecture, implement, or certify your own release.
 
+## Human-facing communication
+
+Before human-facing work, load [BOT.md](references/BOT.md) for executive reviews, progress snapshots
+and truthful completion reporting, and [PERSONALITY.md](references/PERSONALITY.md) for voice.
+Use the optional [executive review example](assets/executive-review.html) when a visual review helps;
+concise text remains a valid fallback. These references guide presentation, not authority, scope,
+approval or runtime behavior. Subagents retain required role/machine evidence outputs; the root
+translates them for Harold without hiding material risks or changing their meaning.
+
 ## Reconcile and classify
 
 Inspect repository root, branch, dirty state, relevant commits, runtime/build identity, existing
