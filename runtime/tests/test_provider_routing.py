@@ -48,7 +48,11 @@ def test_each_audit_readiness_requirement_blocks_at_real_gate(tmp_path, check, s
     ('tampered-output', 'EVIDENCE_HASH_MISMATCH'),
     ('no-instructions', 'REQUIRED_PROVIDER_MISSING'),
 ])
-def test_audit_proof_is_bound_to_actual_environment_and_candidate(tmp_path, mutation, expected):
+def test_audit_proof_is_bound_to_actual_environment_and_candidate(tmp_path, mutation, expected, monkeypatch):
+    # Child validator must not satisfy a missing fixture using the developer's
+    # real installed security-audit package. This only affects the test process.
+    monkeypatch.setenv('USERPROFILE', str(tmp_path / 'isolated-user'))
+    monkeypatch.setenv('HOME', str(tmp_path / 'isolated-user'))
     project = audit_project(tmp_path)
     def change(value):
         if mutation == 'expired':

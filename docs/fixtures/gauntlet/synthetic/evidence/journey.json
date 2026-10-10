@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "project_id": "synthetic",
+  "build_identity": "candidate",
+  "check_id": "J1:success:web",
+  "status": "PASS",
+  "checked_at": "2026-10-10T00:00:00Z",
+  "evidence_refs": [
+    {
+      "path": "evidence/synthetic.json",
+      "sha256": "5e8b69a5ef10568e48ade75c1f9b224a02e97b64e89a421780137f76bd266d01"
+    }
+  ]
+}

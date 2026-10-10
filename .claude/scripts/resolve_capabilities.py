@@ -207,10 +207,16 @@ def resolve(requested: list[str], registry: dict[str, Any], provider_roots: list
 
 
 def main() -> int:
+    from promotion_admission import installed_home
+    try:
+        user_home = installed_home(Path(__file__))
+    except Exception as exc:
+        print(json.dumps({'status':'BLOCKED', 'errors':[str(exc)]}))
+        return 2
     parser = argparse.ArgumentParser()
     parser.add_argument('capabilities', nargs='*')
     parser.add_argument('--registry', type=Path, default=Path(__file__).resolve().parents[1] / 'capabilities' / 'registry.json')
-    parser.add_argument('--user-registry', type=Path, default=Path.home() / '.claude' / 'capabilities' / 'registry.json')
+    parser.add_argument('--user-registry', type=Path, default=user_home / 'capabilities' / 'registry.json')
     parser.add_argument('--project-registry', type=Path)
     parser.add_argument('--provider-root', action='append', type=Path, default=[])
     parser.add_argument('--readiness', type=Path)
@@ -235,7 +241,7 @@ def main() -> int:
     if errors:
         print(json.dumps({'status':'BLOCKED', 'errors':errors}, indent=2))
         return 2
-    roots = args.provider_root + [Path.cwd() / '.claude' / 'skills', Path.home() / '.claude' / 'skills', Path(__file__).resolve().parents[1] / 'skills']
+    roots = args.provider_root + [Path.cwd() / '.claude' / 'skills', user_home / 'skills', Path(__file__).resolve().parents[1] / 'skills']
     surfaces = []
     if args.ui_platform or args.ui_purpose or args.ui_stack or args.ui_flag or args.ui_verification_capability:
         surfaces = [{'id':'cli', 'platform':args.ui_platform, 'purpose':args.ui_purpose, 'stack':args.ui_stack,

@@ -1,0 +1,195 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Trusted tool runtime catalog v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "runtime_id",
+    "platform",
+    "provider_generation",
+    "codex",
+    "inventory",
+    "providers"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "runtime_id": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._-]{0,95}$"
+    },
+    "platform": {
+      "const": "local:win32"
+    },
+    "provider_generation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "generation_id",
+        "metadata_sha256"
+      ],
+      "properties": {
+        "generation_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "metadata_sha256": {
+          "$ref": "#/$defs/hash"
+        }
+      }
+    },
+    "codex": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "version",
+        "executable"
+      ],
+      "properties": {
+        "version": {
+          "const": "0.162.1"
+        },
+        "executable": {
+          "$ref": "#/$defs/file"
+        }
+      }
+    },
+    "inventory": {
+      "$ref": "#/$defs/file"
+    },
+    "providers": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rea",
+        "serena",
+        "context7"
+      ],
+      "properties": {
+        "rea": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "profile",
+            "source_ref",
+            "version",
+            "node",
+            "entrypoint"
+          ],
+          "properties": {
+            "profile": {
+              "const": "rea-javascript-v1"
+            },
+            "source_ref": {
+              "const": "bddddccdee3129d0b1b11e32b751be2b6d501c23"
+            },
+            "version": {
+              "const": "6.3.0"
+            },
+            "node": {
+              "$ref": "#/$defs/file"
+            },
+            "entrypoint": {
+              "$ref": "#/$defs/file"
+            }
+          }
+        },
+        "serena": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "profile",
+            "source_ref",
+            "version",
+            "python",
+            "launcher",
+            "context",
+            "home_root",
+            "interpreter_inventory"
+          ],
+          "properties": {
+            "profile": {
+              "const": "serena-readonly-v1"
+            },
+            "source_ref": {
+              "const": "1de556f71569f3acfc0743e526dd60aca40a545e"
+            },
+            "version": {
+              "const": "2.0.0.dev0"
+            },
+            "python": {
+              "$ref": "#/$defs/file"
+            },
+            "launcher": {
+              "$ref": "#/$defs/file"
+            },
+            "context": {
+              "$ref": "#/$defs/file"
+            },
+            "home_root": {
+              "$ref": "#/$defs/absolutePath"
+            },
+            "interpreter_inventory": {
+              "$ref": "#/$defs/file"
+            }
+          }
+        },
+        "context7": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "profile",
+            "source_ref",
+            "endpoint",
+            "auth"
+          ],
+          "properties": {
+            "profile": {
+              "const": "context7-public-v1"
+            },
+            "source_ref": {
+              "const": "522c4db4fa2e1e31f1b320f09fa8c8fab376987a"
+            },
+            "endpoint": {
+              "const": "https://mcp.context7.com/mcp"
+            },
+            "auth": {
+              "const": "anonymous"
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "absolutePath": {
+      "type": "string",
+      "minLength": 4,
+      "maxLength": 1024,
+      "pattern": "^[A-Za-z]:/[^\\\\]*$"
+    },
+    "file": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/absolutePath"
+        },
+        "sha256": {
+          "$ref": "#/$defs/hash"
+        }
+      }
+    }
+  }
+}

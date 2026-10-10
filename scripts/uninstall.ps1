@@ -7,6 +7,9 @@ $ClaudeHome = if ($env:TURN_UP_TIME_CLAUDE_HOME) { $env:TURN_UP_TIME_CLAUDE_HOME
 $ManifestPath = Join-Path $ClaudeHome 'turn-up-time-install-manifest.json'
 if (-not (Test-Path -LiteralPath $ManifestPath)) { throw "Install manifest not found: $ManifestPath" }
 $manifest = Get-Content -LiteralPath $ManifestPath -Raw | ConvertFrom-Json
+if ($manifest.schema_version -eq 4 -or $manifest.state -eq 'shared-release') {
+    throw 'This installation belongs to a shared Codex + Claude release. Use promote_workflow.py recover with its exact plan and hash; independent uninstall is blocked.'
+}
 $Skipped = New-Object 'System.Collections.Generic.List[string]'
 
 function Get-Sha256 {

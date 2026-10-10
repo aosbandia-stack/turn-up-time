@@ -68,7 +68,7 @@
       "provider_kind": "instruction-only"
     },
     "browser-e2e": {
-      "provider": "e2e-testing",
+      "provider": "gstack-qa-only",
       "bundled": false,
       "authority": "assurance",
       "stages": [
@@ -77,7 +77,7 @@
         "CLOSEOUT",
         "RELEASE"
       ],
-      "mode": "default",
+      "mode": "locked-critical-journey-browser-evidence",
       "load_policy": "conditional",
       "consumes": [
         "critical-journeys",
@@ -109,7 +109,17 @@
       },
       "supported_platforms": [
         "web"
-      ]
+      ],
+      "readiness_requirements": [
+        "tool_access",
+        "browser_runtime",
+        "isolated_output"
+      ],
+      "provenance": {
+        "source": "https://github.com/garrytan/gstack/blob/20eb6202fa8ea83a882e7c0463b722cd8a31af1e/qa-only/SKILL.md",
+        "ref": "20eb6202fa8ea83a882e7c0463b722cd8a31af1e",
+        "license": "MIT"
+      }
     },
     "ai-regression": {
       "provider": "ai-regression-testing",
@@ -166,7 +176,12 @@
         "grader-control-must-fail"
       ],
       "uninstall": "Not removable while the core workflow is active.",
-      "provider_kind": "instruction-only"
+      "provider_kind": "instruction-only",
+      "provenance": {
+        "source": ".claude/skills/eval-harness/SKILL.md",
+        "ref": "sha256:ab24e86f1275143ce4f2d24241fec39358db0cfa88fd7dbb371d0b4ca77cfa68",
+        "license": "Source-owned workflow instructions; existing repository terms apply"
+      }
     },
     "irreversible-write": {
       "provider": "guard-before-write",
@@ -190,7 +205,12 @@
         "missing-backup-must-block"
       ],
       "uninstall": "Not removable while auto-accept is enabled.",
-      "provider_kind": "instruction-only"
+      "provider_kind": "instruction-only",
+      "provenance": {
+        "source": ".claude/skills/guard-before-write/SKILL.md",
+        "ref": "sha256:ab24e86f1275143ce4f2d24241fec39358db0cfa88fd7dbb371d0b4ca77cfa68",
+        "license": "Source-owned workflow instructions; existing repository terms apply"
+      }
     },
     "repository-cleanup": {
       "provider": "swiper-dont-swpe-me",
@@ -215,7 +235,12 @@
       "evals": [
         "stale-cleanup-proof-must-block"
       ],
-      "uninstall": "Remove only with an approved replacement closeout contract; preserve product and evidence."
+      "uninstall": "Remove only with an approved replacement closeout contract; preserve product and evidence.",
+      "provenance": {
+        "source": ".claude/skills/swiper-dont-swpe-me/SKILL.md",
+        "ref": "sha256:ab24e86f1275143ce4f2d24241fec39358db0cfa88fd7dbb371d0b4ca77cfa68",
+        "license": "Source-owned workflow instructions; existing repository terms apply"
+      }
     },
     "ui-operate": {
       "provider": "impeccable",
@@ -803,6 +828,432 @@
         "ref": "1401c8b8030e023baeebb31781a6653fe8e93026",
         "license": "MIT"
       }
+    },
+    "reference-app-analysis": {
+      "provider": "rea",
+      "provider_kind": "external",
+      "bundled": false,
+      "authority": "reference",
+      "stages": [
+        "DISCOVERY"
+      ],
+      "mode": "artifact-behavior-evidence",
+      "load_policy": "conditional",
+      "consumes": [
+        "approved-task",
+        "current-build",
+        "scoped-evidence"
+      ],
+      "produces": [
+        "scoped-output",
+        "limitations",
+        "application-receipt"
+      ],
+      "requires": [],
+      "conflicts": [],
+      "evals": [
+        "reference-app-analysis-missing-or-unqualified-blocks"
+      ],
+      "uninstall": "Remove managed generation selection using verified rollback; preserve product files, evidence and unmanaged user state.",
+      "provenance": {
+        "source": "https://github.com/morluto/rea/blob/bddddccdee3129d0b1b11e32b751be2b6d501c23/.agents/skills/reverse-engineer-anything/SKILL.md",
+        "ref": "bddddccdee3129d0b1b11e32b751be2b6d501c23",
+        "license": "MIT"
+      },
+      "readiness_requirements": [
+        "tool_access",
+        "target_prerequisites"
+      ]
+    },
+    "code-symbol-analysis": {
+      "provider": "serena",
+      "provider_kind": "external",
+      "bundled": false,
+      "authority": "reference",
+      "stages": [
+        "DISCOVERY",
+        "BUILD",
+        "CLOSEOUT"
+      ],
+      "mode": "symbols-references-callers",
+      "load_policy": "conditional",
+      "consumes": [
+        "approved-task",
+        "current-build",
+        "scoped-evidence"
+      ],
+      "produces": [
+        "scoped-output",
+        "limitations",
+        "application-receipt"
+      ],
+      "requires": [],
+      "conflicts": [],
+      "evals": [
+        "code-symbol-analysis-missing-or-unqualified-blocks"
+      ],
+      "uninstall": "Remove managed generation selection using verified rollback; preserve product files, evidence and unmanaged user state.",
+      "provenance": {
+        "source": "https://github.com/oraios/serena/blob/1de556f71569f3acfc0743e526dd60aca40a545e/docs/02-usage/040_workflow.md",
+        "ref": "1de556f71569f3acfc0743e526dd60aca40a545e",
+        "license": "GPL-3.0-or-later (application/docs); SolidLSP MIT; preserved upstream notices govern individual assets"
+      },
+      "readiness_requirements": [
+        "tool_access",
+        "language_server",
+        "project_activation"
+      ]
+    },
+    "dependency-docs": {
+      "provider": "context7",
+      "provider_kind": "external",
+      "bundled": false,
+      "authority": "reference",
+      "stages": [
+        "DISCOVERY",
+        "BUILD"
+      ],
+      "mode": "version-matched-docs",
+      "load_policy": "conditional",
+      "consumes": [
+        "approved-task",
+        "current-build",
+        "scoped-evidence"
+      ],
+      "produces": [
+        "scoped-output",
+        "limitations",
+        "application-receipt"
+      ],
+      "requires": [],
+      "conflicts": [],
+      "evals": [
+        "dependency-docs-missing-or-unqualified-blocks"
+      ],
+      "uninstall": "Remove managed generation selection using verified rollback; preserve product files, evidence and unmanaged user state.",
+      "provenance": {
+        "source": "https://github.com/upstash/context7/blob/522c4db4fa2e1e31f1b320f09fa8c8fab376987a/skills/context7-mcp/SKILL.md",
+        "ref": "522c4db4fa2e1e31f1b320f09fa8c8fab376987a",
+        "license": "MIT"
+      },
+      "readiness_requirements": [
+        "tool_access",
+        "permitted_egress"
+      ]
+    },
+    "backend-architecture": {
+      "provider": "backend-architect",
+      "provider_kind": "instruction-only",
+      "bundled": false,
+      "authority": "reference",
+      "stages": [
+        "DISCOVERY",
+        "DEFINITION",
+        "BUILD"
+      ],
+      "mode": "backend-specialist",
+      "load_policy": "conditional",
+      "consumes": [
+        "approved-task",
+        "current-build",
+        "scoped-evidence"
+      ],
+      "produces": [
+        "scoped-output",
+        "limitations",
+        "application-receipt"
+      ],
+      "requires": [],
+      "conflicts": [],
+      "evals": [
+        "backend-architecture-missing-or-unqualified-blocks"
+      ],
+      "uninstall": "Remove managed generation selection using verified rollback; preserve product files, evidence and unmanaged user state.",
+      "provenance": {
+        "source": "https://github.com/wshobson/agents/blob/46891e7e60da0e52baf1050b7b6391b64e84c6d9/plugins/backend-development/agents/backend-architect.md",
+        "ref": "46891e7e60da0e52baf1050b7b6391b64e84c6d9",
+        "license": "MIT"
+      }
+    },
+    "database-architecture": {
+      "provider": "database-architect",
+      "provider_kind": "instruction-only",
+      "bundled": false,
+      "authority": "reference",
+      "stages": [
+        "DISCOVERY",
+        "DEFINITION",
+        "BUILD"
+      ],
+      "mode": "schema-specialist",
+      "load_policy": "conditional",
+      "consumes": [
+        "approved-task",
+        "current-build",
+        "scoped-evidence"
+      ],
+      "produces": [
+        "scoped-output",
+        "limitations",
+        "application-receipt"
+      ],
+      "requires": [],
+      "conflicts": [],
+      "evals": [
+        "database-architecture-missing-or-unqualified-blocks"
+      ],
+      "uninstall": "Remove managed generation selection using verified rollback; preserve product files, evidence and unmanaged user state.",
+      "provenance": {
+        "source": "https://github.com/wshobson/agents/blob/46891e7e60da0e52baf1050b7b6391b64e84c6d9/plugins/database-design/agents/database-architect.md",
+        "ref": "46891e7e60da0e52baf1050b7b6391b64e84c6d9",
+        "license": "MIT"
+      }
+    },
+    "database-optimization": {
+      "provider": "database-optimizer",
+      "provider_kind": "instruction-only",
+      "bundled": false,
+      "authority": "production",
+      "stages": [
+        "BUILD"
+      ],
+      "mode": "measured-query-optimization",
+      "load_policy": "conditional",
+      "consumes": [
+        "approved-task",
+        "current-build",
+        "scoped-evidence"
+      ],
+      "produces": [
+        "scoped-output",
+        "limitations",
+        "application-receipt"
+      ],
+      "requires": [],
+      "conflicts": [],
+      "evals": [
+        "database-optimization-missing-or-unqualified-blocks"
+      ],
+      "uninstall": "Remove managed generation selection using verified rollback; preserve product files, evidence and unmanaged user state.",
+      "provenance": {
+        "source": "https://github.com/wshobson/agents/blob/46891e7e60da0e52baf1050b7b6391b64e84c6d9/plugins/database-cloud-optimization/agents/database-optimizer.md",
+        "ref": "46891e7e60da0e52baf1050b7b6391b64e84c6d9",
+        "license": "MIT"
+      }
+    },
+    "ponytail-implementation": {
+      "provider": "ponytail",
+      "provider_kind": "instruction-only",
+      "bundled": false,
+      "authority": "production",
+      "stages": [
+        "BUILD",
+        "CLOSEOUT"
+      ],
+      "mode": "smallest-complete-ticket",
+      "load_policy": "conditional",
+      "consumes": [
+        "approved-task",
+        "current-build",
+        "scoped-evidence"
+      ],
+      "produces": [
+        "scoped-output",
+        "limitations",
+        "application-receipt"
+      ],
+      "requires": [],
+      "conflicts": [],
+      "evals": [
+        "ponytail-implementation-missing-or-unqualified-blocks"
+      ],
+      "uninstall": "Remove managed generation selection using verified rollback; preserve product files, evidence and unmanaged user state.",
+      "provenance": {
+        "source": "https://github.com/DietrichGebert/ponytail/blob/9b58c1ffb790c075ca32e70a89cf1d80588f4abf/skills/ponytail/SKILL.md",
+        "ref": "9b58c1ffb790c075ca32e70a89cf1d80588f4abf",
+        "license": "MIT"
+      }
+    },
+    "ponytail-review": {
+      "provider": "ponytail-review",
+      "provider_kind": "instruction-only",
+      "bundled": false,
+      "authority": "assurance",
+      "stages": [
+        "BUILD",
+        "CLOSEOUT"
+      ],
+      "mode": "scoped-read-only-review",
+      "load_policy": "conditional",
+      "consumes": [
+        "approved-task",
+        "current-build",
+        "scoped-evidence"
+      ],
+      "produces": [
+        "scoped-output",
+        "limitations",
+        "application-receipt"
+      ],
+      "requires": [],
+      "conflicts": [],
+      "evals": [
+        "ponytail-review-missing-or-unqualified-blocks"
+      ],
+      "uninstall": "Remove managed generation selection using verified rollback; preserve product files, evidence and unmanaged user state.",
+      "provenance": {
+        "source": "https://github.com/DietrichGebert/ponytail/blob/9b58c1ffb790c075ca32e70a89cf1d80588f4abf/skills/ponytail-review/SKILL.md",
+        "ref": "9b58c1ffb790c075ca32e70a89cf1d80588f4abf",
+        "license": "MIT"
+      }
+    },
+    "typed-decision-guidance": {
+      "provider": "typesafe-ai",
+      "provider_kind": "instruction-only",
+      "bundled": false,
+      "authority": "reference",
+      "stages": [
+        "DEFINITION",
+        "BUILD",
+        "INTEGRATION",
+        "CLOSEOUT"
+      ],
+      "mode": "typed-judgment-design",
+      "load_policy": "conditional",
+      "consumes": [
+        "approved-task",
+        "current-build",
+        "scoped-evidence"
+      ],
+      "produces": [
+        "scoped-output",
+        "limitations",
+        "application-receipt"
+      ],
+      "requires": [],
+      "conflicts": [],
+      "evals": [
+        "typed-decision-guidance-missing-or-unqualified-blocks"
+      ],
+      "uninstall": "Remove managed generation selection using verified rollback; preserve product files, evidence and unmanaged user state.",
+      "provenance": {
+        "source": "https://github.com/typesafe-ai/skills/blob/65a39f393687675ce170e6094757de20370365b9/skills/typesafe-ai/SKILL.md",
+        "ref": "65a39f393687675ce170e6094757de20370365b9",
+        "license": "MIT"
+      }
+    },
+    "fast-triage-decision": {
+      "provider": "typesafe-ai",
+      "provider_kind": "external",
+      "bundled": false,
+      "authority": "assurance",
+      "stages": [
+        "BUILD",
+        "INTEGRATION",
+        "CLOSEOUT"
+      ],
+      "mode": "bounded-semantic-recommendation",
+      "load_policy": "conditional",
+      "consumes": [
+        "approved-task",
+        "current-build",
+        "scoped-evidence"
+      ],
+      "produces": [
+        "scoped-output",
+        "limitations",
+        "application-receipt"
+      ],
+      "requires": [
+        "typed-decision-guidance"
+      ],
+      "conflicts": [],
+      "evals": [
+        "fast-triage-decision-missing-or-unqualified-blocks"
+      ],
+      "uninstall": "Remove managed generation selection using verified rollback; preserve product files, evidence and unmanaged user state.",
+      "provenance": {
+        "source": "https://github.com/typesafe-ai/skills/blob/65a39f393687675ce170e6094757de20370365b9/skills/typesafe-ai/SKILL.md",
+        "ref": "65a39f393687675ce170e6094757de20370365b9",
+        "license": "MIT"
+      },
+      "readiness_requirements": [
+        "tool_access",
+        "permitted_egress",
+        "entitlement",
+        "decision_qualification"
+      ]
+    },
+    "react-engineering": {
+      "provider": "vercel-react-best-practices",
+      "provider_kind": "instruction-only",
+      "bundled": false,
+      "authority": "production",
+      "stages": [
+        "BUILD",
+        "CLOSEOUT"
+      ],
+      "mode": "stack-matched-react-rules",
+      "load_policy": "conditional",
+      "consumes": [
+        "approved-task",
+        "current-build",
+        "scoped-evidence"
+      ],
+      "produces": [
+        "scoped-output",
+        "limitations",
+        "application-receipt"
+      ],
+      "requires": [],
+      "conflicts": [],
+      "evals": [
+        "react-engineering-missing-or-unqualified-blocks"
+      ],
+      "uninstall": "Remove managed generation selection using verified rollback; preserve product files, evidence and unmanaged user state.",
+      "provenance": {
+        "source": "https://github.com/vercel-labs/agent-skills/blob/063bee94c3f4df8453406c830b0a7df0f2860278/skills/react-best-practices/SKILL.md",
+        "ref": "063bee94c3f4df8453406c830b0a7df0f2860278",
+        "license": "MIT declared by skill metadata; no standalone LICENSE at pinned revision"
+      }
+    },
+    "browser-qa": {
+      "provider": "gstack-qa-only",
+      "provider_kind": "external",
+      "bundled": false,
+      "authority": "assurance",
+      "stages": [
+        "INTEGRATION",
+        "CLOSEOUT"
+      ],
+      "mode": "report-only-qa",
+      "load_policy": "conditional",
+      "consumes": [
+        "approved-task",
+        "current-build",
+        "scoped-evidence"
+      ],
+      "produces": [
+        "scoped-output",
+        "limitations",
+        "application-receipt"
+      ],
+      "requires": [],
+      "conflicts": [],
+      "evals": [
+        "browser-qa-missing-or-unqualified-blocks"
+      ],
+      "uninstall": "Remove managed generation selection using verified rollback; preserve product files, evidence and unmanaged user state.",
+      "provenance": {
+        "source": "https://github.com/garrytan/gstack/blob/20eb6202fa8ea83a882e7c0463b722cd8a31af1e/qa-only/SKILL.md",
+        "ref": "20eb6202fa8ea83a882e7c0463b722cd8a31af1e",
+        "license": "MIT"
+      },
+      "readiness_requirements": [
+        "tool_access",
+        "browser_runtime",
+        "isolated_output"
+      ]
     }
   }
 }

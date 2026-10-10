@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "project_id": "synthetic",
+  "locked_by": "architect",
+  "requirements": [
+    "R1"
+  ],
+  "checks": [
+    {
+      "id": "J1:success:web",
+      "requirement_ids": [
+        "R1"
+      ],
+      "journey": "J1",
+      "state": "success",
+      "surface": "web",
+      "required": true,
+      "expected": "Save and reload preserves the value"
+    }
+  ],
+  "mandatory_finding_ids": [
+    "F1"
+  ],
+  "repair_cases": [
+    {
+      "finding_id": "F1",
+      "original_failure": {
+        "path": "evidence/original.json",
+        "sha256": "f44a4434adca66664589312c462c1919a74e7f77034c6d0083d2d050c9227411"
+      },
+      "original_build": "before",
+      "implementer": "engineer",
+      "affected_check_ids": [
+        "J1:success:web"
+      ],
+      "acceptance_sha256": "ab0361b95d267e9c3e7756ce3349187f981dee1101a41e4fcffc3c75a3b657a9"
+    }
+  ],
+  "budget": {
+    "max_rounds": 4,
+    "baseline_used": 1,
+    "baseline_event_ids": [
+      "round-1"
+    ]
+  }
+}

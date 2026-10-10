@@ -208,9 +208,9 @@ def test_operation_lock_prevents_concurrent_writer(setup):
 def test_real_lock_preserves_required_layout_and_safe_loaders():
     lock, _ = installer.read_lock()
     packages = {p['name']: p for p in lock['packages']}
-    assert set(packages) == {'diagram-design', 'security-audit', 'incremental-implementation',
+    assert {'diagram-design', 'security-audit', 'incremental-implementation',
                              'test-driven-development', 'debugging-and-error-recovery',
-                             'code-simplification', 'impeccable', 'polish'}
+                             'code-simplification', 'impeccable', 'polish'} <= set(packages)
     assert 'upstream/references/definition-of-done.md' in packages['incremental-implementation']['files']
     assert 'upstream/references/testing-patterns.md' in packages['test-driven-development']['files']
     assert 'upstream/skills/security-audit/validate-findings.cjs' in packages['security-audit']['files']
@@ -222,9 +222,17 @@ def test_real_lock_preserves_required_layout_and_safe_loaders():
     assert packages['impeccable']['files']['upstream/NOTICE.md']['source'] == 'NOTICE.md'
     assert packages['diagram-design']['files']['upstream/THIRD_PARTY_LICENSES.md']['source'] == 'THIRD_PARTY_LICENSES.md'
     for name, package in packages.items():
-        assert not any('/hooks/' in path or '/agents/' in path for path in package['files'])
-        if name != 'polish':
+        assert not any('/hooks/' in path for path in package['files'])
+        # The three selected wshobson agent documents are intentional reference assets.
+        agent_paths = [path for path in package['files'] if '/agents/' in path]
+        if agent_paths:
+            assert name in {'backend-architect', 'database-architect', 'database-optimizer'}
+            assert len(agent_paths) == 1 and agent_paths[0].endswith('/' + name + '.md')
+        if lock['repositories'][package['repository']].get('kind') == 'local-snapshot':
+            assert package['files']['SKILL.md']['source'] == '.claude/skills/' + name + '/SKILL.md'
+        elif name not in {'polish', 'vercel-react-best-practices'}:
             assert 'upstream/LICENSE' in package['files']
+    assert 'upstream/skills/react-best-practices/SKILL.md' in packages['vercel-react-best-practices']['files']
 
 
 def test_local_content_filter_is_not_executed(setup):

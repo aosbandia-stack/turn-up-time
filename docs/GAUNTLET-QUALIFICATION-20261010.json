@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-10",
+  "status": "LOCAL_CANDIDATE; LIVE_QUALIFICATION_PENDING",
+  "repository": "https://github.com/aosbandia-stack/turn-up-time",
+  "branch": "codex/bandia-gauntlet-20261010",
+  "companion_repository": "https://github.com/jkrowlen-creator/bandia-os",
+  "companion_branch": "codex/bandia-gauntlet-bridge-20261010",
+  "scope": "Pinned provider intake, installed capability delivery, bounded triage and gauntlet contracts, retained tool runtimes and local qualification",
+  "tested_source_identity_before_publication_documentation": "git:a3b6f2d4bab4a5897be05e325db40f2cb14d05e7:c25e1cbab1ba7d60ed35ff5d28fdc1db4cb5ccfd8544286533d92474f09e0dd1",
+  "local_trigger_smoke": {
+    "routing_and_authority_cases_passed": 13,
+    "ordinary_language_selections_conforming": 3,
+    "focused_existing_tests_passed": 6,
+    "focused_subtests_passed": 7,
+    "fresh_consumers": 2,
+    "provider_instruction_sets_consumed": 7,
+    "independent_predeclared_checks_passed": 10,
+    "required_provider_output_pairs_verified": 19,
+    "frozen_input_assets_unchanged": 17,
+    "output_and_receipt_files_hashed": 11,
+    "verdict": "LOCAL_INSTRUCTION_CONSUMPTION_GREEN",
+    "actual_scope": "Two source-only Codex examples; independent semantic/citation and hash checks, not native Bandia execution"
+  },
+  "observed_instruction_providers": ["backend-architect", "database-architect", "database-optimizer", "ponytail", "ponytail-review", "security-audit focused guidance", "diagram-design"],
+  "other_retained_qualification": {
+    "workflow_regression": "493 regular passes plus 23 subtests, four retained platform skips, by joining initial results with affected-module rerun",
+    "original_failure_preserved": "Initial full run had 120 failures caused by a transient root evidence artifact changing cached fixture identity. All affected failures were retested; the initial failure is retained rather than relabeled.",
+    "isolated_promotion": "696 managed objects; interruption caused installed entrypoints to refuse launch; recovery and reapply verified. Original global homes unchanged.",
+    "standalone_tool_calls": "REA static JavaScript analysis, Serena overview/symbol/caller lookup and a Playwright fixture positive/seeded-negative check have prior isolated runtime evidence. This is not Bandia worker application.",
+    "scoped_source_audit": "44 coverage units covered, one excluded and no surviving findings, with fresh critics and pinned validators. Source-only and not whole-product security certification."
+  },
+  "procedural_finding": {
+    "id": "LOCAL-PERM-01",
+    "description": "Review consumer wrote two receipts in its packet evidence directory instead of the assigned output directory.",
+    "disposition": "Controller adopted the local receipts after discovery; original bytes/history retained. Original ownership deviation remains nonconformant.",
+    "os_permission_enforcement_qualified": false
+  },
+  "remaining_live_requirements": [
+    "Guarded native candidate rebuild and exact compiled qualification after the promotion-sentinel fix",
+    "Recoverable Windows worker sandbox provisioning; no manual state transplant or sandbox bypass",
+    "Actual Bandia worker dispatch, selected tool invocation, output consumption and independent APPLIED receipt verification",
+    "Task-scoped external readiness, compatible UI stack and verified account access for hosted/catalog/browser work",
+    "Native owner trust/signature confirmations, bounded seeded repair journey and fresh whole-release judgment before activation"
+  ],
+  "release_claims": {
+    "normal_graph_stage": "INTAKE",
+    "whole_release_green": false,
+    "global_activation": false,
+    "native_bandia_worker_applied": false,
+    "deployment_authorized_by_this_publication": false,
+    "optional_jev_enabled": false
+  },
+  "retained_local_evidence_hashes": {
+    "local_completion_receipt": "7a37029607fe05b47d8e0c682e25223d71cf5f6db196031c81a6a37b72578e78",
+    "independent_output_verdict": "bd85e9f6d2f77f5db02023bd88b51d820377e014b80502d6f5cf385e2924b852",
+    "independent_output_evidence": "8c405b14049832f9d50df30bb1f160b30721f9db2d5d38ea6464a56be7692091",
+    "independent_task_selection": "afbea085b35e4d6fb4f69e71583238354cb06dd849881483e2693cfa23604b59",
+    "mechanical_selection_check": "29d3eb2751e2f3cb01993f4a02a29b7839124e6ecded6182707d1e3afbad542b"
+  },
+  "evidence_distribution": "Sanitized summary only. Raw local project ledgers, tool installations, sandbox state, account data and private runtime receipts remain Git-ignored. Hashes identify retained local evidence; they do not make that evidence remotely available or establish authorship. Existing committed fixture/test assets are synthetic.",
+  "reproduction_guides": ["docs/GAUNTLET.md", "docs/BANDIA-BUNDLE.md", "docs/TOOL-RUNTIME.md", "docs/CODEX.md"]
+}

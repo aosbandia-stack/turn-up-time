@@ -7,7 +7,7 @@ import sys
 import pytest
 
 from .test_completion_contracts import (BUILD, CLAUDE, ROOT, edit, make_project, proof, read,
-                                        ready_provider, ui_surface, write)
+                                        ready_provider, ui_surface, write, isolated_provider_home)
 from resolve_capabilities import resolve
 from turn_up_time_graph.topology import Stage
 from turn_up_time_graph.validation import TransitionError, validate_project_for_target
@@ -195,7 +195,7 @@ def test_web_provider_can_be_substituted_without_a_selector(tmp_path):
     override.pop('ui_selector')
     override['provider'] = 'project-browser-runner'
     write(project / 'capability-registry.json', {'schema_version':3,'capabilities':{'browser-e2e':override}})
-    (project / '.claude/skills/e2e-testing/SKILL.md').unlink()
+    (project / '.claude/skills/gstack-qa-only/SKILL.md').unlink()
     ready_provider(project, 'browser-e2e', 'project-browser-runner')
     validate_project_for_target(ROOT, project, Stage.DONE)
     merged = {**registry(), 'browser-e2e':override}

@@ -16,6 +16,47 @@
     "impeccable": {
       "url": "https://github.com/pbakaus/impeccable.git",
       "commit": "a40571a45f51625ddc5cd3399bbbe82796eed992"
+    },
+    "rea": {
+      "url": "https://github.com/morluto/rea.git",
+      "commit": "bddddccdee3129d0b1b11e32b751be2b6d501c23"
+    },
+    "serena": {
+      "url": "https://github.com/oraios/serena.git",
+      "commit": "1de556f71569f3acfc0743e526dd60aca40a545e"
+    },
+    "context7": {
+      "url": "https://github.com/upstash/context7.git",
+      "commit": "522c4db4fa2e1e31f1b320f09fa8c8fab376987a"
+    },
+    "wshobson": {
+      "url": "https://github.com/wshobson/agents.git",
+      "commit": "46891e7e60da0e52baf1050b7b6391b64e84c6d9"
+    },
+    "ponytail": {
+      "url": "https://github.com/DietrichGebert/ponytail.git",
+      "commit": "9b58c1ffb790c075ca32e70a89cf1d80588f4abf"
+    },
+    "typesafe": {
+      "url": "https://github.com/typesafe-ai/skills.git",
+      "commit": "65a39f393687675ce170e6094757de20370365b9"
+    },
+    "vercel": {
+      "url": "https://github.com/vercel-labs/agent-skills.git",
+      "commit": "063bee94c3f4df8453406c830b0a7df0f2860278"
+    },
+    "gstack": {
+      "url": "https://github.com/garrytan/gstack.git",
+      "commit": "20eb6202fa8ea83a882e7c0463b722cd8a31af1e"
+    },
+    "21st": {
+      "url": "https://github.com/21st-dev/magic-mcp.git",
+      "commit": "6b5299e8a83ceffa73d4fc4e148905bb3eeeeb55"
+    },
+    "turn-up-time-core": {
+      "kind": "local-snapshot",
+      "source": ".claude/skills",
+      "revision": "sha256:ab24e86f1275143ce4f2d24241fec39358db0cfa88fd7dbb371d0b4ca77cfa68"
     }
   },
   "packages": [
@@ -1583,6 +1624,803 @@
         "SKILL.md": {
           "content": "---\nname: polish\ndescription: Bounded UI polish using the installed Impeccable instruction adapter.\n---\n\n# Turn Up Time polish adapter\n\nRead [the required Impeccable adapter](../impeccable/SKILL.md) first, then its\n[pinned polish playbook](../impeccable/upstream/.claude/skills/impeccable/reference/polish.md).\nResolve playbook paths relative to the upstream Impeccable directory. Do not run its\nlauncher or download binaries. Preserve the approved design guide and current\nTurn Up Time visual budget. This alias depends on the hash-verified Impeccable package.\n",
           "sha256": "204f856074f7b7b986ac8810979bb123523aaf9aed3aa45b9499addf421f7026"
+        }
+      }
+    },
+    {
+      "name": "rea",
+      "repository": "rea",
+      "files": {
+        "upstream/.agents/skills/reverse-engineer-anything/SKILL.md": {
+          "source": ".agents/skills/reverse-engineer-anything/SKILL.md",
+          "sha256": "370fb28562ce1b164a96f56bd7d0709a6738e561a88a865cb58f609d59536c60"
+        },
+        "upstream/.agents/skills/reverse-engineer-anything/references/android-applications.md": {
+          "source": ".agents/skills/reverse-engineer-anything/references/android-applications.md",
+          "sha256": "412d9cb462d85b07f6fdbc2453dd741ca3da2c0dbba627867d5624df94afa74c"
+        },
+        "upstream/.agents/skills/reverse-engineer-anything/references/evidence-workflows.md": {
+          "source": ".agents/skills/reverse-engineer-anything/references/evidence-workflows.md",
+          "sha256": "c8ce2f38c9ea22934686692b325196fe48a92c7e406ce1ddac278e652b40cac7"
+        },
+        "upstream/.agents/skills/reverse-engineer-anything/references/javascript-applications.md": {
+          "source": ".agents/skills/reverse-engineer-anything/references/javascript-applications.md",
+          "sha256": "cee36b5129e1c57543d43879542f6795799b4099d21708037257e7d76de22b66"
+        },
+        "upstream/.agents/skills/reverse-engineer-anything/references/native-and-artifacts.md": {
+          "source": ".agents/skills/reverse-engineer-anything/references/native-and-artifacts.md",
+          "sha256": "5ceab7bd037f66aa71fdb9e070263f69dfebbe8ccc02b762d95ced810d5c8b75"
+        },
+        "upstream/.agents/skills/reverse-engineer-anything/references/runtime-observation.md": {
+          "source": ".agents/skills/reverse-engineer-anything/references/runtime-observation.md",
+          "sha256": "b3eea94dd7d0c6474634de22ac3ccae317f42ba1ba2389d93535ee8dae7d94e1"
+        },
+        "upstream/LICENSE": {
+          "source": "LICENSE",
+          "sha256": "798f9e4d18e49b30bf2f12696c8ced73dc4e1413da375a333d01281543a1ea8b"
+        },
+        "upstream/README.md": {
+          "source": "README.md",
+          "sha256": "c6f383e1d922671100b0947cdb01deac589158501baeda26039db6132f87e880"
+        },
+        "SKILL.md": {
+          "content": "---\nname: rea\ndescription: Scoped Turn Up Time adapter for rea.\n---\n\n# rea \u2014 Turn Up Time adapter\n\nExternal REA tools and target-specific engines must be probed on the actual worker. Use only shipped-artifact or authorized runtime investigation; available source uses Serena. Preserve evidence and unsupported-target limits.\n\nRead `upstream/.agents/skills/reverse-engineer-anything/SKILL.md` and the referenced packaged resources before applying this method. The upstream snapshot is reference material; the assigned role, ticket, stage, permissions and acceptance contract remain authoritative. Installation integrity is separate from actual tool readiness and independent output verification. Never claim applied from merely reading this file.\n",
+          "sha256": "da43599ad6541e50598291450b4ae5e912ca12319da7682353a57bf9d70abadf"
+        }
+      }
+    },
+    {
+      "name": "serena",
+      "repository": "serena",
+      "files": {
+        "upstream/LICENSE": {
+          "source": "LICENSE",
+          "sha256": "6239f4be78ccff409aedfbce88ac89b26f488f76aac7ab199fb6876dc7fdeb4c"
+        },
+        "upstream/LICENSES/GPL-3.0-or-later.txt": {
+          "source": "LICENSES/GPL-3.0-or-later.txt",
+          "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+        },
+        "upstream/LICENSES/MIT.txt": {
+          "source": "LICENSES/MIT.txt",
+          "sha256": "16017e50562bb112006f6f32d17ca989e0e573b011bd6790b642018b1c195b0c"
+        },
+        "upstream/README.md": {
+          "source": "README.md",
+          "sha256": "9b0d78749517f0b91427ae433ab49ec7e77e46620ca367c75d2a082c5f30a4a5"
+        },
+        "upstream/docs/01-about/020_programming-languages.md": {
+          "source": "docs/01-about/020_programming-languages.md",
+          "sha256": "29b74b5c986db95222e770ebc3f624b330f513378fcd65924ad6f710a8321df2"
+        },
+        "upstream/docs/01-about/030_serena-in-action.md": {
+          "source": "docs/01-about/030_serena-in-action.md",
+          "sha256": "36a5acca55f9895d7346669bc1466cb42e2b6d0da1af583b10d2fdc93f291660"
+        },
+        "upstream/docs/01-about/050_acknowledgements.md": {
+          "source": "docs/01-about/050_acknowledgements.md",
+          "sha256": "20519f7da4cc043c2363c5c23d94b55b5d8f7a73e6983937e2268e080fb6f6b3"
+        },
+        "upstream/docs/01-about/060_license.md": {
+          "source": "docs/01-about/060_license.md",
+          "sha256": "cff5d35c91600ca4c5e1eb62ce89225033069dffde4edd43d5b56b236e8c5235"
+        },
+        "upstream/docs/01-about/070_privacy.md": {
+          "source": "docs/01-about/070_privacy.md",
+          "sha256": "205e930a34bbb64fe10fb322035c2878488dcf701f038a730c63124501f5884c"
+        },
+        "upstream/docs/02-usage/000_intro.md": {
+          "source": "docs/02-usage/000_intro.md",
+          "sha256": "795ba8bb1ff3e4d082a7ed445100f219d84f4d9bf36e814e96705c594d6cd3af"
+        },
+        "upstream/docs/02-usage/010_installation.md": {
+          "source": "docs/02-usage/010_installation.md",
+          "sha256": "8b3348659ee09afa3a3e0beee15270bd189161e101503920f8dd0ed14a710443"
+        },
+        "upstream/docs/02-usage/020_running.md": {
+          "source": "docs/02-usage/020_running.md",
+          "sha256": "a9598a2baeda92fcd0e050a848261b2c6a209a5e11f289bd1fefc658d0ee06fa"
+        },
+        "upstream/docs/02-usage/025_jetbrains_plugin.md": {
+          "source": "docs/02-usage/025_jetbrains_plugin.md",
+          "sha256": "5e2db5e8c517f93f80cfd04c51c6085cc6c5be14da5aff5443c69f94946234d5"
+        },
+        "upstream/docs/02-usage/030_clients.md": {
+          "source": "docs/02-usage/030_clients.md",
+          "sha256": "32e433b6b12ae9c56d55a19321f99ad314b1eac96ddc5114e50e4acdb15ef10c"
+        },
+        "upstream/docs/02-usage/040_workflow.md": {
+          "source": "docs/02-usage/040_workflow.md",
+          "sha256": "5b82076a17f5602811307392c36568581b0180c1fa745a03af58175b4f678f4d"
+        },
+        "upstream/docs/02-usage/045_memories.md": {
+          "source": "docs/02-usage/045_memories.md",
+          "sha256": "68e0c07c015385c4563acf352fe0cdad31a409c5f1b7a0acd11ec4d90fabb6a6"
+        },
+        "upstream/docs/02-usage/050_configuration.md": {
+          "source": "docs/02-usage/050_configuration.md",
+          "sha256": "d4557d3e05d50a6841c3b2730728acab834a118987cd217edc1b04ba375ad629"
+        },
+        "upstream/docs/02-usage/060_dashboard.md": {
+          "source": "docs/02-usage/060_dashboard.md",
+          "sha256": "837c705de53ffde1f1722ce98ec1f11b33837c0fb520925345453e999373f35d"
+        },
+        "upstream/docs/02-usage/065_logs.md": {
+          "source": "docs/02-usage/065_logs.md",
+          "sha256": "3f6aa14a740eb8454edf8e818ff335dcecf9d94e640220e11df84be9bdce4762"
+        },
+        "upstream/docs/02-usage/070_security.md": {
+          "source": "docs/02-usage/070_security.md",
+          "sha256": "4b3c88a839820994f603a99bfa621b6497289e867dc743ea562792b0506ffc00"
+        },
+        "upstream/docs/02-usage/999_additional-usage.md": {
+          "source": "docs/02-usage/999_additional-usage.md",
+          "sha256": "77eb6511618be31cc9679188561aa7d8c4f7d3add68db43c94db04936494bee3"
+        },
+        "SKILL.md": {
+          "content": "---\nname: serena\ndescription: Scoped Turn Up Time adapter for serena.\n---\n\n# serena \u2014 Turn Up Time adapter\n\nSerena is external, not installed by these docs. Require actual MCP connection, supported language server, project activation, symbol and reference probes. Start read-only; edits require explicit owned-ticket capability. Unknown dynamic/external callers remain visible. Read upstream docs/02-usage workflow, running and security docs.\n\nRead `upstream/docs/02-usage/040_workflow.md` and the referenced packaged resources before applying this method. The upstream snapshot is reference material; the assigned role, ticket, stage, permissions and acceptance contract remain authoritative. Installation integrity is separate from actual tool readiness and independent output verification. Never claim applied from merely reading this file.\n",
+          "sha256": "c26f68bb2cffbf2d9e2554159525890d38e2512e013dfbd2de7ffd141ef7a9c7"
+        }
+      }
+    },
+    {
+      "name": "context7",
+      "repository": "context7",
+      "files": {
+        "upstream/LICENSE": {
+          "source": "LICENSE",
+          "sha256": "85cfb556dc2b22b55d2565674fcdaac82f3f2f6b7a928d27003132721bb6736c"
+        },
+        "upstream/README.md": {
+          "source": "README.md",
+          "sha256": "495b47a95b9c4c35eccf7912eb4a73f60378168990587476e64c8896e20ed995"
+        },
+        "upstream/skills/context7-mcp/SKILL.md": {
+          "source": "skills/context7-mcp/SKILL.md",
+          "sha256": "29ef59d342876991f1a07297959748b57647063b1f7c7db4761fd36137655ade"
+        },
+        "SKILL.md": {
+          "content": "---\nname: context7\ndescription: Scoped Turn Up Time adapter for context7.\n---\n\n# context7 \u2014 Turn Up Time adapter\n\nRequire connected actual Context7 tools and bounded permitted egress. Resolve the dependency version from the lockfile; record returned library/version identifiers, source and gaps. Send no private code or secrets.\n\nRead `upstream/skills/context7-mcp/SKILL.md` and the referenced packaged resources before applying this method. The upstream snapshot is reference material; the assigned role, ticket, stage, permissions and acceptance contract remain authoritative. Installation integrity is separate from actual tool readiness and independent output verification. Never claim applied from merely reading this file.\n",
+          "sha256": "a7b8a42425e57729990cbc9b4efa5637c87e13fbf86b9a5a183e18d27d1b26ca"
+        }
+      }
+    },
+    {
+      "name": "backend-architect",
+      "repository": "wshobson",
+      "files": {
+        "upstream/LICENSE": {
+          "source": "LICENSE",
+          "sha256": "f89abb55d9f073f38f1703e4518f0613c788c6174be7f13b8dfe48a1c076c746"
+        },
+        "upstream/plugins/backend-development/agents/backend-architect.md": {
+          "source": "plugins/backend-development/agents/backend-architect.md",
+          "sha256": "66598cd9077472e0d9a3406ea46635d12766defac27f84090f93c1903bcd3da2"
+        },
+        "SKILL.md": {
+          "content": "---\nname: backend-architect\ndescription: Scoped Turn Up Time adapter for backend-architect.\n---\n\n# backend-architect \u2014 Turn Up Time adapter\n\nUse as specialist guidance within the assigned backend ticket or discovery role. No independent controller, model override or automatic deployment.\n\nRead `upstream/plugins/backend-development/agents/backend-architect.md` and the referenced packaged resources before applying this method. The upstream snapshot is reference material; the assigned role, ticket, stage, permissions and acceptance contract remain authoritative. Installation integrity is separate from actual tool readiness and independent output verification. Never claim applied from merely reading this file.\n",
+          "sha256": "3981c662f2d0887c1a14f1c270afc12580138198641700630a06dc982fb8068f"
+        }
+      }
+    },
+    {
+      "name": "database-architect",
+      "repository": "wshobson",
+      "files": {
+        "upstream/LICENSE": {
+          "source": "LICENSE",
+          "sha256": "f89abb55d9f073f38f1703e4518f0613c788c6174be7f13b8dfe48a1c076c746"
+        },
+        "upstream/plugins/database-design/agents/database-architect.md": {
+          "source": "plugins/database-design/agents/database-architect.md",
+          "sha256": "cada2f67ad4c0e6788007a8d0cef92ba333d88820cb0845e415c7a5d03151f4b"
+        },
+        "SKILL.md": {
+          "content": "---\nname: database-architect\ndescription: Scoped Turn Up Time adapter for database-architect.\n---\n\n# database-architect \u2014 Turn Up Time adapter\n\nUse for owned schema/data architecture. Migration, backup and rollback contracts remain mandatory; return proposals when architecture authority is absent.\n\nRead `upstream/plugins/database-design/agents/database-architect.md` and the referenced packaged resources before applying this method. The upstream snapshot is reference material; the assigned role, ticket, stage, permissions and acceptance contract remain authoritative. Installation integrity is separate from actual tool readiness and independent output verification. Never claim applied from merely reading this file.\n",
+          "sha256": "ed667680ac5e89bc42b4f889ce0c7568d3327c2a8da27f7b47d555d8b440d3fe"
+        }
+      }
+    },
+    {
+      "name": "database-optimizer",
+      "repository": "wshobson",
+      "files": {
+        "upstream/LICENSE": {
+          "source": "LICENSE",
+          "sha256": "f89abb55d9f073f38f1703e4518f0613c788c6174be7f13b8dfe48a1c076c746"
+        },
+        "upstream/plugins/database-cloud-optimization/agents/database-optimizer.md": {
+          "source": "plugins/database-cloud-optimization/agents/database-optimizer.md",
+          "sha256": "4be26ef22f389a267b6b61bdc0d661101b602aa2fed162ade7110df3fe124488"
+        },
+        "SKILL.md": {
+          "content": "---\nname: database-optimizer\ndescription: Scoped Turn Up Time adapter for database-optimizer.\n---\n\n# database-optimizer \u2014 Turn Up Time adapter\n\nUse measured query plans and representative workloads. Preserve correctness, authorization, migrations and recovery; do not make production database changes.\n\nRead `upstream/plugins/database-cloud-optimization/agents/database-optimizer.md` and the referenced packaged resources before applying this method. The upstream snapshot is reference material; the assigned role, ticket, stage, permissions and acceptance contract remain authoritative. Installation integrity is separate from actual tool readiness and independent output verification. Never claim applied from merely reading this file.\n",
+          "sha256": "35b456787750b904d84610261bcd941bbcc6ddfd9dd49394af45bc0fad6d9add"
+        }
+      }
+    },
+    {
+      "name": "ponytail",
+      "repository": "ponytail",
+      "files": {
+        "upstream/LICENSE": {
+          "source": "LICENSE",
+          "sha256": "fb1bc6909ac3ef82d5c22106e32ef682b0cff66788fa915fb9b53b15c9d2f3ab"
+        },
+        "upstream/skills/ponytail/SKILL.md": {
+          "source": "skills/ponytail/SKILL.md",
+          "sha256": "ba68ff26239c3c3b05b2a9a47ee0d9a6b93a69639a2555ec87a5d44bffaf2f0c"
+        },
+        "SKILL.md": {
+          "content": "---\nname: ponytail\ndescription: Scoped Turn Up Time adapter for ponytail.\n---\n\n# ponytail \u2014 Turn Up Time adapter\n\nApply the whole-problem smallest-change method only to this approved ticket. Upstream session-wide mode and minimum-product shortcuts do not override frozen scope or required tests. Enumerate callers/config/tests and preserve error handling. Existing owner performs writes; independent verification follows.\n\nRead `upstream/skills/ponytail/SKILL.md` and the referenced packaged resources before applying this method. The upstream snapshot is reference material; the assigned role, ticket, stage, permissions and acceptance contract remain authoritative. Installation integrity is separate from actual tool readiness and independent output verification. Never claim applied from merely reading this file.\n",
+          "sha256": "6c808fd35ac06d0090df5e26fb20882eab299fefd07e529a826215750c1aa57a"
+        }
+      }
+    },
+    {
+      "name": "ponytail-review",
+      "repository": "ponytail",
+      "files": {
+        "upstream/LICENSE": {
+          "source": "LICENSE",
+          "sha256": "fb1bc6909ac3ef82d5c22106e32ef682b0cff66788fa915fb9b53b15c9d2f3ab"
+        },
+        "upstream/skills/ponytail-review/SKILL.md": {
+          "source": "skills/ponytail-review/SKILL.md",
+          "sha256": "33fe4ebe22a460924e5d4a261e223df22e409cc94ab76182bee9fb91a3ef022e"
+        },
+        "SKILL.md": {
+          "content": "---\nname: ponytail-review\ndescription: Scoped Turn Up Time adapter for ponytail-review.\n---\n\n# ponytail-review \u2014 Turn Up Time adapter\n\nRead-only review of changed code and affected callers inside Swiper. Report KEEP/REMOVE/CONSOLIDATE/INVESTIGATE evidence. Unknown dynamic references block removal. No repair or release authority; upstream Ship wording is a scoped opinion only.\n\nRead `upstream/skills/ponytail-review/SKILL.md` and the referenced packaged resources before applying this method. The upstream snapshot is reference material; the assigned role, ticket, stage, permissions and acceptance contract remain authoritative. Installation integrity is separate from actual tool readiness and independent output verification. Never claim applied from merely reading this file.\n",
+          "sha256": "f673ddb98372024aa5961180624a21260861b6c13e4490b7308d6d88d4f04a47"
+        }
+      }
+    },
+    {
+      "name": "typesafe-ai",
+      "repository": "typesafe",
+      "files": {
+        "upstream/LICENSE": {
+          "source": "LICENSE",
+          "sha256": "835f233f1d6ed84a9b9a351aba0689b47644a4137d6316911fc7957bde523b02"
+        },
+        "upstream/skills/typesafe-ai/LICENSE": {
+          "source": "skills/typesafe-ai/LICENSE",
+          "sha256": "835f233f1d6ed84a9b9a351aba0689b47644a4137d6316911fc7957bde523b02"
+        },
+        "upstream/skills/typesafe-ai/SKILL.md": {
+          "source": "skills/typesafe-ai/SKILL.md",
+          "sha256": "71ea90d7906c6554c4f4c460ef7361b2d26f59116ccdae986dc6d997b9389f52"
+        },
+        "SKILL.md": {
+          "content": "---\nname: typesafe-ai\ndescription: Scoped Turn Up Time adapter for typesafe-ai.\n---\n\n# typesafe-ai \u2014 Turn Up Time adapter\n\nInstruction guidance does not establish access to Jev. Actual external decisions require current tool/egress/entitlement/qualification evidence. Code owns gates; Jev supplies one bounded typed judgment. Unqualified judgments cannot close material findings or grant authority. Record resolved model revision and explicit fallback.\n\nRead `upstream/skills/typesafe-ai/SKILL.md` and the referenced packaged resources before applying this method. The upstream snapshot is reference material; the assigned role, ticket, stage, permissions and acceptance contract remain authoritative. Installation integrity is separate from actual tool readiness and independent output verification. Never claim applied from merely reading this file.\n",
+          "sha256": "bc3b2e2cb37150332e9aec413b9f7072a0823858c7ddd3119941c31dd0767903"
+        }
+      }
+    },
+    {
+      "name": "vercel-react-best-practices",
+      "repository": "vercel",
+      "files": {
+        "upstream/README.md": {
+          "source": "README.md",
+          "sha256": "7c02f64b08fc6c4eef03c01d64f3e2ed478193ccfcbd14edba379abe23304651"
+        },
+        "upstream/package.json": {
+          "source": "package.json",
+          "sha256": "4346dba39e76172e83a7f836077b2832a950cec9aeb1caf47d2713151a4391b9"
+        },
+        "upstream/skills/react-best-practices/AGENTS.md": {
+          "source": "skills/react-best-practices/AGENTS.md",
+          "sha256": "fc93e7421177bbf869cce892bc60a6c83a4517d974bc3bf65c4e2c1e58a6ccf6"
+        },
+        "upstream/skills/react-best-practices/README.md": {
+          "source": "skills/react-best-practices/README.md",
+          "sha256": "9eafb2123d3b8b2aef41fba0db2648a3f4f49996f8c7c8bb2c86263befd8b48a"
+        },
+        "upstream/skills/react-best-practices/SKILL.md": {
+          "source": "skills/react-best-practices/SKILL.md",
+          "sha256": "71ed7794962fa6e803ee83030517b5b93a9f70fbfeb431ec4535c5480a8d8355"
+        },
+        "upstream/skills/react-best-practices/metadata.json": {
+          "source": "skills/react-best-practices/metadata.json",
+          "sha256": "c4e18bac3290fbe1b471a605867d4df68b03144ea26b8befdbe8f9d8fd124354"
+        },
+        "upstream/skills/react-best-practices/rules/_sections.md": {
+          "source": "skills/react-best-practices/rules/_sections.md",
+          "sha256": "01c59969e4e867f0708c8f8ef9c6d87fab9a07d0586244f429ff84013db8a115"
+        },
+        "upstream/skills/react-best-practices/rules/_template.md": {
+          "source": "skills/react-best-practices/rules/_template.md",
+          "sha256": "99df2a3ea088c6c22de2484ddc7e964d0e9923846f44c63380343ecc64455442"
+        },
+        "upstream/skills/react-best-practices/rules/advanced-effect-event-deps.md": {
+          "source": "skills/react-best-practices/rules/advanced-effect-event-deps.md",
+          "sha256": "55ed8f9f27a1bff803d6fa55828176207714b02123cbb97ddb8a90d88024a723"
+        },
+        "upstream/skills/react-best-practices/rules/advanced-event-handler-refs.md": {
+          "source": "skills/react-best-practices/rules/advanced-event-handler-refs.md",
+          "sha256": "a3097edeecfb2ff6851cd66ed8cdf0617c3c88180504bee824aa6e75a215bbbc"
+        },
+        "upstream/skills/react-best-practices/rules/advanced-init-once.md": {
+          "source": "skills/react-best-practices/rules/advanced-init-once.md",
+          "sha256": "3e4dc22173eb0e2b6dcf583e3babd862b8696328f8f59aee7c4d746c5bc05f6c"
+        },
+        "upstream/skills/react-best-practices/rules/advanced-use-latest.md": {
+          "source": "skills/react-best-practices/rules/advanced-use-latest.md",
+          "sha256": "8a3f64dfe5a77d1564248faf17fe662ae75b55d497a243cb30b38eb07ccbbf9a"
+        },
+        "upstream/skills/react-best-practices/rules/async-api-routes.md": {
+          "source": "skills/react-best-practices/rules/async-api-routes.md",
+          "sha256": "523338540d73427dc14c0cbb19f2741ebccdf8b105a7b2c1b33d2905cf237a42"
+        },
+        "upstream/skills/react-best-practices/rules/async-cheap-condition-before-await.md": {
+          "source": "skills/react-best-practices/rules/async-cheap-condition-before-await.md",
+          "sha256": "03107c1f70a293cd58a8abc5474c5548e20ea4efdf01b6d45aae7ad0ac1cb32c"
+        },
+        "upstream/skills/react-best-practices/rules/async-defer-await.md": {
+          "source": "skills/react-best-practices/rules/async-defer-await.md",
+          "sha256": "f3c142d090615abdcc99d31c123be37b31f0f1ed8d9ec9f7789a3bc6883ae0fb"
+        },
+        "upstream/skills/react-best-practices/rules/async-dependencies.md": {
+          "source": "skills/react-best-practices/rules/async-dependencies.md",
+          "sha256": "16ef469f877e30c6b8e1e1b4bc3e527312fa3c6318cb785a4eca186ea236131a"
+        },
+        "upstream/skills/react-best-practices/rules/async-parallel.md": {
+          "source": "skills/react-best-practices/rules/async-parallel.md",
+          "sha256": "6d2f841896279e976dfcdc1ac89e70771ac188baadfd43c096b5706cb838b961"
+        },
+        "upstream/skills/react-best-practices/rules/async-suspense-boundaries.md": {
+          "source": "skills/react-best-practices/rules/async-suspense-boundaries.md",
+          "sha256": "de05fedac2eb7ae563b887b5a424464ec3dfaf84e5b7797467ebe2a796ac8afc"
+        },
+        "upstream/skills/react-best-practices/rules/bundle-analyzable-paths.md": {
+          "source": "skills/react-best-practices/rules/bundle-analyzable-paths.md",
+          "sha256": "62090b5c815fd71bf1133dce754f51abc16a9456d0ccd025fd627de27726e92a"
+        },
+        "upstream/skills/react-best-practices/rules/bundle-barrel-imports.md": {
+          "source": "skills/react-best-practices/rules/bundle-barrel-imports.md",
+          "sha256": "e648f6d54525f07a691357040ca5bff6ea3424788a91ff63812adb29622a671b"
+        },
+        "upstream/skills/react-best-practices/rules/bundle-conditional.md": {
+          "source": "skills/react-best-practices/rules/bundle-conditional.md",
+          "sha256": "09c8259c3efb04fc0abb8e412ccbda217c222ae8118516283e571c995fe3a7d4"
+        },
+        "upstream/skills/react-best-practices/rules/bundle-defer-third-party.md": {
+          "source": "skills/react-best-practices/rules/bundle-defer-third-party.md",
+          "sha256": "3719fb47b191e8db4fe22686ec88448ad5af9e6838585425abbe103d0b642e37"
+        },
+        "upstream/skills/react-best-practices/rules/bundle-dynamic-imports.md": {
+          "source": "skills/react-best-practices/rules/bundle-dynamic-imports.md",
+          "sha256": "401817a7369f315fc5a68a1095742ff7d53d0461906880dc9d64a41495ee1986"
+        },
+        "upstream/skills/react-best-practices/rules/bundle-preload.md": {
+          "source": "skills/react-best-practices/rules/bundle-preload.md",
+          "sha256": "d1f7cc28da7cd5ab249acd287edc5b761afcfb194e9cb62cd44c5f3543db2de2"
+        },
+        "upstream/skills/react-best-practices/rules/client-event-listeners.md": {
+          "source": "skills/react-best-practices/rules/client-event-listeners.md",
+          "sha256": "242a873349febc1ce685e85617994784dbab92c2eaa68aed7fed5a83e7680e93"
+        },
+        "upstream/skills/react-best-practices/rules/client-localstorage-schema.md": {
+          "source": "skills/react-best-practices/rules/client-localstorage-schema.md",
+          "sha256": "0fb7cdf9dc93fdf22f87e3669f953fb9d4ac9b0be42eec4a29fe9a2560610b88"
+        },
+        "upstream/skills/react-best-practices/rules/client-passive-event-listeners.md": {
+          "source": "skills/react-best-practices/rules/client-passive-event-listeners.md",
+          "sha256": "1f35016f9053de69e884ee9be00654e37979c2ca85f5e57764dc2626ff7acb4b"
+        },
+        "upstream/skills/react-best-practices/rules/client-swr-dedup.md": {
+          "source": "skills/react-best-practices/rules/client-swr-dedup.md",
+          "sha256": "644652c39c6cc00de8d1c77a7273612e868dc3f7edda30764164c12ec0f764a3"
+        },
+        "upstream/skills/react-best-practices/rules/js-batch-dom-css.md": {
+          "source": "skills/react-best-practices/rules/js-batch-dom-css.md",
+          "sha256": "480b891b9eaf96e929dc1e964274a4828e3a78009b7d00ccd965a0d425215959"
+        },
+        "upstream/skills/react-best-practices/rules/js-cache-function-results.md": {
+          "source": "skills/react-best-practices/rules/js-cache-function-results.md",
+          "sha256": "3daaa11d24f4295cb6be8bc6f407f2ce83cc7b5bd1f0e68891ea8ab835721dc7"
+        },
+        "upstream/skills/react-best-practices/rules/js-cache-property-access.md": {
+          "source": "skills/react-best-practices/rules/js-cache-property-access.md",
+          "sha256": "73e47431e74878a927061bf0ddc7cd91a7556cb35d2573f3421e82300d9ae311"
+        },
+        "upstream/skills/react-best-practices/rules/js-cache-storage.md": {
+          "source": "skills/react-best-practices/rules/js-cache-storage.md",
+          "sha256": "11b826b0433898c1ece2d3547010d8e77db9fb240185748c45db91493de9b6cc"
+        },
+        "upstream/skills/react-best-practices/rules/js-combine-iterations.md": {
+          "source": "skills/react-best-practices/rules/js-combine-iterations.md",
+          "sha256": "71add08aeeb43091d4ff4c0b2842cce8b4bdef8ad3e732cc034bb5a84827e746"
+        },
+        "upstream/skills/react-best-practices/rules/js-early-exit.md": {
+          "source": "skills/react-best-practices/rules/js-early-exit.md",
+          "sha256": "925ce5ce87f3347186ca62212f29cc6baa2b8c85a96d2720ad07c3d0abf781c0"
+        },
+        "upstream/skills/react-best-practices/rules/js-flatmap-filter.md": {
+          "source": "skills/react-best-practices/rules/js-flatmap-filter.md",
+          "sha256": "9e5b166a41914d975bef7635467f8fb32cd98b5c3126c0bc6f163490812fb5f0"
+        },
+        "upstream/skills/react-best-practices/rules/js-hoist-regexp.md": {
+          "source": "skills/react-best-practices/rules/js-hoist-regexp.md",
+          "sha256": "f9e9aef2f7c2307dd7310f283df85dcada45fc43e9bb941b0c3aa414dec21ec4"
+        },
+        "upstream/skills/react-best-practices/rules/js-index-maps.md": {
+          "source": "skills/react-best-practices/rules/js-index-maps.md",
+          "sha256": "5df1bdc2cfabb2c98abd55d26762e5c18189535c2e686184f426082e62920391"
+        },
+        "upstream/skills/react-best-practices/rules/js-length-check-first.md": {
+          "source": "skills/react-best-practices/rules/js-length-check-first.md",
+          "sha256": "8b54a311c826b299272f29187fc58bc55772a04c4a72eeb29456ee96dc9fc624"
+        },
+        "upstream/skills/react-best-practices/rules/js-min-max-loop.md": {
+          "source": "skills/react-best-practices/rules/js-min-max-loop.md",
+          "sha256": "87dfb67e2f39df6ad8bcfb5b78c5fb364d3c07554ad188a202408d99f3763421"
+        },
+        "upstream/skills/react-best-practices/rules/js-request-idle-callback.md": {
+          "source": "skills/react-best-practices/rules/js-request-idle-callback.md",
+          "sha256": "ee08f83905b4011abbc33d594033157d77561b5bbd9b36b04f0f409581ffec32"
+        },
+        "upstream/skills/react-best-practices/rules/js-set-map-lookups.md": {
+          "source": "skills/react-best-practices/rules/js-set-map-lookups.md",
+          "sha256": "a7fd781a6ba9ad49065961b6f9a90ef486bf6b648390e1a08704025f98e1642b"
+        },
+        "upstream/skills/react-best-practices/rules/js-tosorted-immutable.md": {
+          "source": "skills/react-best-practices/rules/js-tosorted-immutable.md",
+          "sha256": "d0a5e1b0fec48a0a81397957e2f068e224329f7c42cb5feeed8aae6fa64025e8"
+        },
+        "upstream/skills/react-best-practices/rules/rendering-activity.md": {
+          "source": "skills/react-best-practices/rules/rendering-activity.md",
+          "sha256": "1e5e7eaf3555e61d6a2e900089c676527d26259501db5594f59544b6c664f85a"
+        },
+        "upstream/skills/react-best-practices/rules/rendering-animate-svg-wrapper.md": {
+          "source": "skills/react-best-practices/rules/rendering-animate-svg-wrapper.md",
+          "sha256": "9c6ae0ca7a51434e803887c64cded760956579a1452ccb80a461a03f9c937c77"
+        },
+        "upstream/skills/react-best-practices/rules/rendering-conditional-render.md": {
+          "source": "skills/react-best-practices/rules/rendering-conditional-render.md",
+          "sha256": "2ec2fa23c4148285144687050c52369adba3da2fbe3d486f8d3e0aad8f06f2bc"
+        },
+        "upstream/skills/react-best-practices/rules/rendering-content-visibility.md": {
+          "source": "skills/react-best-practices/rules/rendering-content-visibility.md",
+          "sha256": "64eee6d5b916fe74df33363994b27fc7f71bea3bcedc7ee04bda23107ca3e6e4"
+        },
+        "upstream/skills/react-best-practices/rules/rendering-hoist-jsx.md": {
+          "source": "skills/react-best-practices/rules/rendering-hoist-jsx.md",
+          "sha256": "93b229560fae92005ed9a2a829064607b39b2e984e92d221d05b2d41df2b7c0e"
+        },
+        "upstream/skills/react-best-practices/rules/rendering-hydration-no-flicker.md": {
+          "source": "skills/react-best-practices/rules/rendering-hydration-no-flicker.md",
+          "sha256": "dc7ab358c67c177bca6e6f360fbc935ebe4efa928c0ba3ebd3f9f3d9e2000ca3"
+        },
+        "upstream/skills/react-best-practices/rules/rendering-hydration-suppress-warning.md": {
+          "source": "skills/react-best-practices/rules/rendering-hydration-suppress-warning.md",
+          "sha256": "915bacb934e2927d84b37a3f3d225a47b309ac8f9e494ed2bcb66ce07c5676a2"
+        },
+        "upstream/skills/react-best-practices/rules/rendering-resource-hints.md": {
+          "source": "skills/react-best-practices/rules/rendering-resource-hints.md",
+          "sha256": "351b1095d641717b930f1b2253282b7120af3023bc74e06c17675168d4286864"
+        },
+        "upstream/skills/react-best-practices/rules/rendering-script-defer-async.md": {
+          "source": "skills/react-best-practices/rules/rendering-script-defer-async.md",
+          "sha256": "4cea07b7875ba7fc2c7465ff23b63a2bb334f90aaf2d9293d38d67b05fdb32ab"
+        },
+        "upstream/skills/react-best-practices/rules/rendering-svg-precision.md": {
+          "source": "skills/react-best-practices/rules/rendering-svg-precision.md",
+          "sha256": "ed468533f6e95f622859c884b122cf21f9f593ed6bb3d500a54de4b9f9bcb9fb"
+        },
+        "upstream/skills/react-best-practices/rules/rendering-usetransition-loading.md": {
+          "source": "skills/react-best-practices/rules/rendering-usetransition-loading.md",
+          "sha256": "3a1249c3f13026b6f54ab5712c388df219d6af01b12aa542749acd99a46f4bc1"
+        },
+        "upstream/skills/react-best-practices/rules/rerender-defer-reads.md": {
+          "source": "skills/react-best-practices/rules/rerender-defer-reads.md",
+          "sha256": "234050a77faf50cb306be10a9e15bd4421134ab5907e75f13e6d78e2bd262dc9"
+        },
+        "upstream/skills/react-best-practices/rules/rerender-dependencies.md": {
+          "source": "skills/react-best-practices/rules/rerender-dependencies.md",
+          "sha256": "17eb5830956fb56486fd3cfc7431f5849d39751730c05ad9e77dd4f0c27169c5"
+        },
+        "upstream/skills/react-best-practices/rules/rerender-derived-state-no-effect.md": {
+          "source": "skills/react-best-practices/rules/rerender-derived-state-no-effect.md",
+          "sha256": "cb11ec76f50aa7b6847269f02d79b120c889a30d9ecd2c1d578f75144419c77a"
+        },
+        "upstream/skills/react-best-practices/rules/rerender-derived-state.md": {
+          "source": "skills/react-best-practices/rules/rerender-derived-state.md",
+          "sha256": "1c326bb67b01fb084eb00c8911b0a7cff54681c2315b629f88e49b64eaa6481d"
+        },
+        "upstream/skills/react-best-practices/rules/rerender-functional-setstate.md": {
+          "source": "skills/react-best-practices/rules/rerender-functional-setstate.md",
+          "sha256": "5e68df6b2ae8058e67f476ff1ac67bde159f5a9d18df439e46eabcdeb7b52e58"
+        },
+        "upstream/skills/react-best-practices/rules/rerender-lazy-state-init.md": {
+          "source": "skills/react-best-practices/rules/rerender-lazy-state-init.md",
+          "sha256": "4ae844740f266fc8cbf050701230286624a2440ec5be67b9a63d9edc3c580573"
+        },
+        "upstream/skills/react-best-practices/rules/rerender-memo-with-default-value.md": {
+          "source": "skills/react-best-practices/rules/rerender-memo-with-default-value.md",
+          "sha256": "81c47476564ad8a79fc68fc442734255ca7d6829424359464503fda0a9f9a0dd"
+        },
+        "upstream/skills/react-best-practices/rules/rerender-memo.md": {
+          "source": "skills/react-best-practices/rules/rerender-memo.md",
+          "sha256": "1f258990c2f27ff6256b3cc5c43300631bb3f0d81f749aed08d07fcdcc131dd1"
+        },
+        "upstream/skills/react-best-practices/rules/rerender-move-effect-to-event.md": {
+          "source": "skills/react-best-practices/rules/rerender-move-effect-to-event.md",
+          "sha256": "abc2cbf167bee056743023351e96806a411d3398da8802093620aecf0721f029"
+        },
+        "upstream/skills/react-best-practices/rules/rerender-no-inline-components.md": {
+          "source": "skills/react-best-practices/rules/rerender-no-inline-components.md",
+          "sha256": "1cc32907a770272524ba682eef9e7efdd8ad4533b6f89b718a1fcd7d1d0eb6a3"
+        },
+        "upstream/skills/react-best-practices/rules/rerender-simple-expression-in-memo.md": {
+          "source": "skills/react-best-practices/rules/rerender-simple-expression-in-memo.md",
+          "sha256": "5bdcf2d1558ba5204e643c887b7b4060f89630969425651eb68e96427d97f800"
+        },
+        "upstream/skills/react-best-practices/rules/rerender-split-combined-hooks.md": {
+          "source": "skills/react-best-practices/rules/rerender-split-combined-hooks.md",
+          "sha256": "6f45d703343484ef9acef9388397f3642966ae6a5a258899a0cf1f9977cfbf6c"
+        },
+        "upstream/skills/react-best-practices/rules/rerender-transitions.md": {
+          "source": "skills/react-best-practices/rules/rerender-transitions.md",
+          "sha256": "60f4033909a62df5e5b8c601494f9e50a562e2f8c1c2d81eac24f38142265f1c"
+        },
+        "upstream/skills/react-best-practices/rules/rerender-use-deferred-value.md": {
+          "source": "skills/react-best-practices/rules/rerender-use-deferred-value.md",
+          "sha256": "8c3579576a61a949884167745dcfaf1d5426ba305cc61fd0a79602d70fda4909"
+        },
+        "upstream/skills/react-best-practices/rules/rerender-use-ref-transient-values.md": {
+          "source": "skills/react-best-practices/rules/rerender-use-ref-transient-values.md",
+          "sha256": "f1a649af9d1d0b5c762f6c9c4c1c70c90d7df82aa10296ee87aadb78c1b76c54"
+        },
+        "upstream/skills/react-best-practices/rules/server-after-nonblocking.md": {
+          "source": "skills/react-best-practices/rules/server-after-nonblocking.md",
+          "sha256": "d0b8d24a3db9f0f65f9e2bddbf230b0e03a5f60e1229d93a4a18f5e7a991c7c2"
+        },
+        "upstream/skills/react-best-practices/rules/server-auth-actions.md": {
+          "source": "skills/react-best-practices/rules/server-auth-actions.md",
+          "sha256": "a2ca8aa102839251c7971ec784560fab943c20b36fe6f80365d4110c13260c23"
+        },
+        "upstream/skills/react-best-practices/rules/server-cache-lru.md": {
+          "source": "skills/react-best-practices/rules/server-cache-lru.md",
+          "sha256": "1924b64561841923b88a657085097a0aeba3e0ba2d5470b9f5c15cc10d6ae70f"
+        },
+        "upstream/skills/react-best-practices/rules/server-cache-react.md": {
+          "source": "skills/react-best-practices/rules/server-cache-react.md",
+          "sha256": "fddeea6c870bb3da4134b61d54b7d09b83d2603f929b7547cd3dc1dc269edd5c"
+        },
+        "upstream/skills/react-best-practices/rules/server-dedup-props.md": {
+          "source": "skills/react-best-practices/rules/server-dedup-props.md",
+          "sha256": "c2747424cdac46be62f835f245a0aa887b0090b416d28e2ac8676702645eeb37"
+        },
+        "upstream/skills/react-best-practices/rules/server-hoist-static-io.md": {
+          "source": "skills/react-best-practices/rules/server-hoist-static-io.md",
+          "sha256": "5abea4dd882b13661bd5f7dfb93f9e547d5f08176c61c448ade91b210ed5d49f"
+        },
+        "upstream/skills/react-best-practices/rules/server-no-shared-module-state.md": {
+          "source": "skills/react-best-practices/rules/server-no-shared-module-state.md",
+          "sha256": "4d869bf1cd2f1632e5ca4c0e64b1cf0e71c5f5a0f940bc8a22174d205e735ed7"
+        },
+        "upstream/skills/react-best-practices/rules/server-parallel-fetching.md": {
+          "source": "skills/react-best-practices/rules/server-parallel-fetching.md",
+          "sha256": "569a2e9fc04f9606686cd75c5894ef8781b502786a7fffe241396846c7733472"
+        },
+        "upstream/skills/react-best-practices/rules/server-parallel-nested-fetching.md": {
+          "source": "skills/react-best-practices/rules/server-parallel-nested-fetching.md",
+          "sha256": "ad5d9656984d4a959997a2367bf59cc6632297b4634a1dd13a087939d83f30b3"
+        },
+        "upstream/skills/react-best-practices/rules/server-serialization.md": {
+          "source": "skills/react-best-practices/rules/server-serialization.md",
+          "sha256": "f4c7d68b29c82381baad059c4a7f09e868e71ec9c3115a26ad3ae7d24c0dfe1f"
+        },
+        "SKILL.md": {
+          "content": "---\nname: vercel-react-best-practices\ndescription: Scoped Turn Up Time adapter for vercel-react-best-practices.\n---\n\n# vercel-react-best-practices \u2014 Turn Up Time adapter\n\nApply React rules matching the actual stack. Next.js/RSC/server rules require those technologies and relevant evidence; Electron/Vite does not imply them. Coordinate with Impeccable design and existing 21st components. MIT is declared in upstream skill metadata; this revision has no standalone repository LICENSE file.\n\nRead `upstream/skills/react-best-practices/SKILL.md` and the referenced packaged resources before applying this method. The upstream snapshot is reference material; the assigned role, ticket, stage, permissions and acceptance contract remain authoritative. Installation integrity is separate from actual tool readiness and independent output verification. Never claim applied from merely reading this file.\n",
+          "sha256": "fc0b72d474ec26d7e1f210a36b05b3b8d6c93da17ba955a41957247adf44378c"
+        }
+      }
+    },
+    {
+      "name": "gstack-qa-only",
+      "repository": "gstack",
+      "files": {
+        "upstream/LICENSE": {
+          "source": "LICENSE",
+          "sha256": "e56fbb5b3d95756f3fa1cfefa24732ec79f18ece1ad08a4e79e00df57e8b198c"
+        },
+        "upstream/qa-only/SKILL.md": {
+          "source": "qa-only/SKILL.md",
+          "sha256": "0ed64110a0023d288803567a9d0d4667b52ed2bd63cc782b00a18816168c5eca"
+        },
+        "upstream/qa-only/SKILL.md.tmpl": {
+          "source": "qa-only/SKILL.md.tmpl",
+          "sha256": "c5103a9f9d9e4812cf06e4004f65db88380671e93c90edde01d0851d33fb19f4"
+        },
+        "upstream/qa-only/sections/exploratory.md": {
+          "source": "qa-only/sections/exploratory.md",
+          "sha256": "f3a906bafee5d98734b160ad053c4ad04d104bf23345548879e08afcd1a2f3fb"
+        },
+        "sections/exploratory.md": {
+          "source": "qa-only/sections/exploratory.md",
+          "sha256": "f3a906bafee5d98734b160ad053c4ad04d104bf23345548879e08afcd1a2f3fb"
+        },
+        "upstream/qa-only/sections/exploratory.md.tmpl": {
+          "source": "qa-only/sections/exploratory.md.tmpl",
+          "sha256": "86e8688e70547a9815c344380395010b15bfed400f13f5f441447e23cc9dd9b1"
+        },
+        "sections/exploratory.md.tmpl": {
+          "source": "qa-only/sections/exploratory.md.tmpl",
+          "sha256": "86e8688e70547a9815c344380395010b15bfed400f13f5f441447e23cc9dd9b1"
+        },
+        "upstream/qa-only/sections/manifest.json": {
+          "source": "qa-only/sections/manifest.json",
+          "sha256": "95a723ff26c4e1ced051b732e323b95705d101432a09f16c420a7ac9c28c5cd7"
+        },
+        "sections/manifest.json": {
+          "source": "qa-only/sections/manifest.json",
+          "sha256": "95a723ff26c4e1ced051b732e323b95705d101432a09f16c420a7ac9c28c5cd7"
+        },
+        "upstream/qa-only/sections/reporting.md": {
+          "source": "qa-only/sections/reporting.md",
+          "sha256": "74dde7559c27cfdd4f618ef3f10de8e961bb994a6fba0bc5b708cc7847530fa9"
+        },
+        "sections/reporting.md": {
+          "source": "qa-only/sections/reporting.md",
+          "sha256": "74dde7559c27cfdd4f618ef3f10de8e961bb994a6fba0bc5b708cc7847530fa9"
+        },
+        "upstream/qa-only/sections/reporting.md.tmpl": {
+          "source": "qa-only/sections/reporting.md.tmpl",
+          "sha256": "517f9922a7e13b0c7ce88a905a4bd3caa338513ff0a995cd7b3dc4be166cf697"
+        },
+        "sections/reporting.md.tmpl": {
+          "source": "qa-only/sections/reporting.md.tmpl",
+          "sha256": "517f9922a7e13b0c7ce88a905a4bd3caa338513ff0a995cd7b3dc4be166cf697"
+        },
+        "upstream/qa/SKILL.md": {
+          "source": "qa/SKILL.md",
+          "sha256": "37fba2fdc9753228d62617eacc06092ce5befe33c6095776f68ebfd6f0488f40"
+        },
+        "upstream/qa/references/issue-taxonomy.md": {
+          "source": "qa/references/issue-taxonomy.md",
+          "sha256": "8f40b0f76c0575ee70ad7418c5715cbf08663b2bd8094b0e3bd1b21f1ddd1779"
+        },
+        "upstream/qa/sections/browser-setup.md": {
+          "source": "qa/sections/browser-setup.md",
+          "sha256": "204cb2c688abff6ac774e6b39785f344879115b304719bf6f1fe4f8871736fce"
+        },
+        "sections/browser-setup.md": {
+          "source": "qa/sections/browser-setup.md",
+          "sha256": "204cb2c688abff6ac774e6b39785f344879115b304719bf6f1fe4f8871736fce"
+        },
+        "upstream/qa/sections/browser-verify.md": {
+          "source": "qa/sections/browser-verify.md",
+          "sha256": "cfa1177c175dd1acef3b943d84419dfedf6219ac5de0110b5bd9b356bf1aa04b"
+        },
+        "upstream/qa/sections/exploratory.md": {
+          "source": "qa/sections/exploratory.md",
+          "sha256": "8d3bbe3cbdf126ef7080be1b3308a9d257c42bd86ba3c21063dfd21c5ba527f7"
+        },
+        "upstream/qa/sections/manifest.json": {
+          "source": "qa/sections/manifest.json",
+          "sha256": "01d75e66a44151c35ff25274b0684de23452872d345276612074701ee10da981"
+        },
+        "upstream/qa/sections/qa-patterns.md": {
+          "source": "qa/sections/qa-patterns.md",
+          "sha256": "8f46ba8932e9dfdb37801ced266b2a1c982d11b8396e28e9f4f95912e65b9f3a"
+        },
+        "upstream/qa/sections/scope.md": {
+          "source": "qa/sections/scope.md",
+          "sha256": "dc4d1a3b6e7f90a5555860bf3cbafa47dc623a7f295428cde8a5de2043b8e245"
+        },
+        "upstream/qa/sections/system-functional.md": {
+          "source": "qa/sections/system-functional.md",
+          "sha256": "54ef6bc998b11d0f0a98719cbb5cd1bc26736d811fc879dbf1e27be43ac19e22"
+        },
+        "upstream/qa/sections/test-bootstrap.md": {
+          "source": "qa/sections/test-bootstrap.md",
+          "sha256": "5c5c9a5333a0769789567a4a4c000b2f8fa39ea384787aebfcaaf790ad5604c6"
+        },
+        "upstream/qa/templates/functional-report-template.md": {
+          "source": "qa/templates/functional-report-template.md",
+          "sha256": "4523947bfc0cb521adefbfd7caeb1b6ed34e6ba3d2e6a950e15da1a4d41b4ed2"
+        },
+        "templates/functional-report-template.md": {
+          "source": "qa/templates/functional-report-template.md",
+          "sha256": "4523947bfc0cb521adefbfd7caeb1b6ed34e6ba3d2e6a950e15da1a4d41b4ed2"
+        },
+        "upstream/qa/templates/qa-report-template.md": {
+          "source": "qa/templates/qa-report-template.md",
+          "sha256": "6288ece13b34f9b06e611f79cc4ad51ce97d4d660133267366b5ad7407279d43"
+        },
+        "templates/qa-report-template.md": {
+          "source": "qa/templates/qa-report-template.md",
+          "sha256": "6288ece13b34f9b06e611f79cc4ad51ce97d4d660133267366b5ad7407279d43"
+        },
+        "SKILL.md": {
+          "content": "---\nname: gstack-qa-only\ndescription: Scoped Turn Up Time adapter for gstack-qa-only.\n---\n\n# gstack-qa-only \u2014 Turn Up Time adapter\n\nReport-only QA through the approved actual browser/API/CLI runtime. Use the domain procedure and staged sections/templates. Do not run gstack preamble, setup, telemetry, upgrade, sync, repo-write, planning, or shipping hooks. Existing TUT owns process, permissions and completion. Report score and sampled findings never prove all locked checks pass. The installed qa/gstack-qa references resolve to this adapter: sections/scope.md, system-functional.md, qa-patterns.md and browser-setup.md map upstream qa sections; exploratory.md and reporting.md map qa-only sections. Browser Cookbook and command reference are browse/SKILL.md and browse/sections/command-list.md. Issue taxonomy is qa/references/issue-taxonomy.md. These documentation assets do not install the gstack browse/aside executable; require a qualified compatible runtime or mark the affected probe BLOCKED. Missing browser runtime blocks affected checks; required skipped checks never pass.\n\nRead `upstream/qa-only/SKILL.md` and the referenced packaged resources before applying this method. The upstream snapshot is reference material; the assigned role, ticket, stage, permissions and acceptance contract remain authoritative. Installation integrity is separate from actual tool readiness and independent output verification. Never claim applied from merely reading this file.\n",
+          "sha256": "c24c9cf696935df914a68859d087dba952d9c9d64121dbaa53fa09f0ed980759"
+        },
+        "sections/scope.md": {
+          "source": "qa/sections/scope.md",
+          "sha256": "dc4d1a3b6e7f90a5555860bf3cbafa47dc623a7f295428cde8a5de2043b8e245"
+        },
+        "sections/system-functional.md": {
+          "source": "qa/sections/system-functional.md",
+          "sha256": "54ef6bc998b11d0f0a98719cbb5cd1bc26736d811fc879dbf1e27be43ac19e22"
+        },
+        "sections/qa-patterns.md": {
+          "source": "qa/sections/qa-patterns.md",
+          "sha256": "8f46ba8932e9dfdb37801ced266b2a1c982d11b8396e28e9f4f95912e65b9f3a"
+        },
+        "qa/references/issue-taxonomy.md": {
+          "source": "qa/references/issue-taxonomy.md",
+          "sha256": "8f40b0f76c0575ee70ad7418c5715cbf08663b2bd8094b0e3bd1b21f1ddd1779"
+        },
+        "browse/SKILL.md": {
+          "source": "browse/SKILL.md",
+          "sha256": "5589c7ac07c7199b290e05672de3f7210141850e0a21ed4b48431174325a6009"
+        },
+        "upstream/browse/SKILL.md": {
+          "source": "browse/SKILL.md",
+          "sha256": "5589c7ac07c7199b290e05672de3f7210141850e0a21ed4b48431174325a6009"
+        },
+        "browse/sections/command-list.md": {
+          "source": "browse/sections/command-list.md",
+          "sha256": "3cd1a35af94dca77b8eef7c6dbd5eab6139bd9e89f0e5363d125cf36afca6873"
+        },
+        "upstream/browse/sections/command-list.md": {
+          "source": "browse/sections/command-list.md",
+          "sha256": "3cd1a35af94dca77b8eef7c6dbd5eab6139bd9e89f0e5363d125cf36afca6873"
+        }
+      }
+    },
+    {
+      "name": "21st-ui",
+      "repository": "21st",
+      "files": {
+        "upstream/LICENSE": {
+          "source": "LICENSE",
+          "sha256": "e9412a67f017b2651af15c086fa9af56f7fcb03849d220ad037dd626dc9729f2"
+        },
+        "upstream/skills/21st-ui/SKILL.md": {
+          "source": "skills/21st-ui/SKILL.md",
+          "sha256": "851d43ba67c18ce6552e5a0462b892d3a2196cce5d1569059fc6f72fe0e78831"
+        },
+        "SKILL.md": {
+          "content": "---\nname: 21st-ui\ndescription: Scoped Turn Up Time adapter for 21st-ui.\n---\n\n# 21st-ui \u2014 Turn Up Time adapter\n\nRequire actual 21st tool access and generation entitlement when selected. Match the project design system and stack, inspect generated code, and verify accessibility/journeys. Publishing is separately authorized. Upstream integration license does not license every catalog item or hosted service.\n\nRead `upstream/skills/21st-ui/SKILL.md` and the referenced packaged resources before applying this method. The upstream snapshot is reference material; the assigned role, ticket, stage, permissions and acceptance contract remain authoritative. Installation integrity is separate from actual tool readiness and independent output verification. Never claim applied from merely reading this file.\n",
+          "sha256": "8b7bf738f738517d649c69909785f75131b7731f7a712b59311afe73df0ce11f"
+        }
+      }
+    },
+    {
+      "name": "eval-harness",
+      "repository": "turn-up-time-core",
+      "files": {
+        "SKILL.md": {
+          "source": ".claude/skills/eval-harness/SKILL.md",
+          "content": "---\r\nname: eval-harness\r\ndescription: Internal evaluation provider. Defines deterministic, live, experiential, model-based, and human graders before implementation; records baselines and controls; and runs seeded process failures for workflow changes.\r\ndisable-model-invocation: true\r\n---\r\n\r\n# Eval Harness\r\n\r\n## Purpose\r\n\r\nTurn acceptance from prose into reproducible evidence. Use the cheapest decisive grader that can\r\nactually prove the claim.\r\n\r\n## Eval contract\r\n\r\nEvery eval records:\r\n\r\n```text\r\nid\r\nbehavior under test\r\nsource requirement\r\nseed/input\r\nexpected outcome\r\nprohibited outcome\r\ngrader type\r\ncommand or scenario\r\ncontrol that must fail\r\nbaseline\r\nresult and artifact/build identity\r\n```\r\n\r\nGrader types:\r\n\r\n- deterministic code/schema/command;\r\n- live boundary or browser journey;\r\n- experiential rubric with anchored examples;\r\n- fresh model grader for open-ended output;\r\n- human gate for policy, taste, risk, or accountability that cannot be delegated.\r\n\r\n## Rules\r\n\r\n1. Define capability and regression evals before implementation.\r\n2. Prefer deterministic graders; do not use a model to discover what a shell command proves.\r\n3. Every new control has a seeded failure that is RED before the control and GREEN after it.\r\n4. A happy-path-only test is not a control; include a known-bad case.\r\n5. Record exact build/prompt/model/config identity for non-deterministic behavior.\r\n6. Re-run release-critical regression checks more than once when stability, not one lucky pass, is the\r\n   requirement.\r\n7. A score never overrides a critical failed requirement.\r\n\r\n## Workflow-change gate\r\n\r\n`/its-not-you-its-me` may propose a rule only with a seeded failure, expected benefit, ceremony cost,\r\nnew risks, and rollback. The eval harness reports evidence; it does not promote policy.\r\n",
+          "sha256": "00f6aa1e6671a724b3f80562b6640472a679e03dd9b98b309edf96ae7f189392"
+        }
+      }
+    },
+    {
+      "name": "swiper-dont-swpe-me",
+      "repository": "turn-up-time-core",
+      "files": {
+        "SKILL.md": {
+          "source": ".claude/skills/swiper-dont-swpe-me/SKILL.md",
+          "content": "---\r\nname: swiper-dont-swpe-me\r\ndescription: Bounded repository cleanup and IT handoff inside Turn Up Time CLOSEOUT, after final product repairs and before release judgment. Preserves behavior, proves dependency and external caller safety before removal, and refreshes evidence after changes. Use for a repository cleanup or the final maintainability pass.\r\ndisable-model-invocation: false\r\nargument-hint: 'project=\"<id>\" scope=changed|full'\r\n---\r\n\r\n# /swiper-dont-swpe-me\r\n\r\nMake the approved product easier to understand and maintain. This is a control procedure inside the\r\nexisting CLOSEOUT stage, not another architecture, product audit, or release authority. Turn Up Time\r\nmust read this installed `SKILL.md` before use and retain its path/hash in cleanup evidence. A slash\r\nmention, installed directory, or recorded event does not prove that instructions were loaded.\r\n`cleanup.instruction` binds the known source/installed path and SHA-256 to a `cleanup-instructions`\r\nverification receipt on the baseline build. Capture the read instruction bytes in its hashed outputs.\r\nThe validator resolves the source from its own installed root, never an arbitrary claimed path.\r\nMatching bytes prove snapshot integrity, not model cognition or truthful tool invocation.\r\n\r\n## Entry and scope\r\n\r\nRequire the approved Definition of Good, ticket ownership, exact integrated build, completed product\r\nrepairs, current POST_BUILD seam verdict, and rollback. Default to the changed files and their affected\r\ncallers. `scope=full` inventories the whole repository only when the user requested that scope. For a\r\nstandalone cleanup, route through Turn Up Time and choose the smallest valid tier before edits.\r\n\r\n## Inventory before removal\r\n\r\nFor each candidate record its purpose, owner, and disposition: `KEEP`, `REMOVE`, `CONSOLIDATE`, or\r\n`INVESTIGATE`. Check references, imports, dynamic discovery, build/package manifests, CI, deployment,\r\nscheduled jobs, external callers and operator instructions. Search absence alone does not prove a file\r\nunused. Ask the system owner about callers outside the checkout; unknown callers mean KEEP or\r\nINVESTIGATE. Age, a PowerShell extension, low coverage, and a desired file count are never deletion\r\nproof. Preserve generated/vendor boundaries and required root manifests.\r\n\r\nFor PowerShell inspect dot-sourcing, module exports, scope, parameter/return contracts, task scheduler,\r\nremote execution, execution policy and supported PowerShell versions. Pin applicable analyzer/Pester\r\nchecks to the project. Avoid accidental script-to-module or language migrations.\r\n\r\n## Bounded change and proof\r\n\r\n1. Capture the exact baseline, behavior checks and recoverable version or backup.\r\n2. Batch mechanical cleanup by one reason; separate behavior changes into new tickets.\r\n3. Dispatch the existing implementation owner for authorized file changes. Use `/guard-before-write`\r\n   before removal or another consequential action. Every REMOVE or CONSOLIDATE records an action-bound\r\n   `guard_ref` on the baseline and `execution_ref` on the resulting build. Both receipts name the exact\r\n   path and decision in `cleanup_action`. The guard includes PROCEED and required, named, time-stamped\r\n   human approval in `guard`; NOT_REQUIRED cannot waive destructive authority. Its hashed outputs\r\n   retain all six guard checks. Approval and guard must precede the action. Existing scoped user\r\n   authorization may supply that approval; do not invent it. Auditors do not repair their own findings.\r\n4. Keep one canonical implementation or document, stable entry points, explicit generated/temporary\r\n   locations, and links from existing navigation. Avoid a new checklist document for each finding.\r\n5. Verify the changed build independently: affected acceptance checks, callers, integration, journeys,\r\n   visual/keyboard checks when applicable, then cleanup proof. Changed build identity invalidates old\r\n   proof. A later repair repeats the affected proof and cleanup before fresh release judgment.\r\n6. Give IT the actual entry points, layout, setup/run/test commands, configuration ownership, deployment\r\n   and rollback path, known limitations, and maintenance owner. Check that instructions work from a\r\n   clean checkout. Reuse README/runbooks; do not duplicate them into another report tree.\r\n\r\n## Output and stop\r\n\r\nExtend `closeout/terminal-state.json` using `terminal-state.schema.json`. Its `cleanup` records scope,\r\nbaseline/current build, actions with dependency and external-caller proof, rollback, evidence receipts,\r\nreproof and handoff reference. Receipts follow `verification-receipt.schema.json` and hash the actual\r\noutputs. `NO_CHANGE` is a valid evidence-backed result. `CHANGED` requires a new build identity and\r\nfresh reproof. Every INVESTIGATE or UNKNOWN dependency/caller action supplies `risk_ref` matching an\r\nentry in the existing `open_risks`; its action owner remains responsible. Release validation carries\r\nthose risks into explicit accepted-risk approval. Known KEEP and NO_CHANGE need no removal guard.\r\n\r\nReceipt IDs are `cleanup-instructions`, `cleanup-guard:<path>` and `cleanup-execution:<path>`. Guard\r\nreceipts add `guard: {verdict, authority_required, authority_status, by, at}`. Both action receipts add\r\n`cleanup_action: {path, decision}`. These extend the existing verification receipt, not another report\r\ntree. Retain actual captured outputs and refresh affected proof when the candidate changes.\r\n\r\nDo not claim release approval or deployment. Stop at a behavior fork, uncertain destructive action,\r\nmissing evidence, or the existing two-repair ceiling. The same terminal packet gains `completion`\r\nproof only after the requested candidate or deployment outcome is actually verified.\r\n",
+          "sha256": "483b198c5c978619f1b896c611c035b39e857a33fb894bbe33f4579b7730bfb8"
+        }
+      }
+    },
+    {
+      "name": "guard-before-write",
+      "repository": "turn-up-time-core",
+      "files": {
+        "SKILL.md": {
+          "source": ".claude/skills/guard-before-write/SKILL.md",
+          "content": "---\r\nname: guard-before-write\r\ndescription: Reversibility and accountability gate before destructive, external, production, credential, bulk-data, deployment, or otherwise hard-to-undo actions. Requires blast radius, backup, dry-run, count reconciliation, rollback, and the correct human authorization.\r\ndisable-model-invocation: true\r\n---\r\n\r\n# /guard-before-write\r\n\r\nAuto-accept is convenience, not authority. This gate applies independently of task tier.\r\n\r\n## Trigger\r\n\r\nRun before:\r\n\r\n- destructive or bulk file/data changes;\r\n- schema migration or backfill;\r\n- force/reset/clean operations;\r\n- deploy, publish, release, feature-flag activation, or merge when consequential;\r\n- external messages or state-changing API calls;\r\n- credential/permission changes;\r\n- protected-file or sensitive-data/model-egress operations;\r\n- anything the project marks human-accountable or hard to reverse.\r\n\r\nA normal edit inside an approved ticket is not automatically destructive.\r\n\r\n## Six required checks\r\n\r\n1. **Blast radius** \u2014 exact objects and expected count.\r\n2. **Restorable backup** \u2014 location, integrity check, and restore command.\r\n3. **Dry-run/sample** \u2014 real preview or small-N execution and diff.\r\n4. **Count reconciliation** \u2014 expected versus actual, including an explanation for any difference.\r\n5. **Rollback** \u2014 executable rollback and conditions under which it is used.\r\n6. **Authority** \u2014 explicit human approval when the action is external, destructive, production,\r\n   credentialed, sensitive-data related, or otherwise human-accountable.\r\n\r\n## Output\r\n\r\nWrite or return a guard receipt:\r\n\r\n```text\r\naction\r\nblast_radius\r\nbackup\r\nsample_or_dry_run\r\nexpected_count\r\nactual_count\r\nrollback\r\nauthority_required\r\nauthority_status\r\nverdict: PROCEED | BLOCK\r\n```\r\n\r\nOnly `PROCEED` allows the named action, and the receipt does not authorize a different action or\r\nlarger scope.\r\n\r\n## Stop\r\n\r\nIf any check cannot be satisfied, return `BLOCK`, state the failed check, and wait. Do not weaken the\r\ngate by rewording the action or splitting a bulk change into hidden smaller calls.\r\n\r\n## Prohibited\r\n\r\nDo not auto-approve on behalf of the human, treat Git as a backup for uncommitted/external state, or\r\nclaim a dry-run when the command still has side effects.\r\n",
+          "sha256": "fb182c30768142937d967e2d93fd1c3c6e5a184e9c0f8b4c5fe00f8d94ac2e75"
         }
       }
     }

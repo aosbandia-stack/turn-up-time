@@ -21,6 +21,12 @@ translates them for Harold without hiding material risks or changing their meani
 
 ## Reconcile and classify
 
+For owner-approved gauntlet adoption, follow `docs/GAUNTLET.md`. Pin the acceptance matrix in the
+existing Definition of Good before dispatch, select only applicable capabilities, and preserve
+normal signed stage gates. The bounded triage helper recommends; root checks existing authority
+before repair dispatch. The gauntlet is a closeout evidence component, not a new graph stage or
+replacement controller. PENDING/BLOCKED providers and unresolved mandatory findings stay visible.
+
 Inspect repository root, branch, dirty state, relevant commits, runtime/build identity, existing
 project ledgers, approved artifacts, and active ownership. Separate OBSERVED, VERIFIED, INFERRED,
 PROPOSED, and UNKNOWN. Do not create a new project around work already shipped or in flight.

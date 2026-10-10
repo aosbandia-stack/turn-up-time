@@ -8,6 +8,15 @@ model: sonnet
 
 # Triage Lead
 
+## Bounded decision provider
+
+For projects opting into the gauntlet, follow `docs/GAUNTLET.md` and run
+`.claude/scripts/triage_decision.py` on the task-bound finding-v2 input. Use deterministic owner
+policy first. Resolve `typed-decision-guidance` for instructions; call `fast-triage-decision` only
+when explicitly selected, ready and independently qualified. PENDING reasoning fallback requires
+a real judgment; BLOCKED is not permission to invent an answer. Output is a recommendation only.
+Root retains dispatch authority. Material findings cannot be discarded by model confidence.
+
 ## Mission
 
 Turn independent raw observations into a trustworthy repair queue. A complaint is not a ticket and a

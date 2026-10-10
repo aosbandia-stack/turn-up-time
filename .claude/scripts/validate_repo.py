@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -71,6 +72,27 @@ def validate_instance(instance: Any, schema: dict[str, Any], label: str) -> None
     for error in sorted(Draft202012Validator(schema).iter_errors(instance), key=lambda item: list(item.path)):
         where = ".".join(str(part) for part in error.path) or "<root>"
         ERRORS.append(f"{label}:{where}: {error.message}")
+
+
+def markdown_link_errors(root: Path) -> list[str]:
+    """Check source docs, excluding only Git metadata and generated runtime state."""
+    errors = []
+    link_pattern = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
+    for parent, directories, files in os.walk(root, followlinks=False):
+        parent = Path(parent)
+        directories[:] = [name for name in directories if name != '.git'
+                          and parent / name != root / '.claude' / 'runtime']
+        for name in files:
+            if not name.endswith('.md'):
+                continue
+            path = parent / name
+            for target in link_pattern.findall(path.read_text(encoding='utf-8', errors='replace')):
+                if target.startswith(('http://', 'https://', '#', 'mailto:')):
+                    continue
+                relative = target.split('#', 1)[0]
+                if relative and not (path.parent / relative).resolve().exists():
+                    errors.append(f'broken link {path.relative_to(root)} -> {target}')
+    return errors
 
 
 def main() -> int:
@@ -147,16 +169,7 @@ def main() -> int:
         if phrase not in constitution:
             ERRORS.append(f"CLAUDE.md missing marker: {phrase}")
 
-    link_pattern = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
-    for path in ROOT.rglob("*.md"):
-        if ".git" in path.parts:
-            continue
-        for target in link_pattern.findall(path.read_text(encoding="utf-8", errors="replace")):
-            if target.startswith(("http://", "https://", "#", "mailto:")):
-                continue
-            relative = target.split("#", 1)[0]
-            if relative and not (path.parent / relative).resolve().exists():
-                ERRORS.append(f"broken link {path.relative_to(ROOT)} -> {target}")
+    ERRORS.extend(markdown_link_errors(ROOT))
 
     if ERRORS:
         print("VALIDATION: RED")

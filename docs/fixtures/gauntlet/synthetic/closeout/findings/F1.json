@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "project_id": "synthetic",
+  "finding_id": "F1",
+  "build_identity": "candidate",
+  "requirement_ids": [
+    "R1"
+  ],
+  "journey_step": "save",
+  "expected": "Saved value survives reload",
+  "observed": "Saved value survives reload after repair",
+  "impact": "Lost work before repair",
+  "recovery": null,
+  "evidence": [
+    "evidence/synthetic.json"
+  ],
+  "severity": "S2",
+  "type": "defect",
+  "status": "VERIFIED",
+  "owner_role": "implementation-engineer",
+  "acceptance_criteria": "Save and reload preserves the value",
+  "verification_status": "VERIFIED"
+}

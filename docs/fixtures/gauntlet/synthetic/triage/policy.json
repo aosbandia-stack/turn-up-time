@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "project_id": "synthetic",
+  "owner_by_requirement": {
+    "R1": "implementation-engineer"
+  },
+  "semantic_classes": [],
+  "qualification_refs": []
+}

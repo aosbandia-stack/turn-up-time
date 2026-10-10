@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "project_id": "synthetic",
+  "build_identity": "candidate",
+  "finding": {
+    "schema_version": 2,
+    "project_id": "synthetic",
+    "finding_id": "F1",
+    "build_identity": "candidate",
+    "requirement_ids": [
+      "R1"
+    ],
+    "journey_step": "save",
+    "expected": "Saved value survives reload",
+    "observed": "Reload loses the saved value",
+    "impact": "Lost work before repair",
+    "recovery": null,
+    "evidence": [
+      "evidence/synthetic.json"
+    ],
+    "severity": "S2",
+    "type": "defect",
+    "status": "VALIDATED",
+    "owner_role": "implementation-engineer",
+    "acceptance_criteria": "Save and reload preserves the value",
+    "verification_status": "NOT_RUN"
+  },
+  "policy": {
+    "path": "triage/policy.json",
+    "sha256": "522a861a71c99a46a0f94de1632451d6d8dfbe9c59cdea6bb58268396452b5a1"
+  },
+  "evidence_refs": [
+    {
+      "path": "evidence/synthetic.json",
+      "sha256": "5e8b69a5ef10568e48ade75c1f9b224a02e97b64e89a421780137f76bd266d01"
+    }
+  ],
+  "requirement_ids": [
+    "R1"
+  ],
+  "owner_candidates": [
+    "implementation-engineer"
+  ],
+  "duplicate_candidates": [],
+  "prior_attempts": 0,
+  "repair_authority": {
+    "path": "triage/authority.json",
+    "sha256": "27d9162548ccfb866cf284d741c6f96a80839ac9389d001792e383f8271914ed"
+  },
+  "provider": {
+    "mode": "deterministic",
+    "fallback": "reasoning",
+    "model": null,
+    "qualification": null,
+    "permit_egress": false,
+    "permit_cost": false,
+    "permitted_fields": [],
+    "timeout_seconds": 5
+  }
+}

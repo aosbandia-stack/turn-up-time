@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "task_spec": {
+    "authorization": {
+      "build_identity": "fixture-source-gauntlet-20261010-v4",
+      "generation_id": "gauntlet-20261010-v4",
+      "lock_sha256": "c63d1e093f7a7ae6be6e64c66d0b051982c79503f3474c9b12c895200ee40c7c",
+      "manifest_sha256": "9e5fa00b0fed1f3659fc2a22b6bb918b0e5009bf7367c577e583b46b7708dfd5",
+      "project_id": "worker-bundle-crosslanguage",
+      "registry_sha256": "20517ab54d190fcdc2f1435decc3aaa80e2d04cd0db0950b173a1dc1de7379bb",
+      "role": "implementation-engineer",
+      "selected_capabilities": [
+        "backend-architecture",
+        "ponytail-implementation"
+      ],
+      "stage": "BUILD",
+      "task_id": "fixture-studio-task"
+    },
+    "brief": "Cross-language source fixture only. Validate delivery binding; this fixture grants no live task authority.\n",
+    "kind": "tut-worker-task-v1"
+  },
+  "worker_start_params": {
+    "task": "fixture-studio-task",
+    "tutCapabilityBundle": {
+      "capabilityIds": [
+        "backend-architecture",
+        "ponytail-implementation"
+      ],
+      "manifestPath": "worker-bundle-crosslanguage/manifest.json",
+      "manifestSha256": "9e5fa00b0fed1f3659fc2a22b6bb918b0e5009bf7367c577e583b46b7708dfd5",
+      "role": "implementation-engineer"
+    }
+  }
+}

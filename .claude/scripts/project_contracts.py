@@ -193,8 +193,14 @@ def check_traceability(project: Path, definition: dict[str, Any], tickets: list[
 
 
 def check_capabilities(project: Path, definition: dict[str, Any], tickets: list[dict[str, Any]], build: str | None, integration: bool, errors: list[str]) -> None:
+    from promotion_admission import installed_home
+    try:
+        user_home = installed_home(Path(__file__))
+    except Exception as exc:
+        errors.append(str(exc))
+        return
     registry = {}
-    for path in (CLAUDE_DIR / 'capabilities' / 'registry.json', Path.home() / '.claude' / 'capabilities' / 'registry.json', project / 'capability-registry.json'):
+    for path in (CLAUDE_DIR / 'capabilities' / 'registry.json', user_home / 'capabilities' / 'registry.json', project / 'capability-registry.json'):
         if path.is_file():
             value = read_contract(path, 'capability-registry.schema.json', errors)
             if value:
@@ -202,7 +208,7 @@ def check_capabilities(project: Path, definition: dict[str, Any], tickets: list[
     readiness_path = project / 'capability-readiness.json'
     readiness = read_contract(readiness_path, 'capability-readiness.schema.json', errors) if readiness_path.exists() else None
     requested = list(dict.fromkeys(c for t in tickets for c in t['required_capabilities']))
-    roots = [project / '.claude' / 'skills', CLAUDE_DIR / 'skills', Path.home() / '.claude' / 'skills']
+    roots = [project / '.claude' / 'skills', CLAUDE_DIR / 'skills', user_home / 'skills']
     _, result = resolve(requested, registry, roots, readiness=readiness, project=project, environment=definition['execution_environment'], build_identity=build, require_use=integration, ui_surfaces=definition['ui'].get('surfaces', []))
     ticket_capabilities, _ = capability_closure(requested, registry)
     missing = set(result['ui_required']) - set(ticket_capabilities)
@@ -385,6 +391,8 @@ def check_closeout(project: Path, definition: dict[str, Any] | None, build: str 
     if not packet:
         return None
     check_identity(packet, project, build, errors, 'closeout')
+    from gauntlet_contract import check_project_gauntlet
+    check_project_gauntlet(project, definition, packet, build, errors)
     if packet['terminal_state'] not in {'RELEASE_READY', 'YELLOW_ACCEPTANCE_REQUIRED'}:
         errors.append('CLOSEOUT_NOT_RELEASE_READY')
     if definition:

@@ -1,0 +1,16 @@
+{
+  "build_identity": "fixture-source-gauntlet-20261010-v4",
+  "capability_ids": [
+    "backend-architecture",
+    "ponytail-implementation"
+  ],
+  "environment": "local:win32",
+  "generation_id": "gauntlet-20261010-v4",
+  "lock_sha256": "c63d1e093f7a7ae6be6e64c66d0b051982c79503f3474c9b12c895200ee40c7c",
+  "project_id": "worker-bundle-crosslanguage",
+  "registry_sha256": "20517ab54d190fcdc2f1435decc3aaa80e2d04cd0db0950b173a1dc1de7379bb",
+  "role": "implementation-engineer",
+  "schema_version": 1,
+  "stage": "BUILD",
+  "task_id": "fixture-studio-task"
+}

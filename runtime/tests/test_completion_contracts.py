@@ -24,6 +24,21 @@ BUILD = build_identity(ROOT)
 STAMP = '2026-01-01T00:00:00Z'
 
 
+@pytest.fixture(autouse=True)
+def isolated_provider_home(tmp_path, monkeypatch):
+    """Exercise this source's registry, never the operator's installed overrides.
+
+    The real child validator intentionally merges user configuration. A developer
+    may have an older browser provider or installed skills that would satisfy a
+    missing-provider fixture, so give both parent and child an empty test home.
+    Project-local overrides remain active and are tested below.
+    """
+    test_home = tmp_path / 'isolated-provider-home'
+    test_home.mkdir()
+    monkeypatch.setenv('USERPROFILE', str(test_home))
+    monkeypatch.setenv('HOME', str(test_home))
+
+
 def read(path):
     return json.loads(path.read_text())
 
@@ -77,6 +92,12 @@ def ui_surface(**overrides):
 
 
 def ready_provider(project, capability, provider, checks=None):
+    if checks is None:
+        capabilities = read(CLAUDE / 'capabilities/registry.json')['capabilities']
+        override = project / 'capability-registry.json'
+        if override.exists():
+            capabilities.update(read(override).get('capabilities', {}))
+        checks = dict.fromkeys(capabilities.get(capability, {}).get('readiness_requirements', []), 'PASS')
     instructions = project / '.claude/skills' / provider / 'SKILL.md'
     instructions.parent.mkdir(parents=True, exist_ok=True)
     instructions.write_text('# Disposable fixture provider instructions\n')
@@ -86,7 +107,7 @@ def ready_provider(project, capability, provider, checks=None):
     readiness = read(path) if path.exists() else {'schema_version':1,'project_id':project.name,'environment':'local-test','receipts':[],'usage':[]}
     readiness['receipts'].append({'capability':capability,'provider':provider,'status':'PASS',
         'checked_at':(now-timedelta(minutes=1)).isoformat(),'expires_at':(now+timedelta(minutes=30)).isoformat(),
-        'evidence_refs':assets,'checks':checks or {}})
+        'evidence_refs':assets,'checks':checks})
     readiness['usage'].append({'capability':capability,'provider':provider,'build_identity':BUILD,'invocation_refs':assets,'output_refs':assets})
     write(path, readiness)
 
@@ -113,7 +134,7 @@ def make_project(tmp_path, ui=False):
         instructions = project / '.claude/skills/impeccable/SKILL.md'
         instructions.parent.mkdir(parents=True)
         instructions.write_text('# Disposable fixture design instructions\n')
-        ready_provider(project, 'browser-e2e', 'e2e-testing')
+        ready_provider(project, 'browser-e2e', 'gstack-qa-only')
     write(project / 'definition-of-good.json', dog)
     trace = example('traceability.example.json')
     trace['journeys'][0]['evidence_refs'] = [proof(project,'JRN-001')]
@@ -290,7 +311,7 @@ def test_capability_requiredness_and_external_use(tmp_path):
     assert code == 2 and {e['capability'] for e in result['errors']} == {'frontend-operate','browser-e2e'}
     assert resolve(['workflow-evals'],registry,[CLAUDE/'skills'])[0] == 0
     providers = tmp_path/'providers'
-    for name in ('impeccable','e2e-testing'):
+    for name in ('impeccable','gstack-qa-only'):
         (providers/name).mkdir(parents=True)
         (providers/name/'SKILL.md').write_text('# Fixture provider instructions\n')
     code,result = resolve(['frontend-operate'],registry,[providers])
@@ -299,12 +320,12 @@ def test_capability_requiredness_and_external_use(tmp_path):
     probe = proof(p,'provider-probe')
     assets = read(p/probe)['evidence_refs']
     now = datetime.now(timezone.utc)
-    readiness={'schema_version':1,'project_id':p.name,'environment':'local-test','receipts':[{'capability':'browser-e2e','provider':'e2e-testing','status':'PASS','checked_at':(now-timedelta(minutes=1)).isoformat(),'expires_at':(now+timedelta(minutes=30)).isoformat(),'evidence_refs':assets}],'usage':[]}
+    readiness={'schema_version':1,'project_id':p.name,'environment':'local-test','receipts':[{'capability':'browser-e2e','provider':'gstack-qa-only','status':'PASS','checked_at':(now-timedelta(minutes=1)).isoformat(),'expires_at':(now+timedelta(minutes=30)).isoformat(),'evidence_refs':assets,'checks':dict.fromkeys(registry['browser-e2e']['readiness_requirements'],'PASS')}],'usage':[]}
     args={'readiness':readiness,'project':p,'environment':'local-test','build_identity':BUILD}
     code,result = resolve(['frontend-operate'],registry,[providers],**args)
     assert code == 0 and result['plan'][1]['usable'] and not result['plan'][1]['used']
     assert resolve(['frontend-operate'],registry,[providers],require_use=True,**args)[0] == 2
-    readiness['usage']=[{'capability':'browser-e2e','provider':'e2e-testing','build_identity':BUILD,'invocation_refs':assets,'output_refs':assets}]
+    readiness['usage']=[{'capability':'browser-e2e','provider':'gstack-qa-only','build_identity':BUILD,'invocation_refs':assets,'output_refs':assets}]
     assert resolve(['frontend-operate'],registry,[providers],require_use=True,**args)[0] == 0
     readiness['environment']='another-environment'
     assert resolve(['frontend-operate'],registry,[providers],**args)[0] == 2
@@ -326,7 +347,7 @@ def test_capability_cli_returns_blocked_for_unavailable_selected_provider(tmp_pa
 @pytest.mark.parametrize('transitive', [False, True])
 def test_runtime_build_rejects_frontend_capability_with_ui_disabled(tmp_path, transitive):
     p = make_project(tmp_path, ui=True)
-    for provider in ('impeccable', 'e2e-testing'):
+    for provider in ('impeccable', 'gstack-qa-only'):
         instructions = p / '.claude' / 'skills' / provider / 'SKILL.md'
         instructions.parent.mkdir(parents=True, exist_ok=True)
         instructions.write_text('# Installed fixture provider\n')
@@ -342,10 +363,11 @@ def test_runtime_build_rejects_frontend_capability_with_ui_disabled(tmp_path, tr
     write(p / 'capability-readiness.json', {
         'schema_version': 1, 'project_id': p.name, 'environment': 'local-test',
         'receipts': [{
-            'capability': 'browser-e2e', 'provider': 'e2e-testing', 'status': 'PASS',
+            'capability': 'browser-e2e', 'provider': 'gstack-qa-only', 'status': 'PASS',
             'checked_at': (now - timedelta(minutes=1)).isoformat(),
             'expires_at': (now + timedelta(minutes=30)).isoformat(),
             'evidence_refs': read(p / probe)['evidence_refs'],
+            'checks': dict.fromkeys(read(CLAUDE / 'capabilities/registry.json')['capabilities']['browser-e2e']['readiness_requirements'], 'PASS'),
         }],
         'usage': [],
     })
