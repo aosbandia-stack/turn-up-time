@@ -12,9 +12,79 @@ skill, runtime dependency or approval mechanism. Existing modified-file protecti
 
 The optional [provider routing reference](../.claude/skills/turn-up-time/references/PROVIDER-ROUTING.md)
 also travels with the skill. Its pinned mappings do not copy/install upstream packages, enable hooks,
-configure Bandia or launch scanners. Use `/plug-it-in` for a scoped provider pilot, inspect supporting
-references and pins, and collect actual environment readiness/use proof for full audits. Source-only
-audit and isolated target execution are different modes; a worktree is not an OS sandbox.
+configure Bandia or launch scanners. Use the opt-in installer below for the selected pinned
+instruction packages and `/plug-it-in` for their scoped qualification pilot. Full audits still need
+actual environment readiness/use proof. Source-only audit and isolated target execution are different
+modes; a worktree is not an OS sandbox.
+
+## Install the selected provider packages
+
+The provider installer now copies real pinned packages, companion references/assets and licenses.
+It installs diagram-design, Cloudflare security-audit, four selected Addy techniques, and Impeccable
+with a `polish` alias. It does not install REA, Serena, Context7, wshobson, or 21st, configure Bandia,
+run an audit, enable upstream hooks, or provision an Impeccable executable. Impeccable uses its
+supported direct-context instruction mode; its launcher remains disabled by the adapter because
+it can download and execute another binary. Native/browser tools need separate qualification.
+
+From this checkout on Windows, preview with `-InstallProviders`, then apply:
+
+```powershell
+.\scripts\install.ps1 -Apply -InstallProviders
+python .\scripts\provider_install.py verify --home "$HOME\.claude"
+```
+
+This opt-in leaves the existing installer defaults unchanged. It requires Python 3.11+ and Git;
+`TURN_UP_TIME_PYTHON` selects the wrapper's interpreter. The wrapper uses
+`TURN_UP_TIME_CLAUDE_HOME` when set; pass that same path to verification. Provider preparation
+runs before core copies/settings changes. A provider failure stops core installation. If a later
+core step fails, the independently verified providers remain installed and can be removed separately.
+The base uninstaller does not remove these independently owned packages.
+
+Provider-only management requires the current Turn Up Time core already installed in that home
+(including `skills/turn-up-time/references/PROVIDER-ROUTING.md`). Its verifier checks provider
+files only, not the core workflow. On Windows, Linux or macOS:
+
+```powershell
+python scripts/provider_install.py install --home "$HOME/.claude"
+python scripts/provider_install.py install --home "$HOME/.claude" --apply
+python scripts/provider_install.py verify --home "$HOME/.claude"
+python scripts/provider_install.py remove --home "$HOME/.claude"
+python scripts/provider_install.py remove --home "$HOME/.claude" --apply
+```
+
+Install/remove default to a read-only preview. Apply downloads only the four HTTPS repositories at
+full commit pins from `.claude/capabilities/provider-lock.json`; no upstream setup code executes.
+Every installed byte, including adapters, is checked against the reviewed lock. Addy's selected
+subtrees retain their `../../references` layout inside each provider. Licenses travel with the source.
+Only the eight adapter entrypoints are exposed under `skills/`; upstream instructions stay nested.
+Node is required for Cloudflare's validators when separately invoked, not for installation.
+
+A clean, exact-pin local checkout can replace each download via repeated
+`--source NAME=CHECKOUT` arguments. Names are `diagram-design`, `security-audit`, `addy-skills`,
+and `impeccable`. Dirty/wrong-pin checkouts, missing assets, hash failures, symlinks/junctions and
+unmanaged or modified destination directories block installation without overwriting them.
+Re-running against a pristine managed installation verifies it and makes no changes. The installer
+does not adopt, upgrade, or merge existing installations; inspect conflicts and retain their paths.
+
+`turn-up-time-provider-manifest.json` owns this exact package set. Removal validates the manifest
+against the same source lock and removes only complete hash-matching owned directories. An added,
+missing or changed file preserves the provider and stops removal, retaining recovery information.
+Unrelated skills/settings are untouched. Use the original checkout/lock to remove an older set
+before installing a newly reviewed set. This manifest is not a security boundary against an actor
+who can rewrite both the installer and the installed files.
+
+If an operation is interrupted, no complete-install success is emitted. The manifest retains
+`installing` or `removing`; `verify` blocks. Ensure no installer process is still running before
+manually removing a stale `.turn-up-time-provider-operation.lock`. Preserve the manifest and inspect
+any `.tut-provider-stage-*` or manifest `.tmp` leftovers; move those leftovers aside rather than
+merging their contents. Run `remove --apply` from the same checkout to clean hash-matching activated
+directories, then reinstall. Modified directories block recovery and require review. Staged leftovers
+are never auto-adopted or guessed to be owned. Local concurrent hostile filesystem writes are outside
+this installer's trust boundary.
+
+Verification proves installed instruction integrity only. A selected full `security-audit` still
+blocks without project/environment readiness, and integration still requires actual use evidence.
+An installed provider here does not prove Harold's PC installation, Bandia tool wiring or live use.
 
 ## Preview first
 

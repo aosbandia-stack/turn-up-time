@@ -5,7 +5,8 @@ param(
     [switch]$EnableNotifications,
     [switch]$EnableAutoAccept,
     [switch]$ReplaceGlobalConstitution,
-    [switch]$EnableGraphRuntime
+    [switch]$EnableGraphRuntime,
+    [switch]$InstallProviders
 )
 $ErrorActionPreference = 'Stop'
 
@@ -214,6 +215,18 @@ function Install-GraphRuntime {
         }
         throw
     }
+}
+
+# Providers have an independent ownership manifest and must complete before core writes.
+# A provider conflict/download failure must not leave a misleading core install success.
+if ($InstallProviders) {
+    $providerPython = Resolve-GraphPython
+    $providerScript = Join-Path $RepoRoot 'scripts\provider_install.py'
+    $providerArgs = @($providerScript, 'install', '--home', $ClaudeHome)
+    if ($Apply) { $providerArgs += '--apply' }
+    & $providerPython @providerArgs
+    if ($LASTEXITCODE -ne 0) { throw 'Provider installation blocked. Core installation has not started; inspect the provider result/manifest before retrying.' }
+    if ($Apply) { Write-Host 'Provider instructions verified. Core installation follows; external readiness and Bandia invocation are not established.' }
 }
 
 $copySpecs = @(

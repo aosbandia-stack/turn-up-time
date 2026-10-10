@@ -105,3 +105,49 @@ jobs:
           $settingsAfter = Get-Content (Join-Path $env:TURN_UP_TIME_CLAUDE_HOME 'settings.json') -Raw
           if ($settingsAfter -match 'skill-router.ps1|destructive-command-guard.ps1') { throw 'Turn Up Time hook rows were not removed' }
           if ($settingsAfter -notmatch 'echo unrelated') { throw 'Unrelated hook was lost during uninstall' }
+
+  provider-installation:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install pytest
+      - name: Test provider ownership, recovery, pins and path boundaries
+        run: python -m pytest runtime/tests/test_provider_installation.py -q
+      - name: Exercise Windows opt-in wrapper with actual pinned packages
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: |
+          $conflict = Join-Path $env:RUNNER_TEMP 'provider-conflict-home'
+          $env:TURN_UP_TIME_CLAUDE_HOME = $conflict
+          $custom = Join-Path $conflict 'skills\impeccable\SKILL.md'
+          New-Item -ItemType Directory -Force -Path (Split-Path -Parent $custom) | Out-Null
+          Set-Content -LiteralPath $custom -Value 'My existing provider'
+          try {
+            .\scripts\install.ps1 -Apply -InstallProviders
+            throw 'Expected unmanaged provider conflict'
+          } catch {
+            if ($_.Exception.Message -notmatch 'Provider installation blocked') { throw }
+          }
+          if (Test-Path (Join-Path $conflict 'settings.json')) { throw 'Provider conflict wrote core settings' }
+          if (Test-Path (Join-Path $conflict 'turn-up-time-install-manifest.json')) { throw 'Provider conflict wrote core manifest' }
+          if ((Get-Content -LiteralPath $custom -Raw) -notmatch 'My existing provider') { throw 'Custom provider changed' }
+          $target = Join-Path $env:RUNNER_TEMP 'provider-complete-home'
+          $env:TURN_UP_TIME_CLAUDE_HOME = $target
+          .\scripts\install.ps1 -InstallProviders
+          if (Test-Path $target) { throw 'Provider dry run wrote destination' }
+          .\scripts\install.ps1 -Apply -InstallProviders
+          python scripts/provider_install.py verify --home $target
+          if ($LASTEXITCODE -ne 0) { throw 'Installed provider verification failed' }
+          if (-not (Test-Path (Join-Path $target 'skills\turn-up-time\references\PROVIDER-ROUTING.md'))) { throw 'Core provider routing context missing' }
+          python scripts/provider_install.py install --home $target --apply
+          if ($LASTEXITCODE -ne 0) { throw 'Repeat install failed' }
+          python scripts/provider_install.py remove --home $target --apply
+          if ($LASTEXITCODE -ne 0) { throw 'Provider removal failed' }
+          if (Test-Path (Join-Path $target 'skills\impeccable')) { throw 'Owned provider remained' }
+          if (-not (Test-Path (Join-Path $target 'skills\turn-up-time\SKILL.md'))) { throw 'Provider removal affected core workflow' }
