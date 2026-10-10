@@ -33,6 +33,13 @@ File count and a desired minimum number of spawns do not classify the task. Unce
 real dependencies do. Preserve in-flight work when Tier B escalates; freeze further writes, capture
 checks/dirty state, and later mark the work KEEP, ADAPT, or REPLACE. It is not automatically approved.
 
+## Optional specialist selection
+
+Load [provider routing](references/PROVIDER-ROUTING.md) at intake when the request involves executive
+visuals, security audit depth or specialist ticket techniques. Select applicable capabilities during
+definition, record them in approved tickets and retain their existing ownership/evidence boundaries.
+The reference holds provider-specific adaptations; do not load entire upstream workflows.
+
 ## Scaffold and intake
 
 For a new Tier C project, use `scaffold_project.py` with project ID, profile, objective, and a planned

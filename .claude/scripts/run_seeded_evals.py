@@ -108,6 +108,32 @@ def main() -> int:
     check("web-assurance-cannot-be-overridden-away", "browser-e2e" in output["ui_required"] and any(error["code"] == "UI_ASSURANCE_ADAPTER_INVALID" for error in output["errors"]), "a web override cannot erase or downgrade execution assurance")
     code, output = resolver.resolve(["21st-generate"], registry, [], ui_surfaces=surfaces)
     check("selected-generation-needs-surface-binding", any(error["code"] == "UI_CAPABILITY_SURFACE_REQUIRED" for error in output["errors"]), "ticket selection cannot bypass the declared surface flag and compatibility gate")
+    # Optional providers must stay unavailable until deliberately provisioned.
+    for capability in ('executive-diagram', 'security-guidance', 'security-audit',
+                       'engineering-increments', 'engineering-tdd', 'engineering-debugging',
+                       'engineering-simplification'):
+        code, output = resolver.resolve([capability], registry, [])
+        check('selected-' + capability + '-blocks-when-absent',
+              code != 0 and any(error['code'] == 'REQUIRED_PROVIDER_MISSING' and
+                                error.get('capability') == capability for error in output['errors']),
+              'known optional mapping cannot imply an installed provider')
+    code, output = resolver.resolve(['security-audit'], registry, [])
+    check('full-audit-keeps-guidance-dependency', 'security-guidance' in output['selected'],
+          'audit execution retains its instruction dependency')
+    with tempfile.TemporaryDirectory() as temp:
+        providers = Path(temp)
+        for provider in ('diagram-design', 'incremental-implementation', 'test-driven-development',
+                         'debugging-and-error-recovery', 'code-simplification'):
+            target = providers / provider / 'SKILL.md'
+            target.parent.mkdir()
+            target.write_text('# Disposable instruction fixture\n', encoding='utf-8')
+        code, output = resolver.resolve(['executive-diagram', 'engineering-increments',
+                                        'engineering-tdd', 'engineering-debugging',
+                                        'engineering-simplification'], registry, [providers])
+        check('selected-instructions-resolve-without-usage-fiction',
+              code == 0 and all(row['usable'] and not row['used'] for row in output['plan']),
+              'readable fixture instructions are usable, not proof that task work ran')
+
     conflict_registry = json.loads(json.dumps(registry))
     conflict_registry["taste-skill"] = {
         "provider": "taste-skill", "bundled": False, "authority": "production", "stages": ["BUILD"],

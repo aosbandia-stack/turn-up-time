@@ -30,6 +30,11 @@ use evidence, plus a compatible stack or reviewed project adapter. No 21st polis
 Native surfaces require their configured native assurance adapter. Follow the incumbent guide and
 shared components; builders do not change locked rubrics or grade their own candidate.
 
+Before dispatch, load the selected adaptations in
+[provider routing](../turn-up-time/references/PROVIDER-ROUTING.md). Apply only ticketed techniques;
+required assurance executes through its independent role before INTEGRATION. Preserve scope,
+budgets and meaningful checks rather than importing another planning or commit policy.
+
 ## Dispatch and accounting
 
 Prefer one capable builder when work does not genuinely divide. Otherwise assign one implementation

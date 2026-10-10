@@ -21,6 +21,12 @@ Require:
 - completed `/swiper-dont-swpe-me` cleanup and IT handoff on that candidate;
 - the declared completion scope, and deployment target/configuration identity when deployment is in scope.
 
+For selected audit capabilities, load
+[provider routing](../turn-up-time/references/PROVIDER-ROUTING.md) and review current-candidate use,
+coverage, output validation and finding disposition. A requested audit must have run before
+INTEGRATION; stale or missing proof returns for scoped work and revalidation, not a release-only
+waiver. Installed instructions or readiness flags alone do not prove an audit succeeded.
+
 ## Audit lenses
 
 1. **Repository/release state:** branch, SHA/artifact, dirty state, CI, package/build identity.

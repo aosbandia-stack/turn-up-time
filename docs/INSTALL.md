@@ -10,6 +10,12 @@ Turn Up Time's [BOT](../.claude/skills/turn-up-time/references/BOT.md),
 skill through the existing recursive resource copy. They add communication guidance, not another
 skill, runtime dependency or approval mechanism. Existing modified-file protection still applies.
 
+The optional [provider routing reference](../.claude/skills/turn-up-time/references/PROVIDER-ROUTING.md)
+also travels with the skill. Its pinned mappings do not copy/install upstream packages, enable hooks,
+configure Bandia or launch scanners. Use `/plug-it-in` for a scoped provider pilot, inspect supporting
+references and pins, and collect actual environment readiness/use proof for full audits. Source-only
+audit and isolated target execution are different modes; a worktree is not an OS sandbox.
+
 ## Preview first
 
 Dry-run is the default. The following command prints the complete plan without writing files:
