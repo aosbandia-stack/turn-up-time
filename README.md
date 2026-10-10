@@ -182,6 +182,12 @@ Large design and testing packages are not vendored into the core. Tickets reques
 `frontend-operate` or `browser-e2e`; the registry maps them to approved providers. `/plug-it-in`
 evaluates placement, overlap, authority, conflicts, evals, cost, and removal before activation.
 
+Pinned optional mappings now cover diagram-design executive overviews, focused Cloudflare security
+guidance or bounded full audits, and four selected Addy engineering techniques for Boil. See
+[provider routing](.claude/skills/turn-up-time/references/PROVIDER-ROUTING.md) for triggers and limits.
+These are source configuration, not installed tools or proof of an audit run. Full audits require
+independent execution and current-candidate usage evidence before INTEGRATION.
+
 UI work declares each surface's platform, stack and purpose before building:
 
 | Purpose | Design emphasis |

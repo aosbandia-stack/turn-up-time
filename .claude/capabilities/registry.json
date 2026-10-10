@@ -563,6 +563,246 @@
         "ref": "6b5299e8a83ceffa73d4fc4e148905bb3eeeeb55",
         "license": "ISC for integration repository only; hosted service and catalog item terms are separate"
       }
+    },
+    "executive-diagram": {
+      "provider": "diagram-design",
+      "provider_kind": "instruction-only",
+      "bundled": false,
+      "authority": "reference",
+      "stages": [
+        "INTAKE",
+        "DEFINITION",
+        "TICKETING",
+        "BUILD",
+        "CLOSEOUT"
+      ],
+      "mode": "executive-overview",
+      "load_policy": "conditional",
+      "consumes": [
+        "approved-plan",
+        "decision",
+        "observed-status"
+      ],
+      "produces": [
+        "executive-visual",
+        "text-fallback"
+      ],
+      "requires": [],
+      "conflicts": [],
+      "evals": [
+        "selected-executive-diagram-blocks-when-absent"
+      ],
+      "uninstall": "Remove the optional mapping and approved provider installation; preserve product files and evidence.",
+      "provenance": {
+        "source": "https://github.com/cathrynlavery/diagram-design/blob/137b17e0dd611528dfbad44bcac0efadcb30775f/skills/diagram-design/SKILL.md",
+        "ref": "137b17e0dd611528dfbad44bcac0efadcb30775f",
+        "license": "MIT"
+      }
+    },
+    "security-guidance": {
+      "provider": "security-audit",
+      "provider_kind": "instruction-only",
+      "bundled": false,
+      "authority": "assurance",
+      "stages": [
+        "DISCOVERY",
+        "BUILD",
+        "INTEGRATION",
+        "CLOSEOUT",
+        "RELEASE"
+      ],
+      "mode": "focused-guidance",
+      "load_policy": "conditional",
+      "consumes": [
+        "approved-audit-scope",
+        "candidate-identity",
+        "execution-policy"
+      ],
+      "produces": [
+        "focused-security-findings",
+        "analysis-limitations"
+      ],
+      "requires": [],
+      "conflicts": [],
+      "evals": [
+        "selected-security-guidance-blocks-when-absent"
+      ],
+      "uninstall": "Remove the optional mapping and approved provider installation; preserve product files and evidence.",
+      "provenance": {
+        "source": "https://github.com/cloudflare/security-audit-skill/blob/c1c8a8c1471069fb0e188eeaff69b8e8db6564a8/skills/security-audit/SKILL.md",
+        "ref": "c1c8a8c1471069fb0e188eeaff69b8e8db6564a8",
+        "license": "MIT"
+      }
+    },
+    "security-audit": {
+      "provider": "security-audit",
+      "provider_kind": "external",
+      "bundled": false,
+      "authority": "assurance",
+      "stages": [
+        "DISCOVERY",
+        "BUILD",
+        "INTEGRATION",
+        "CLOSEOUT",
+        "RELEASE"
+      ],
+      "mode": "bounded-full-audit",
+      "load_policy": "conditional",
+      "consumes": [
+        "approved-audit-scope",
+        "candidate-identity",
+        "execution-policy"
+      ],
+      "produces": [
+        "security-findings",
+        "coverage-ledger",
+        "audit-validation-evidence"
+      ],
+      "requires": [
+        "security-guidance"
+      ],
+      "conflicts": [],
+      "evals": [
+        "selected-security-audit-blocks-when-absent"
+      ],
+      "uninstall": "Remove the optional mapping and approved provider installation; preserve product files and evidence.",
+      "provenance": {
+        "source": "https://github.com/cloudflare/security-audit-skill/blob/c1c8a8c1471069fb0e188eeaff69b8e8db6564a8/skills/security-audit/SKILL.md",
+        "ref": "c1c8a8c1471069fb0e188eeaff69b8e8db6564a8",
+        "license": "MIT"
+      },
+      "readiness_requirements": [
+        "audit_scope",
+        "audit_budget",
+        "independent_review",
+        "isolated_output",
+        "audit_validators",
+        "execution_policy"
+      ]
+    },
+    "engineering-increments": {
+      "provider": "incremental-implementation",
+      "provider_kind": "instruction-only",
+      "bundled": false,
+      "authority": "production",
+      "stages": [
+        "BUILD"
+      ],
+      "mode": "approved-ticket-increments",
+      "load_policy": "conditional",
+      "consumes": [
+        "approved-ticket",
+        "current-code",
+        "acceptance-contract"
+      ],
+      "produces": [
+        "ticket-changes",
+        "build-receipt"
+      ],
+      "requires": [],
+      "conflicts": [],
+      "evals": [
+        "selected-engineering-increments-blocks-when-absent"
+      ],
+      "uninstall": "Remove the optional mapping and approved provider installation; preserve product files and evidence.",
+      "provenance": {
+        "source": "https://github.com/addyosmani/agent-skills/blob/1401c8b8030e023baeebb31781a6653fe8e93026/skills/incremental-implementation/SKILL.md",
+        "ref": "1401c8b8030e023baeebb31781a6653fe8e93026",
+        "license": "MIT"
+      }
+    },
+    "engineering-tdd": {
+      "provider": "test-driven-development",
+      "provider_kind": "instruction-only",
+      "bundled": false,
+      "authority": "production",
+      "stages": [
+        "BUILD"
+      ],
+      "mode": "meaningful-behavior-regression",
+      "load_policy": "conditional",
+      "consumes": [
+        "approved-ticket",
+        "current-code",
+        "acceptance-contract"
+      ],
+      "produces": [
+        "ticket-changes",
+        "build-receipt"
+      ],
+      "requires": [],
+      "conflicts": [],
+      "evals": [
+        "selected-engineering-tdd-blocks-when-absent"
+      ],
+      "uninstall": "Remove the optional mapping and approved provider installation; preserve product files and evidence.",
+      "provenance": {
+        "source": "https://github.com/addyosmani/agent-skills/blob/1401c8b8030e023baeebb31781a6653fe8e93026/skills/test-driven-development/SKILL.md",
+        "ref": "1401c8b8030e023baeebb31781a6653fe8e93026",
+        "license": "MIT"
+      }
+    },
+    "engineering-debugging": {
+      "provider": "debugging-and-error-recovery",
+      "provider_kind": "instruction-only",
+      "bundled": false,
+      "authority": "production",
+      "stages": [
+        "BUILD"
+      ],
+      "mode": "evidence-led-repair",
+      "load_policy": "conditional",
+      "consumes": [
+        "approved-ticket",
+        "current-code",
+        "acceptance-contract"
+      ],
+      "produces": [
+        "ticket-changes",
+        "build-receipt"
+      ],
+      "requires": [],
+      "conflicts": [],
+      "evals": [
+        "selected-engineering-debugging-blocks-when-absent"
+      ],
+      "uninstall": "Remove the optional mapping and approved provider installation; preserve product files and evidence.",
+      "provenance": {
+        "source": "https://github.com/addyosmani/agent-skills/blob/1401c8b8030e023baeebb31781a6653fe8e93026/skills/debugging-and-error-recovery/SKILL.md",
+        "ref": "1401c8b8030e023baeebb31781a6653fe8e93026",
+        "license": "MIT"
+      }
+    },
+    "engineering-simplification": {
+      "provider": "code-simplification",
+      "provider_kind": "instruction-only",
+      "bundled": false,
+      "authority": "production",
+      "stages": [
+        "BUILD"
+      ],
+      "mode": "scoped-behavior-preserving",
+      "load_policy": "conditional",
+      "consumes": [
+        "approved-ticket",
+        "current-code",
+        "acceptance-contract"
+      ],
+      "produces": [
+        "ticket-changes",
+        "build-receipt"
+      ],
+      "requires": [],
+      "conflicts": [],
+      "evals": [
+        "selected-engineering-simplification-blocks-when-absent"
+      ],
+      "uninstall": "Remove the optional mapping and approved provider installation; preserve product files and evidence.",
+      "provenance": {
+        "source": "https://github.com/addyosmani/agent-skills/blob/1401c8b8030e023baeebb31781a6653fe8e93026/skills/code-simplification/SKILL.md",
+        "ref": "1401c8b8030e023baeebb31781a6653fe8e93026",
+        "license": "MIT"
+      }
     }
   }
 }

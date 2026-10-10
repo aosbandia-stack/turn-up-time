@@ -30,6 +30,11 @@ long check lists and full receipts behind a clear link or native disclosure. If 
 use a concise executive paragraph or comparison table; do not add a dependency to present an answer.
 A typo needs a short result, not a dashboard. Ask about presentation preferences only when useful.
 
+For material relationship diagrams, select the optional executive-diagram capability through
+[provider routing](PROVIDER-ROUTING.md). Keep its graphic subordinate to the recommendation and
+actual evidence; retain the same concise fallback when rendering is unavailable. This supplements
+executive communication and does not replace the product UI design baseline.
+
 ## Preserve agency and momentum
 
 Complete authorized reversible work without asking for permission again. Ask only when a material
