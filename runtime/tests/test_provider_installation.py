@@ -24,14 +24,17 @@ def setup(tmp_path, monkeypatch):
     git(source, 'init')
     git(source, 'config', 'user.name', 'Provider Test')
     git(source, 'config', 'user.email', 'provider-test@example.invalid')
-    (source / 'SKILL.md').write_text('Pinned skill\n', encoding='utf-8')
-    (source / 'LICENSE').write_text('Test license\n', encoding='utf-8')
+    # Fixtures must not depend on the runner's global autocrlf setting or native text newline.
+    git(source, 'config', 'core.autocrlf', 'false')
+    (source / 'SKILL.md').write_bytes(b'Pinned skill\n')
+    (source / 'LICENSE').write_bytes(b'Test license\n')
     git(source, 'add', '.')
     git(source, '-c', 'core.hooksPath=' + os.devnull, 'commit', '-m', 'fixture')
     commit = git(source, 'rev-parse', 'HEAD')
     packages = []
     for name in ['first-provider', 'second-provider']:
-        files = {p: {'source': p, 'sha256': installer.digest((source / p).read_bytes())}
+        files = {p: {'source': p, 'sha256': installer.digest(subprocess.check_output(
+                     ['git', '-C', str(source), 'show', commit + ':' + p]))}
                  for p in ['SKILL.md', 'LICENSE']}
         packages.append({'name': name, 'repository': 'fixture', 'files': files})
     lock = {'schema_version': 1, 'repositories': {'fixture': {
@@ -244,3 +247,17 @@ def test_unowned_symlink_mutex_is_preserved(setup, tmp_path):
     assert installer.main(['install', *args, *supplied, '--apply']) == 1
     assert mutex.is_symlink()
     assert outside.read_text() == 'owner'
+
+
+def test_crlf_checkout_installs_pinned_blob_bytes(setup):
+    home, source, _, _, args, _ = setup
+    # Configure the newline policy before checkout, as on a fresh Windows-style clone.
+    # The explicit local policy survives the installer's intentional global-config isolation.
+    checkout = source.parent / 'crlf-checkout'
+    subprocess.run(['git', 'clone', '-c', 'core.autocrlf=true', str(source), str(checkout)],
+                   check=True, capture_output=True)
+    assert (checkout / 'SKILL.md').read_bytes() == b'Pinned skill\r\n'
+    assert git(checkout, 'status', '--porcelain') == ''
+    assert installer.main(['install', *args, '--source', 'fixture=' + str(checkout), '--apply']) == 0
+    assert (home / 'skills/first-provider/SKILL.md').read_bytes() == b'Pinned skill\n'
+    assert installer.main(['verify', *args]) == 0
