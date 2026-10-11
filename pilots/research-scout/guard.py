@@ -141,6 +141,21 @@ def _schema_errors(validator: Draft202012Validator, instance: object, code: str)
     ]
 
 
+def _duplicate_question_errors(brief: dict) -> list[str]:
+    """Question IDs are lookup keys, so even otherwise-valid duplicates are ambiguous."""
+    questions = brief.get("questions", [])
+    seen: set[str] = set()
+    duplicates: set[str] = set()
+    for question in questions if isinstance(questions, list) else []:
+        question_id = question.get("id") if isinstance(question, dict) else None
+        if not isinstance(question_id, str):
+            continue  # malformed IDs are the brief schema's responsibility
+        if question_id in seen:
+            duplicates.add(question_id)
+        seen.add(question_id)
+    return [f"BRIEF_DUPLICATE_QUESTION_ID: {question_id!r} occurs more than once" for question_id in sorted(duplicates)]
+
+
 def _is_datetime(value: object) -> bool:
     if not isinstance(value, str) or "T" not in value:
         return False
@@ -172,6 +187,7 @@ def gate(
     errors += _non_finite_errors(brief, "BRIEF_SCHEMA_INVALID")
     if not isinstance(brief, dict):
         return errors or ["BRIEF_SCHEMA_INVALID: brief is not an object"]
+    errors += _duplicate_question_errors(brief)
     if brief.get("status") != "APPROVED":
         errors.append(f"BRIEF_NOT_APPROVED: status is {brief.get('status')!r}")
     approver = brief.get("approved_by")
@@ -252,18 +268,33 @@ def _claim_reasons(claim: object, questions: dict[str, dict], engines: set[str])
 
 
 def filter_pack(pack: dict, brief: dict) -> tuple[list[dict], list[dict]]:
-    """Split pack claims into (accepted, rejected); rejected copies carry a "reasons" list."""
+    """Split pack claims into (accepted, rejected); rejected copies carry a "reasons" list.
+
+    If there are no claims to annotate, pack/brief errors produce one reasons-only rejection.
+    A valid empty pack remains ([], []). Duplicate question IDs reject the entire pack.
+    """
     envelope = _schema_errors(_ENVELOPE_VALIDATOR, pack, "PACK_SCHEMA_INVALID")
     if isinstance(pack, dict):
         envelope += _non_finite_errors(pack.get("spend"), "PACK_SCHEMA_INVALID", "spend")
     if isinstance(pack, dict) and pack.get("brief_id") != brief.get("brief_id"):
         envelope.append(f"PACK_BRIEF_MISMATCH: pack is for {pack.get('brief_id')!r}")
+    claims = pack.get("claims", []) if isinstance(pack, dict) else []
+    claims = claims if isinstance(claims, list) else []
+    duplicate_errors = _duplicate_question_errors(brief)
+    if duplicate_errors:
+        # Never select one of several conflicting policies for the same question.
+        reasons = envelope + duplicate_errors
+        return [], [
+            {**(claim if isinstance(claim, dict) else {"raw": claim}), "reasons": list(reasons)}
+            for claim in claims
+        ] or [{"reasons": reasons}]
+    if not claims:
+        return [], [{"reasons": envelope}] if envelope else []
     questions = {q.get("id"): q for q in brief.get("questions", []) if isinstance(q, dict)}
     engines = set(brief.get("engines_allowed", []))
-    claims = pack.get("claims", []) if isinstance(pack, dict) else []
     accepted: list[dict] = []
     rejected: list[dict] = []
-    for claim in claims if isinstance(claims, list) else []:
+    for claim in claims:
         reasons = envelope + _claim_reasons(claim, questions, engines)
         if reasons:
             rejected.append({**(claim if isinstance(claim, dict) else {"raw": claim}), "reasons": reasons})
