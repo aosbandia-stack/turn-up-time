@@ -39,7 +39,8 @@ READY_INTAKE = frozenset({"READY", "READY_WITH_DEFERRED_RISK"})
 MAX_QUERY_CHARS = 400
 DEFAULT_MAX_CALLS = 5
 DEFAULT_USD_PER_BRIEF = 2.0
-DEFAULT_MONTHLY_CAP_USD = 25.0
+OWNER_MONTHLY_CAP_USD = 25.0  # owner-loaded prepaid credit; a brief may only lower it
+DEFAULT_MONTHLY_CAP_USD = OWNER_MONTHLY_CAP_USD
 DEEP_ENGINE = "perplexity_research"
 
 _SECRET_SHAPES = {
@@ -64,19 +65,26 @@ _PHONE_CANDIDATE = re.compile(r"(?<![\w.])\+?\(?\d[\d\s().\-]{4,}\d(?![\w.])")
 _ISO_DATE = re.compile(r"\d{4}-\d{2}-\d{2}")
 MIN_PHONE_DIGITS = 7
 # ponytail: marker list, not a complete defence; add phrasings as auditors report misses.
+# Word boundaries and continuation lookaheads keep ordinary prose ("ignore the above-the-fold
+# banner", "apps that act as admin require UAC", "if you're now using Tauri") from matching.
+_ROLE = r"(?:the\s+|an?\s+)?(?:system|developer|admin(?:istrator)?|assistant|root)\b"
+_PERSONA = r"(?-i:[A-Z]{2,})\b(?=\s*(?:[.,;:!?]|$|and\b))"  # all-caps name such as DAN
+_SENTENCE_START = r"""(?:^|[.!?;:\n"'(>])\s*(?:(?:please|now|and)\s+)*"""
 _INJECTION = re.compile(
-    r"ignore\s+(?:all|any|previous|prior)\s+(?:(?:previous|prior|the)\s+)?instructions"
-    r"|ignore\s+(?:the\s+)?(?:above|prior)"
-    r"|you(?:['\u2019]|\s+a)re\s+now"
-    r"|system\s+prompt"
-    r"|disregard\s+(?:the|this|your)\s+brief"
+    r"ignore\s+(?:all|any|previous|prior)\s+(?:(?:previous|prior|the)\s+)?instructions\b"
+    r"|ignore\s+(?:the\s+)?(?:above|prior)\b(?!-)"
+    r"|you(?:['’]|\s+a)re\s+now\b(?!\s+(?:able|ready|\w+ing)\b)"
+    r"|system\s+prompt\b"
+    r"|disregard\s+(?:the|this|your)\s+brief\b"
     r"|disregard\s+(?:(?:all|any|the)\s+)?(?:prior|previous|above|earlier)\s+"
-    r"(?:instructions|guidance|rules|context)"
-    r"|forget\s+(?:everything|all)\s+(?:above|before|prior)"
+    r"(?:instructions|guidance|rules|context)\b"
+    r"|forget\s+(?:everything|all)\s+(?:above\b|(?:before|prior)\b"
+    r"(?=\s*(?:[.!?:;,]|$|(?:this|that|here|now|instructions|guidance|rules|context)\b)))"
     r"|new\s+instructions\s*:"
-    r"|override\s+the\s+(?:brief|instructions|rules)"
+    r"|override\s+the\s+(?:brief\b|(?:instructions|rules)\b(?!\s+(?:field|file|property|template"
+    r"|section|key|attribute|option|setting|panel|array|object|list)s?\b))"
     r"|<\s*/?\s*system\s*>"
-    r"|act\s+as\s+(?:the\s+)?(?:system|developer|admin)",
+    + rf"|{_SENTENCE_START}act\s+as\s+(?:{_ROLE}(?!\s+(?:tray|icon|clock|font|bar|menu|settings)\b)|{_PERSONA})",
     re.I,
 )
 
@@ -290,6 +298,11 @@ def budget_errors(pack: dict, brief: dict, month_to_date_usd: float) -> list[str
     calls = int(spend.get("calls", 0))
     call_ceiling = sum(q.get("max_calls", DEFAULT_MAX_CALLS) for q in brief.get("questions", []))
     errors: list[str] = []
+    if monthly_cap > OWNER_MONTHLY_CAP_USD:
+        errors.append(
+            f"BRIEF_CAP_ABOVE_OWNER_LIMIT: ${monthly_cap:.4f} > ${OWNER_MONTHLY_CAP_USD:.4f} owner ceiling"
+        )
+        monthly_cap = OWNER_MONTHLY_CAP_USD
     if month_to_date_usd < 0:
         errors.append(f"MONTH_TO_DATE_INVALID: {month_to_date_usd} is negative")
     if usd > per_brief:

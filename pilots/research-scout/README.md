@@ -53,7 +53,9 @@ Seeded evals live in `runtime/tests/test_research_scout_pilot.py`.
 3. Set `PERPLEXITY_API_KEY` in the environment that launches Claude Code. Never write the key into
    a project file. The owner-approved spend control is prepaid credit with auto-reload off: the
    owner loaded $25, so the monthly cap is $25. `budget.monthly_cap_usd` (default 25) in a brief can
-   only lower that ceiling; the prepaid balance is the hard stop.
+   only lower that ceiling: the brief schema sets `maximum: 25`, and `budget_errors` refuses a higher
+   cap with `BRIEF_CAP_ABOVE_OWNER_LIMIT` and checks spend against $25. The prepaid balance is the
+   hard stop.
 4. Trust the pilot project folder. Claude Code skips inline MCP servers from a project
    `.claude/agents/` file until the folder is trusted.
 5. Restart Claude Code if `.claude/agents/` did not exist when the session started, then confirm the
@@ -113,7 +115,7 @@ A non-empty `spend_errors` stops further scout spawns for the brief and goes to 
 | `gate` | `BRIEF_SCHEMA_INVALID` (including NaN/infinite numbers), `BRIEF_NOT_APPROVED`, `BRIEF_APPROVER_UNTRUSTED`, `BRIEF_APPROVAL_TIME_INVALID`, `INTAKE_UNPARSEABLE`, `INTAKE_MISMATCH`, `INTAKE_NOT_READY`, `INTAKE_HASH_MISMATCH` |
 | `scrub_query` | `SECRET_*` (API key, GitHub, AWS, Slack, JWT, private key, Bearer token), `PRIVATE_*` (email, Windows path, UNC path, home path, GitHub repo URL, phone), `OFF_LIMITS_TERM`, `QUERY_TOO_LONG`, `QUERY_INVALID` |
 | `filter_pack` | `PACK_SCHEMA_INVALID` (including non-finite spend), `PACK_BRIEF_MISMATCH`, `CLAIM_SCHEMA_INVALID`, `CLAIM_COST_INVALID`, `UNKNOWN_QUESTION`, `SOURCE_QUOTE_MISSING`, `SOURCE_NOT_HTTPS`, `NO_SOURCES`, `REUSE_PROVENANCE_MISSING`, `ENGINE_NOT_ALLOWED`, `DEEP_RESEARCH_NOT_ALLOWED`, `INJECTION_SUSPECTED` |
-| `budget_errors` | `BUDGET_NUMBER_INVALID` (any NaN, infinite or non-numeric input; fails closed), `BUDGET_PER_BRIEF_EXCEEDED`, `BUDGET_CALLS_EXCEEDED`, `BUDGET_MONTHLY_CAP_EXCEEDED`, `MONTH_TO_DATE_INVALID` |
+| `budget_errors` | `BUDGET_NUMBER_INVALID` (any NaN, infinite or non-numeric input; fails closed), `BRIEF_CAP_ABOVE_OWNER_LIMIT`, `BUDGET_PER_BRIEF_EXCEEDED`, `BUDGET_CALLS_EXCEEDED`, `BUDGET_MONTHLY_CAP_EXCEEDED`, `MONTH_TO_DATE_INVALID` |
 
 The scout has no Edit or Write tool. It returns the pack in its final report and the root writes it.
 
@@ -133,6 +135,15 @@ The scout has no Edit or Write tool. It returns the pack in its final report and
   catches common phrasings ("ignore previous instructions", "disregard prior rules", "new
   instructions:", `<system>` tags, "act as the developer" and similar). Paraphrases, other languages
   and encoded text get through, so every result stays data and premise-auditor still judges it.
+  To keep ordinary prose, markers use word boundaries and continuation checks: "ignore the above"
+  does not fire on "above-the-fold"; "you're now" does not fire before "able", "ready" or an -ing
+  word; "forget everything before" fires only before punctuation, the end, or words like "this";
+  "override the instructions" does not fire before nouns such as "field" or "file"; "act as" fires
+  only as a sentence-start imperative (optionally after "please"/"now"/"and") followed by system,
+  developer, admin, administrator, assistant, root or an all-caps persona name. Known residual
+  limits: a mid-sentence "please act as the system" without a preceding sentence break, "you're now
+  acting as root", and "ignore the above warning" in genuine prose (a false positive) are not
+  distinguished.
 - A quote made only of whitespace or invisible format characters counts as missing.
 - The call ceiling is pack-wide (`spend.calls` at most the sum of `max_calls`), because a pack does
   not record calls per question.
