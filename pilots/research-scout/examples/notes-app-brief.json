@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "brief_id": "RB-NOTES-APP-001",
+  "project_id": "notes-app-pilot",
+  "goal": "Find reusable parts, approaches and user-flow evidence for a OneNote-style Windows notes app with an always-on-top quick-note widget.",
+  "status": "DRAFT",
+  "approved_by": null,
+  "approved_at": null,
+  "intake_ref": {
+    "path": ".claude/projects/notes-app-pilot/intake-readiness.json",
+    "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "questions": [
+    {
+      "id": "Q1",
+      "job": "Reuse",
+      "question": "Which maintained open-source rich-text or notebook editor components can be embedded in a Windows desktop app, and under what licenses?",
+      "priority": "MUST",
+      "max_calls": 4
+    },
+    {
+      "id": "Q2",
+      "job": "Reuse",
+      "question": "Which existing libraries or OS APIs provide a draggable, always-on-top floating window on Windows 10 and 11?",
+      "priority": "MUST",
+      "max_calls": 3
+    },
+    {
+      "id": "Q3",
+      "job": "Compare",
+      "question": "Compare WinUI 3, WPF, Electron and Tauri for a notes app that needs a tiny always-on-top widget window plus a main notebook window: memory footprint, startup time and multi-window support.",
+      "priority": "MUST",
+      "max_calls": 5,
+      "deep_research_ok": true
+    },
+    {
+      "id": "Q4",
+      "job": "Compare",
+      "question": "What approaches keep a second window and the main notebook view in sync live on one machine (shared local database with change notifications, file watching, in-process events), and what are their failure modes?",
+      "priority": "SHOULD",
+      "max_calls": 4
+    },
+    {
+      "id": "Q5",
+      "job": "Study",
+      "question": "How do OneNote, Microsoft Sticky Notes and similar quick-capture apps let users capture a note from anywhere and later find it in the notebook?",
+      "priority": "SHOULD",
+      "max_calls": 4
+    },
+    {
+      "id": "Q6",
+      "job": "Need",
+      "question": "What published user research or reviews show which quick-note features users treat as must-have (instant capture, auto-save, hotkey) versus nice-to-have (formatting, colors, tags)?",
+      "priority": "SHOULD",
+      "max_calls": 3
+    }
+  ],
+  "off_limits": ["notes-app-pilot", "owner name", "customer list"],
+  "budget": {
+    "usd_per_brief": 2,
+    "monthly_cap_usd": 25
+  },
+  "engines_allowed": ["builtin-web-search", "perplexity_search", "perplexity_ask", "perplexity_reason", "perplexity_research"],
+  "done_when": "Every MUST question has a SUPPORTED or CONFLICTED claim with a quoted https source, or an explicit unanswered entry naming why."
+}

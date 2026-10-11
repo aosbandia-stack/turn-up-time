@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "turn-up-time/pilots/research-scout/research-brief.schema.json",
+  "title": "Research Brief (research-scout pilot)",
+  "description": "Written by the base bot from a READY /grill-me intake and approved by the owner before any research call.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "brief_id", "project_id", "goal", "status", "approved_by", "approved_at", "intake_ref", "questions", "off_limits", "budget", "engines_allowed", "done_when"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "brief_id": {"type": "string", "minLength": 1},
+    "project_id": {"type": "string", "minLength": 1},
+    "goal": {"type": "string", "minLength": 1, "maxLength": 200},
+    "status": {"enum": ["DRAFT", "APPROVED"]},
+    "approved_by": {"type": ["string", "null"]},
+    "approved_at": {"type": ["string", "null"], "format": "date-time"},
+    "intake_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "questions": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 8,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "job", "question", "priority"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^Q[0-9]{1,2}$"},
+          "job": {"enum": ["Reuse", "Compare", "Study", "Need"]},
+          "question": {"type": "string", "minLength": 1, "maxLength": 400},
+          "priority": {"enum": ["MUST", "SHOULD", "OPTIONAL"]},
+          "max_calls": {"type": "integer", "minimum": 1, "maximum": 10, "default": 5},
+          "deep_research_ok": {"type": "boolean", "default": false}
+        }
+      }
+    },
+    "off_limits": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "usd_per_brief": {"type": "number", "exclusiveMinimum": 0, "maximum": 10, "default": 2},
+        "monthly_cap_usd": {"type": "number", "exclusiveMinimum": 0, "maximum": 25, "default": 25}
+      }
+    },
+    "engines_allowed": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"enum": ["builtin-web-search", "perplexity_search", "perplexity_ask", "perplexity_reason", "perplexity_research"]}
+    },
+    "done_when": {"type": "string", "minLength": 1}
+  },
+  "if": {"properties": {"status": {"const": "APPROVED"}}, "required": ["status"]},
+  "then": {
+    "properties": {
+      "approved_by": {"type": "string", "minLength": 1},
+      "approved_at": {"type": "string", "format": "date-time"}
+    }
+  }
+}
