@@ -108,13 +108,18 @@ spend_errors = guard.budget_errors(pack, brief, month_to_date_usd)
 ```
 
 Only `accepted` claims go to premise-auditor. `rejected` claims keep their `reasons` for the record.
+When an invalid pack has no claims to annotate (empty, missing or non-array `claims`, or a non-object
+pack), `rejected` contains one record with only `reasons`. A valid empty pack still returns `([], [])`.
+Question IDs must be unique: `gate` refuses duplicates, and `filter_pack` independently rejects the
+entire pack when the brief has duplicate IDs, without choosing one question's permissions over another.
+This also applies to identical duplicate questions and empty packs.
 A non-empty `spend_errors` stops further scout spawns for the brief and goes to the owner.
 
 | Function | Refuses or rejects with |
 |---|---|
-| `gate` | `BRIEF_SCHEMA_INVALID` (including NaN/infinite numbers), `BRIEF_NOT_APPROVED`, `BRIEF_APPROVER_UNTRUSTED`, `BRIEF_APPROVAL_TIME_INVALID`, `INTAKE_UNPARSEABLE`, `INTAKE_MISMATCH`, `INTAKE_NOT_READY`, `INTAKE_HASH_MISMATCH` |
+| `gate` | `BRIEF_SCHEMA_INVALID` (including NaN/infinite numbers), `BRIEF_DUPLICATE_QUESTION_ID`, `BRIEF_NOT_APPROVED`, `BRIEF_APPROVER_UNTRUSTED`, `BRIEF_APPROVAL_TIME_INVALID`, `INTAKE_UNPARSEABLE`, `INTAKE_MISMATCH`, `INTAKE_NOT_READY`, `INTAKE_HASH_MISMATCH` |
 | `scrub_query` | `SECRET_*` (API key, GitHub, AWS, Slack, JWT, private key, Bearer token), `PRIVATE_*` (email, Windows path, UNC path, home path, GitHub repo URL, phone), `OFF_LIMITS_TERM`, `QUERY_TOO_LONG`, `QUERY_INVALID` |
-| `filter_pack` | `PACK_SCHEMA_INVALID` (including non-finite spend), `PACK_BRIEF_MISMATCH`, `CLAIM_SCHEMA_INVALID`, `CLAIM_COST_INVALID`, `UNKNOWN_QUESTION`, `SOURCE_QUOTE_MISSING`, `SOURCE_NOT_HTTPS`, `NO_SOURCES`, `REUSE_PROVENANCE_MISSING`, `ENGINE_NOT_ALLOWED`, `DEEP_RESEARCH_NOT_ALLOWED`, `INJECTION_SUSPECTED` |
+| `filter_pack` | `PACK_SCHEMA_INVALID` (including non-finite spend), `PACK_BRIEF_MISMATCH`, `BRIEF_DUPLICATE_QUESTION_ID`, `CLAIM_SCHEMA_INVALID`, `CLAIM_COST_INVALID`, `UNKNOWN_QUESTION`, `SOURCE_QUOTE_MISSING`, `SOURCE_NOT_HTTPS`, `NO_SOURCES`, `REUSE_PROVENANCE_MISSING`, `ENGINE_NOT_ALLOWED`, `DEEP_RESEARCH_NOT_ALLOWED`, `INJECTION_SUSPECTED` |
 | `budget_errors` | `BUDGET_NUMBER_INVALID` (any NaN, infinite or non-numeric input; fails closed), `BRIEF_CAP_ABOVE_OWNER_LIMIT`, `BUDGET_PER_BRIEF_EXCEEDED`, `BUDGET_CALLS_EXCEEDED`, `BUDGET_MONTHLY_CAP_EXCEEDED`, `MONTH_TO_DATE_INVALID` |
 
 The scout has no Edit or Write tool. It returns the pack in its final report and the root writes it.

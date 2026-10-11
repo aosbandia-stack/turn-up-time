@@ -569,3 +569,76 @@ def test_f2_brief_cap_at_or_below_owner_limit_passes() -> None:
         lowered = {**brief, "budget": {**brief.get("budget", {}), "monthly_cap_usd": cap}}
         assert guard.gate(lowered, INTAKE, INTAKE_BYTES, {OWNER}) == []
         assert guard.budget_errors(_pack(_claim(), usd=0.5), lowered, 0.0) == []
+
+
+# Fail-closed pack envelopes and unambiguous question IDs.
+
+
+@pytest.mark.parametrize("claims", [[], None, {}, "not an array", 0])
+@pytest.mark.parametrize("defect", ["missing_spend", "wrong_brief", "non_finite_spend"])
+def test_empty_or_invalid_claims_preserve_envelope_errors(claims: object, defect: str) -> None:
+    pack = {**_pack(), "claims": claims}
+    expected = "PACK_SCHEMA_INVALID"
+    if defect == "missing_spend":
+        del pack["spend"]
+    elif defect == "wrong_brief":
+        pack["brief_id"] = "another-brief"
+        expected = "PACK_BRIEF_MISMATCH"
+    else:
+        pack["spend"]["usd"] = float("inf")
+    assert expected in _rejected_codes(pack, _approved_brief())
+
+
+@pytest.mark.parametrize("claims", [None, {}, "not an array", 0])
+def test_non_array_claims_are_rejected_without_other_envelope_errors(claims: object) -> None:
+    assert _rejected_codes({**_pack(), "claims": claims}, _approved_brief()) == {"PACK_SCHEMA_INVALID"}
+
+
+def test_missing_claims_preserves_envelope_error() -> None:
+    pack = _pack()
+    del pack["claims"]
+    assert _rejected_codes(pack, _approved_brief()) == {"PACK_SCHEMA_INVALID"}
+
+
+@pytest.mark.parametrize("pack", [None, [], "not an object", 0])
+def test_non_object_pack_preserves_envelope_error(pack: object) -> None:
+    accepted, rejected = guard.filter_pack(pack, _approved_brief())
+    assert accepted == []
+    assert len(rejected) == 1
+    assert _codes(rejected[0]["reasons"]) == {"PACK_SCHEMA_INVALID"}
+
+
+def test_valid_empty_pack_remains_valid_and_unmodified() -> None:
+    pack = _pack(calls=0)
+    pack["unanswered"] = [{"question_id": "Q3", "reason": "No usable evidence found."}]
+    before = copy.deepcopy(pack)
+    assert list(Draft202012Validator(guard.PACK_SCHEMA).iter_errors(pack)) == []
+    assert guard.filter_pack(pack, _approved_brief()) == ([], [])
+    assert pack == before
+
+
+@pytest.mark.parametrize("question_id", ["Q1", "Q4"])
+@pytest.mark.parametrize("reverse", [False, True])
+def test_duplicate_question_ids_fail_closed(question_id: str, reverse: bool) -> None:
+    brief = _approved_brief()
+    original = next(q for q in brief["questions"] if q["id"] == question_id)
+    brief["questions"].append({**original, "job": "Compare", "deep_research_ok": True})
+    if reverse:
+        brief["questions"].reverse()
+    before = copy.deepcopy(brief)
+    # Each question is individually valid; the ambiguity is across entries.
+    assert list(Draft202012Validator(guard.BRIEF_SCHEMA).iter_errors(brief)) == []
+    assert "BRIEF_DUPLICATE_QUESTION_ID" in _codes(guard.gate(brief, INTAKE, INTAKE_BYTES, {OWNER}))
+    claim = _claim(question_id=question_id, engine="perplexity_research")
+    assert "BRIEF_DUPLICATE_QUESTION_ID" in _rejected_codes(_pack(claim), brief)
+    assert "BRIEF_DUPLICATE_QUESTION_ID" in _rejected_codes(_pack(), brief)
+    # An ambiguous brief invalidates even claims for unrelated, unique questions.
+    assert "BRIEF_DUPLICATE_QUESTION_ID" in _rejected_codes(_pack(_claim()), brief)
+    assert brief == before
+
+
+def test_identical_duplicate_question_ids_fail_closed() -> None:
+    brief = _approved_brief()
+    brief["questions"].append(copy.deepcopy(brief["questions"][0]))
+    assert "BRIEF_DUPLICATE_QUESTION_ID" in _codes(guard.gate(brief, INTAKE, INTAKE_BYTES, {OWNER}))
+    assert "BRIEF_DUPLICATE_QUESTION_ID" in _rejected_codes(_pack(_claim()), brief)
