@@ -14,7 +14,9 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import re
+import unicodedata
 from datetime import datetime
 from pathlib import Path
 
@@ -47,23 +49,70 @@ _SECRET_SHAPES = {
     "SECRET_SLACK_TOKEN": re.compile(r"\bxox[baprs]-[A-Za-z0-9\-]{8,}"),
     "SECRET_JWT": re.compile(r"\beyJ[A-Za-z0-9_\-]+\.[A-Za-z0-9_\-]+\.[A-Za-z0-9_\-]+"),
     "SECRET_PRIVATE_KEY": re.compile(r"BEGIN [A-Z ]*PRIVATE KEY"),
+    "SECRET_BEARER_TOKEN": re.compile(r"\b[Bb]earer\s+[A-Za-z0-9._~+/\-]{20,}"),
 }
+# A key split by one whitespace char is re-joined and must then be 20+ chars with a digit.
+MIN_SPLIT_SECRET_CHARS = 20
 _PRIVATE_SHAPES = {
     "PRIVATE_EMAIL": re.compile(r"[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}"),
     "PRIVATE_WINDOWS_PATH": re.compile(r"\b[A-Za-z]:[\\/]"),
+    "PRIVATE_UNC_PATH": re.compile(r"(?:^|[\s\"'(=])\\\\[\w.$\-]+\\[\w.$\-]+"),
     "PRIVATE_HOME_PATH": re.compile(r"(?:^|[\s\"'(=])(?:/home/|/Users/|~/)"),
     "PRIVATE_REPO_URL": re.compile(r"github\.com/[A-Za-z0-9_.\-]+/[A-Za-z0-9_.\-]+", re.I),
 }
 _PHONE_CANDIDATE = re.compile(r"(?<![\w.])\+?\(?\d[\d\s().\-]{4,}\d(?![\w.])")
 _ISO_DATE = re.compile(r"\d{4}-\d{2}-\d{2}")
 MIN_PHONE_DIGITS = 7
+# ponytail: marker list, not a complete defence; add phrasings as auditors report misses.
 _INJECTION = re.compile(
     r"ignore\s+(?:all|any|previous|prior)\s+(?:(?:previous|prior|the)\s+)?instructions"
-    r"|you\s+are\s+now"
+    r"|ignore\s+(?:the\s+)?(?:above|prior)"
+    r"|you(?:['\u2019]|\s+a)re\s+now"
     r"|system\s+prompt"
-    r"|disregard\s+(?:the|this|your)\s+brief",
+    r"|disregard\s+(?:the|this|your)\s+brief"
+    r"|disregard\s+(?:(?:all|any|the)\s+)?(?:prior|previous|above|earlier)\s+"
+    r"(?:instructions|guidance|rules|context)"
+    r"|forget\s+(?:everything|all)\s+(?:above|before|prior)"
+    r"|new\s+instructions\s*:"
+    r"|override\s+the\s+(?:brief|instructions|rules)"
+    r"|<\s*/?\s*system\s*>"
+    r"|act\s+as\s+(?:the\s+)?(?:system|developer|admin)",
     re.I,
 )
+
+
+def _strip_format(text: str) -> str:
+    """Drop invisible format characters (Unicode Cf: zero-width, BOM, soft hyphen)."""
+    return "".join(ch for ch in text if unicodedata.category(ch) != "Cf")
+
+
+def _is_blank(text: str) -> bool:
+    return not "".join(_strip_format(text).split())
+
+
+def _finite(value: object) -> bool:
+    return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value)
+
+
+def _non_finite_errors(value: object, code: str, path: str = "") -> list[str]:
+    """jsonschema accepts NaN/inf as numbers; report each non-finite float as schema-invalid."""
+    if isinstance(value, float) and not math.isfinite(value):
+        return [f"{code}: {path or '<root>'}: {value!r} is not a finite number"]
+    items = value.items() if isinstance(value, dict) else enumerate(value) if isinstance(value, list) else ()
+    return [err for key, item in items for err in _non_finite_errors(item, code, f"{path}/{key}".lstrip("/"))]
+
+
+def _secret_codes(text: str) -> set[str]:
+    codes = {code for code, pattern in _SECRET_SHAPES.items() if pattern.search(text)}
+    runs = text.split()
+    # ponytail: re-joins one split per token pair; keys split twice or more still pass.
+    for joined in (left + right for left, right in zip(runs, runs[1:])):
+        for code, pattern in _SECRET_SHAPES.items():
+            match = pattern.search(joined)
+            token = match.group() if match else ""
+            if len(token) >= MIN_SPLIT_SECRET_CHARS and any(ch.isdigit() for ch in token):
+                codes.add(code)
+    return codes
 
 
 def _has_phone(text: str) -> bool:
@@ -94,9 +143,25 @@ def _is_datetime(value: object) -> bool:
     return True
 
 
-def gate(brief: dict, intake: dict, intake_bytes: bytes, trusted_approvers: set[str]) -> list[str]:
-    """Return refusal reasons; an empty list means the scout may research this brief."""
+def _parse_intake(intake_bytes: object) -> tuple[object, list[str]]:
+    if not isinstance(intake_bytes, (bytes, bytearray)):
+        return None, ["INTAKE_UNPARSEABLE: intake_bytes is not bytes"]
+    try:
+        return json.loads(intake_bytes), []
+    except ValueError as exc:  # JSONDecodeError and UnicodeDecodeError
+        return None, [f"INTAKE_UNPARSEABLE: {exc}"]
+
+
+def gate(
+    brief: dict, intake: dict | None, intake_bytes: bytes, trusted_approvers: set[str]
+) -> list[str]:
+    """Return refusal reasons; an empty list means the scout may research this brief.
+
+    The intake status is read from intake_bytes, the same bytes the brief's sha256 pins. `intake`
+    is optional; when given it must equal the parsed bytes or the gate refuses with INTAKE_MISMATCH.
+    """
     errors = _schema_errors(_BRIEF_VALIDATOR, brief, "BRIEF_SCHEMA_INVALID")
+    errors += _non_finite_errors(brief, "BRIEF_SCHEMA_INVALID")
     if not isinstance(brief, dict):
         return errors or ["BRIEF_SCHEMA_INVALID: brief is not an object"]
     if brief.get("status") != "APPROVED":
@@ -106,12 +171,16 @@ def gate(brief: dict, intake: dict, intake_bytes: bytes, trusted_approvers: set[
         errors.append(f"BRIEF_APPROVER_UNTRUSTED: {approver!r} is not a trusted approver")
     if brief.get("status") == "APPROVED" and not _is_datetime(brief.get("approved_at")):
         errors.append("BRIEF_APPROVAL_TIME_INVALID: approved_at must be an ISO 8601 date-time")
-    intake_status = intake.get("status") if isinstance(intake, dict) else None
+    parsed, parse_errors = _parse_intake(intake_bytes)
+    errors += parse_errors
+    if intake is not None and intake != parsed:
+        errors.append("INTAKE_MISMATCH: supplied intake dict differs from the parsed intake bytes")
+    intake_status = parsed.get("status") if isinstance(parsed, dict) else None
     if intake_status not in READY_INTAKE:
         errors.append(f"INTAKE_NOT_READY: intake status is {intake_status!r}")
     ref = brief.get("intake_ref")
     expected = ref.get("sha256") if isinstance(ref, dict) else None
-    actual = hashlib.sha256(intake_bytes).hexdigest()
+    actual = hashlib.sha256(intake_bytes).hexdigest() if isinstance(intake_bytes, (bytes, bytearray)) else None
     if expected != actual:
         errors.append(f"INTAKE_HASH_MISMATCH: brief pins {expected!r}, intake bytes hash to {actual}")
     return errors
@@ -124,14 +193,18 @@ def scrub_query(text: str, off_limits: list[str]) -> list[str]:
     reasons: list[str] = []
     if len(text) > MAX_QUERY_CHARS:
         reasons.append(f"QUERY_TOO_LONG: {len(text)} > {MAX_QUERY_CHARS} characters")
-    for code, pattern in {**_SECRET_SHAPES, **_PRIVATE_SHAPES}.items():
-        if pattern.search(text):
+    visible = _strip_format(text)
+    secrets = _secret_codes(visible)
+    reasons += [f"{code}: query contains a blocked shape" for code in _SECRET_SHAPES if code in secrets]
+    for code, pattern in _PRIVATE_SHAPES.items():
+        if pattern.search(visible):
             reasons.append(f"{code}: query contains a blocked shape")
-    if _has_phone(text):
+    if _has_phone(visible):
         reasons.append("PRIVATE_PHONE: query contains a phone-number shape")
-    lowered = text.casefold()
+    lowered = " ".join(visible.split()).casefold()
     for term in off_limits:
-        if term and term.casefold() in lowered:
+        needle = " ".join(_strip_format(term).split()).casefold() if isinstance(term, str) else ""
+        if needle and needle in lowered:
             reasons.append(f"OFF_LIMITS_TERM: query contains off-limits term {term!r}")
     return reasons
 
@@ -147,7 +220,7 @@ def _claim_reasons(claim: object, questions: dict[str, dict], engines: set[str])
     texts = [str(claim.get("claim", ""))]
     for source in sources:
         source = source if isinstance(source, dict) else {}
-        if not str(source.get("quote") or "").strip():
+        if _is_blank(str(source.get("quote") or "")):
             reasons.append("SOURCE_QUOTE_MISSING: every source needs a non-empty quote")
         if not str(source.get("url") or "").startswith("https://"):
             reasons.append(f"SOURCE_NOT_HTTPS: {source.get('url')!r}")
@@ -162,7 +235,10 @@ def _claim_reasons(claim: object, questions: dict[str, dict], engines: set[str])
         reasons.append(f"ENGINE_NOT_ALLOWED: {engine!r} is not in brief.engines_allowed")
     if engine == DEEP_ENGINE and question is not None and not question.get("deep_research_ok", False):
         reasons.append(f"DEEP_RESEARCH_NOT_ALLOWED: {question.get('id')} does not allow {DEEP_ENGINE}")
-    if any(_INJECTION.search(text) for text in texts):
+    texts += [str(claim.get("license", "")), str(claim.get("tool_preset", ""))]
+    if "cost_usd" in claim and not _finite(claim["cost_usd"]):
+        reasons.append(f"CLAIM_COST_INVALID: cost_usd {claim['cost_usd']!r} is not a finite number")
+    if any(_INJECTION.search(_strip_format(text)) for text in texts):
         reasons.append("INJECTION_SUSPECTED: claim text contains instruction-like content")
     return reasons
 
@@ -170,6 +246,8 @@ def _claim_reasons(claim: object, questions: dict[str, dict], engines: set[str])
 def filter_pack(pack: dict, brief: dict) -> tuple[list[dict], list[dict]]:
     """Split pack claims into (accepted, rejected); rejected copies carry a "reasons" list."""
     envelope = _schema_errors(_ENVELOPE_VALIDATOR, pack, "PACK_SCHEMA_INVALID")
+    if isinstance(pack, dict):
+        envelope += _non_finite_errors(pack.get("spend"), "PACK_SCHEMA_INVALID", "spend")
     if isinstance(pack, dict) and pack.get("brief_id") != brief.get("brief_id"):
         envelope.append(f"PACK_BRIEF_MISMATCH: pack is for {pack.get('brief_id')!r}")
     questions = {q.get("id"): q for q in brief.get("questions", []) if isinstance(q, dict)}
@@ -192,13 +270,23 @@ def budget_errors(pack: dict, brief: dict, month_to_date_usd: float) -> list[str
     per_brief = budget.get("usd_per_brief", DEFAULT_USD_PER_BRIEF)
     monthly_cap = budget.get("monthly_cap_usd", DEFAULT_MONTHLY_CAP_USD)
     spend = pack.get("spend") or {}
-    claim_costs = sum(
-        c["cost_usd"]
-        for c in pack.get("claims", [])
-        if isinstance(c, dict) and isinstance(c.get("cost_usd"), (int, float))
-    )
+    claims = pack.get("claims", [])
+    costs = {i: c["cost_usd"] for i, c in enumerate(claims) if isinstance(c, dict) and "cost_usd" in c}
+    numbers = {
+        "month_to_date_usd": month_to_date_usd,
+        "spend.usd": spend.get("usd", 0),
+        "spend.calls": spend.get("calls", 0),
+        "budget.usd_per_brief": per_brief,
+        "budget.monthly_cap_usd": monthly_cap,
+        **{f"claims[{i}].cost_usd": cost for i, cost in costs.items()},
+    }
+    invalid = [
+        f"BUDGET_NUMBER_INVALID: {name} is {value!r}" for name, value in numbers.items() if not _finite(value)
+    ]
+    if invalid:
+        return invalid  # fail closed: NaN compares False against every limit
     # Under-reported envelope spend must not hide per-claim costs.
-    usd = max(float(spend.get("usd", 0)), float(claim_costs))
+    usd = max(float(spend.get("usd", 0)), float(sum(costs.values())))
     calls = int(spend.get("calls", 0))
     call_ceiling = sum(q.get("max_calls", DEFAULT_MAX_CALLS) for q in brief.get("questions", []))
     errors: list[str] = []

@@ -17,6 +17,13 @@ Perplexity may not research until:
 2. the base bot (Claude) writes a Research Brief from it, pinning the intake file's sha256;
 3. the owner approves the brief (`status: APPROVED`, `approved_by`, `approved_at`).
 
+In this pilot `approved_by` is an unsigned name. `gate` only checks that it is in the
+`trusted_approvers` set the root passes in: the owner identity (`"Harold Adams"`) taken from the
+`approvers` entry of the account's `~/.claude/turn-up-time-trust.json`. Anyone who can edit the brief
+can type that name, so the approval is only as strong as the brief file's write protection. Promotion
+beyond the pilot should bind briefs to the signed, expiring approval machinery the runtime already
+uses for human-gated transitions.
+
 The scout then runs only against that brief. Each question has one job:
 
 | Job | Purpose |
@@ -44,8 +51,9 @@ Seeded evals live in `runtime/tests/test_research_scout_pilot.py`.
 2. Copy `guard.py`, both schemas and `examples/` to `<pilot-project>/.claude/research-scout/`.
    `guard.py` loads the schemas from its own directory. It needs Python 3.11+ and `jsonschema`.
 3. Set `PERPLEXITY_API_KEY` in the environment that launches Claude Code. Never write the key into
-   a project file. The owner-approved spend control is prepaid credit with auto-reload off, capped
-   at $50 per month; `budget.monthly_cap_usd` in a brief is the pilot's own lower ceiling.
+   a project file. The owner-approved spend control is prepaid credit with auto-reload off: the
+   owner loaded $25, so the monthly cap is $25. `budget.monthly_cap_usd` (default 25) in a brief can
+   only lower that ceiling; the prepaid balance is the hard stop.
 4. Trust the pilot project folder. Claude Code skips inline MCP servers from a project
    `.claude/agents/` file until the folder is trusted.
 5. Restart Claude Code if `.claude/agents/` did not exist when the session started, then confirm the
@@ -86,7 +94,8 @@ spec = importlib.util.spec_from_file_location("guard", ".claude/research-scout/g
 guard = importlib.util.module_from_spec(spec); spec.loader.exec_module(guard)
 
 intake_bytes = open(intake_path, "rb").read()
-errors = guard.gate(brief, json.loads(intake_bytes), intake_bytes, {"owner"})
+# Status is read from intake_bytes; pass None, or a dict that must equal the parsed bytes.
+errors = guard.gate(brief, None, intake_bytes, {"Harold Adams"})
 if errors:
     stop(errors)                      # no research; every code starts e.g. "BRIEF_NOT_APPROVED: "
 for question in brief["questions"]:
@@ -101,10 +110,10 @@ A non-empty `spend_errors` stops further scout spawns for the brief and goes to 
 
 | Function | Refuses or rejects with |
 |---|---|
-| `gate` | `BRIEF_SCHEMA_INVALID`, `BRIEF_NOT_APPROVED`, `BRIEF_APPROVER_UNTRUSTED`, `BRIEF_APPROVAL_TIME_INVALID`, `INTAKE_NOT_READY`, `INTAKE_HASH_MISMATCH` |
-| `scrub_query` | `SECRET_*` (API key, GitHub, AWS, Slack, JWT, private key), `PRIVATE_*` (email, Windows path, home path, GitHub repo URL, phone), `OFF_LIMITS_TERM`, `QUERY_TOO_LONG`, `QUERY_INVALID` |
-| `filter_pack` | `PACK_SCHEMA_INVALID`, `PACK_BRIEF_MISMATCH`, `CLAIM_SCHEMA_INVALID`, `UNKNOWN_QUESTION`, `SOURCE_QUOTE_MISSING`, `SOURCE_NOT_HTTPS`, `NO_SOURCES`, `REUSE_PROVENANCE_MISSING`, `ENGINE_NOT_ALLOWED`, `DEEP_RESEARCH_NOT_ALLOWED`, `INJECTION_SUSPECTED` |
-| `budget_errors` | `BUDGET_PER_BRIEF_EXCEEDED`, `BUDGET_CALLS_EXCEEDED`, `BUDGET_MONTHLY_CAP_EXCEEDED`, `MONTH_TO_DATE_INVALID` |
+| `gate` | `BRIEF_SCHEMA_INVALID` (including NaN/infinite numbers), `BRIEF_NOT_APPROVED`, `BRIEF_APPROVER_UNTRUSTED`, `BRIEF_APPROVAL_TIME_INVALID`, `INTAKE_UNPARSEABLE`, `INTAKE_MISMATCH`, `INTAKE_NOT_READY`, `INTAKE_HASH_MISMATCH` |
+| `scrub_query` | `SECRET_*` (API key, GitHub, AWS, Slack, JWT, private key, Bearer token), `PRIVATE_*` (email, Windows path, UNC path, home path, GitHub repo URL, phone), `OFF_LIMITS_TERM`, `QUERY_TOO_LONG`, `QUERY_INVALID` |
+| `filter_pack` | `PACK_SCHEMA_INVALID` (including non-finite spend), `PACK_BRIEF_MISMATCH`, `CLAIM_SCHEMA_INVALID`, `CLAIM_COST_INVALID`, `UNKNOWN_QUESTION`, `SOURCE_QUOTE_MISSING`, `SOURCE_NOT_HTTPS`, `NO_SOURCES`, `REUSE_PROVENANCE_MISSING`, `ENGINE_NOT_ALLOWED`, `DEEP_RESEARCH_NOT_ALLOWED`, `INJECTION_SUSPECTED` |
+| `budget_errors` | `BUDGET_NUMBER_INVALID` (any NaN, infinite or non-numeric input; fails closed), `BUDGET_PER_BRIEF_EXCEEDED`, `BUDGET_CALLS_EXCEEDED`, `BUDGET_MONTHLY_CAP_EXCEEDED`, `MONTH_TO_DATE_INVALID` |
 
 The scout has no Edit or Write tool. It returns the pack in its final report and the root writes it.
 
@@ -113,9 +122,18 @@ The scout has no Edit or Write tool. It returns the pack in its final report and
 - The guard is offline. It cannot prove a URL exists or that a quote really appears at the URL;
   that stays premise-auditor's job, preferably a different model family from the scout.
 - `scrub_query` is pattern-based. It blocks the listed shapes; it cannot recognise every private
-  fact, so `off_limits` must name project codenames and people.
-- Prompt-injection detection is a marker list. It catches the common phrasings and treats all
-  results as data; it is not a complete defence.
+  fact, so `off_limits` must name project codenames and people. It removes invisible format
+  characters (Unicode Cf, such as zero-width spaces) before matching and re-joins a key split by one
+  whitespace character, but only when the re-joined token is 20+ characters and contains a digit (so
+  `sk-learn versus` passes). A key split in two or more places, a Bearer token split by whitespace,
+  a key with homoglyph characters, an encoded key (base64, URL-encoding) or an unknown vendor prefix
+  is not caught. UNC paths need the `\\server\share` form; `//server/share` is not checked.
+- Prompt-injection detection is a heuristic marker list, not a complete defence. It scans the claim,
+  quotes, titles, `license` and `tool_preset` after removing invisible format characters, and
+  catches common phrasings ("ignore previous instructions", "disregard prior rules", "new
+  instructions:", `<system>` tags, "act as the developer" and similar). Paraphrases, other languages
+  and encoded text get through, so every result stays data and premise-auditor still judges it.
+- A quote made only of whitespace or invisible format characters counts as missing.
 - The call ceiling is pack-wide (`spend.calls` at most the sum of `max_calls`), because a pack does
   not record calls per question.
 - `budget_errors` trusts the month-to-date figure the root supplies. The hard cap is the prepaid
