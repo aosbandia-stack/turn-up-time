@@ -21,7 +21,7 @@
   "new_risks": [
     "Research volume inflates spawn use without improving decisions; mitigated by gap mode accepting only named claims.",
     "Scout output treated as authoritative; mitigated by keeping premise-auditor as the only evidence verdict.",
-    "Paid-API egress of project details; owner approved a $50 monthly cap, and scout queries exclude secrets and private data.",
+    "Paid-API egress of project details; owner approved a $25 prepaid cap (a $50 monthly cap was discussed first), and scout queries exclude secrets and private data.",
     "Same-family bias if Claude both researches and audits; mitigated by assigning the audit to a different model family."
   ],
   "rollback": "Delete the pilot project's research-scout agent file and its project-registry entry. No global file changes need reverting.",
@@ -31,7 +31,7 @@
     "status": "PROJECT_PILOT",
     "by": "owner (chat request 2026-10-10)",
     "at": "2026-10-10T00:00:00Z",
-    "notes": "The owner asked to add Perplexity research to the workflow. Promotion policy allows a project pilot on this warrant; a global change needs measured pilot evidence. Later on 2026-10-10 the owner approved Perplexity Sonar spend with a $50 monthly cap (enforced as prepaid credit with auto-reload off) and approved sending research queries to Perplexity. Queries must not include secrets, credentials or private personal data. The key is read only from the PERPLEXITY_API_KEY environment variable and is never written to project files."
+    "notes": "The owner asked to add Perplexity research to the workflow. Promotion policy allows a project pilot on this warrant; a global change needs measured pilot evidence. Later on 2026-10-10 the owner approved Perplexity Sonar spend with a $25 cap enforced as prepaid credit with auto-reload off (a $50 monthly cap was discussed first) and approved sending research queries to Perplexity. Queries must not include secrets, credentials or private personal data. The key is read only from the PERPLEXITY_API_KEY environment variable and is never written to project files."
   },
   "status": "APPROVED"
 }
