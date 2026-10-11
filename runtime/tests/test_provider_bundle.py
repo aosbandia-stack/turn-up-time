@@ -199,7 +199,8 @@ def test_frontend_and_core_closures_have_locked_instruction_packages():
         repo = lock['repositories'][package['repository']]
         assert repo['kind'] == 'local-snapshot' and 'commit' not in repo and 'url' not in repo
         record = package['files']['SKILL.md']
-        assert record['content'].encode() == (ROOT / record['source']).read_bytes()
+        # The lock pins committed LF bytes; a Windows autocrlf checkout must not change the comparison.
+        assert record['content'].encode() == (ROOT / record['source']).read_bytes().replace(b'\r\n', b'\n')
         assert p.repository_source_ref(repo).startswith('local-snapshot:.claude/skills@sha256:')
 
 

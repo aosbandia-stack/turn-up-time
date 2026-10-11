@@ -59,7 +59,7 @@ def main() -> int:
     schemas = sorted((CLAUDE_DIR / "schemas").glob("*.json"))
     add("skill-count", len(skills) == 11, f"count={len(skills)}")
     add("agent-count", len(agents) == 17, f"count={len(agents)}")
-    add("schema-count", len(schemas) == 19, f"count={len(schemas)}")
+    add("schema-count", len(schemas) == 32, f"count={len(schemas)}")
 
     constitution = (ROOT / "CLAUDE.md").read_text(encoding="utf-8")
     add(

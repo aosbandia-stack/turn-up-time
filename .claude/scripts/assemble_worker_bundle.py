@@ -125,6 +125,8 @@ def references(root: Path, refs: list[dict], *, nonempty=True) -> list[bytes]:
         if ref['path'].casefold() in seen:
             raise BundleError('DUPLICATE_OR_CASE_COLLISION')
         seen.add(ref['path'].casefold())
+    # Reject every collision before touching disk, so case-sensitive filesystems fail the same way.
+    for ref in refs:
         raw = confined(root, ref['path']).read_bytes()
         if digest(raw) != ref['sha256']:
             raise BundleError('ARTIFACT_HASH_MISMATCH:' + ref['path'])

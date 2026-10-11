@@ -179,7 +179,7 @@
       "provider_kind": "instruction-only",
       "provenance": {
         "source": ".claude/skills/eval-harness/SKILL.md",
-        "ref": "sha256:ab24e86f1275143ce4f2d24241fec39358db0cfa88fd7dbb371d0b4ca77cfa68",
+        "ref": "sha256:c2c925b34bf3801889865468fb1931e523ea079a103619eae89e9be9cfbe0955",
         "license": "Source-owned workflow instructions; existing repository terms apply"
       }
     },
@@ -208,7 +208,7 @@
       "provider_kind": "instruction-only",
       "provenance": {
         "source": ".claude/skills/guard-before-write/SKILL.md",
-        "ref": "sha256:ab24e86f1275143ce4f2d24241fec39358db0cfa88fd7dbb371d0b4ca77cfa68",
+        "ref": "sha256:c2c925b34bf3801889865468fb1931e523ea079a103619eae89e9be9cfbe0955",
         "license": "Source-owned workflow instructions; existing repository terms apply"
       }
     },
@@ -238,7 +238,7 @@
       "uninstall": "Remove only with an approved replacement closeout contract; preserve product and evidence.",
       "provenance": {
         "source": ".claude/skills/swiper-dont-swpe-me/SKILL.md",
-        "ref": "sha256:ab24e86f1275143ce4f2d24241fec39358db0cfa88fd7dbb371d0b4ca77cfa68",
+        "ref": "sha256:c2c925b34bf3801889865468fb1931e523ea079a103619eae89e9be9cfbe0955",
         "license": "Source-owned workflow instructions; existing repository terms apply"
       }
     },
