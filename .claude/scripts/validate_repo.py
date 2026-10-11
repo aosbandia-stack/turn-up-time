@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import json
+import os
 import re
+import subprocess
 import sys
 from pathlib import Path
 from typing import Any
@@ -71,6 +73,40 @@ def validate_instance(instance: Any, schema: dict[str, Any], label: str) -> None
     for error in sorted(Draft202012Validator(schema).iter_errors(instance), key=lambda item: list(item.path)):
         where = ".".join(str(part) for part in error.path) or "<root>"
         ERRORS.append(f"{label}:{where}: {error.message}")
+
+
+def repository_files(root: Path) -> list[Path]:
+    """Files Git would commit here (tracked plus untracked, minus ignored local state).
+
+    Outside a Git checkout (an installed copy) every file except generated runtime state counts.
+    """
+    try:
+        listed = subprocess.run(['git', '-C', str(root), 'ls-files', '-z', '--cached', '--others',
+                                 '--exclude-standard'], capture_output=True, check=True, timeout=30).stdout
+    except (OSError, subprocess.SubprocessError):
+        files = []
+        for parent, directories, names in os.walk(root, followlinks=False):
+            parent = Path(parent)
+            directories[:] = [name for name in directories if name != '.git'
+                              and parent / name != root / '.claude' / 'runtime']
+            files.extend(parent / name for name in names)
+        return files
+    return [root / name for name in sorted(set(listed.decode().split('\0')) - {''}) if (root / name).is_file()]
+
+
+def markdown_link_errors(root: Path) -> list[str]:
+    """Check source docs; gitignored local runtime and project state is not source."""
+    errors = []
+    link_pattern = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
+    for path in repository_files(root):
+        if path.suffix == '.md':
+            for target in link_pattern.findall(path.read_text(encoding='utf-8', errors='replace')):
+                if target.startswith(('http://', 'https://', '#', 'mailto:')):
+                    continue
+                relative = target.split('#', 1)[0]
+                if relative and not (path.parent / relative).resolve().exists():
+                    errors.append(f'broken link {path.relative_to(root)} -> {target}')
+    return errors
 
 
 def main() -> int:
@@ -147,16 +183,7 @@ def main() -> int:
         if phrase not in constitution:
             ERRORS.append(f"CLAUDE.md missing marker: {phrase}")
 
-    link_pattern = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
-    for path in ROOT.rglob("*.md"):
-        if ".git" in path.parts:
-            continue
-        for target in link_pattern.findall(path.read_text(encoding="utf-8", errors="replace")):
-            if target.startswith(("http://", "https://", "#", "mailto:")):
-                continue
-            relative = target.split("#", 1)[0]
-            if relative and not (path.parent / relative).resolve().exists():
-                ERRORS.append(f"broken link {path.relative_to(ROOT)} -> {target}")
+    ERRORS.extend(markdown_link_errors(ROOT))
 
     if ERRORS:
         print("VALIDATION: RED")

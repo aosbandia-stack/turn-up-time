@@ -12,6 +12,8 @@ from typing import Any
 
 import yaml
 
+from validate_repo import repository_files
+
 ROOT = Path(__file__).resolve().parents[2]
 CLAUDE_DIR = ROOT / ".claude"
 CHECKS: list[tuple[str, bool, str]] = []
@@ -59,7 +61,7 @@ def main() -> int:
     schemas = sorted((CLAUDE_DIR / "schemas").glob("*.json"))
     add("skill-count", len(skills) == 11, f"count={len(skills)}")
     add("agent-count", len(agents) == 17, f"count={len(agents)}")
-    add("schema-count", len(schemas) == 19, f"count={len(schemas)}")
+    add("schema-count", len(schemas) == 32, f"count={len(schemas)}")
 
     constitution = (ROOT / "CLAUDE.md").read_text(encoding="utf-8")
     add(
@@ -216,19 +218,15 @@ def main() -> int:
         "windows-user": re.compile(r"C:\\Users\\[^\\\s]+", re.I),
         "company-domain": re.compile(r"teamtag\.com", re.I),
     }
-    all_text = "\n".join(
-        path.read_text(encoding="utf-8", errors="replace")
-        for path in ROOT.rglob("*")
-        if path.is_file() and ".git" not in path.parts
-    )
+    # Scan what the repository would publish, not gitignored local runtime/project state.
+    source_files = repository_files(ROOT)
+    all_text = "\n".join(path.read_text(encoding="utf-8", errors="replace") for path in source_files)
     for name, pattern in patterns.items():
         add("scan-" + name, not pattern.search(all_text), "no match")
 
     broken: list[str] = []
     link_pattern = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
-    for path in ROOT.rglob("*.md"):
-        if ".git" in path.parts:
-            continue
+    for path in (item for item in source_files if item.suffix == ".md"):
         for target in link_pattern.findall(path.read_text(encoding="utf-8")):
             if target.startswith(("http://", "https://", "#", "mailto:")):
                 continue

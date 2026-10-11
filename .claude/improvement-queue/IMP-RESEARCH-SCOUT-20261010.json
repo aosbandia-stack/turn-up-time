@@ -1,0 +1,37 @@
+{
+  "schema_version": 2,
+  "improvement_id": "IMP-RESEARCH-SCOUT-20261010",
+  "source_project_ids": ["bandia-gauntlet"],
+  "observed_failure": "Turn Up Time has no role for broad brainstorming or targeted cited research. Discovery researchers each do their own ad hoc web search inside a fixed dimension, and nothing is dedicated to resolving named UNKNOWN MUST claims or generating alternative options before architecture.",
+  "evidence": [
+    "2026-10-10 repository recon: .claude/agents has 17 agents; only the five *-researcher agents and premise-auditor carry WebSearch/WebFetch, and none owns option generation or UNKNOWN-claim resolution.",
+    "2026-10-10 registry recon: .claude/capabilities/registry.json has 33 capabilities; the research-adjacent ones are dependency-docs (context7), reference-app-analysis (rea) and code-symbol-analysis (serena). None is web research.",
+    "2026-10-10 owner request: add a Perplexity-style research and brainstorm engine to strengthen the workflow's reasoning."
+  ],
+  "frequency": "Structural gap, present in every Tier C discovery; no single failed project has been attributed to it yet.",
+  "workflow_stage": "DISCOVERY",
+  "root_cause": "Discovery coverage is organised by dimension (product, frontend, backend, security). Cross-cutting option generation and targeted re-research of named gaps have no owner, so repeat discovery passes re-run whole dimensions instead of answering the specific UNKNOWN claim.",
+  "existing_control": "premise-auditor returns EVIDENCE_BLOCKED for unresolved MUST claims, and the loop contract restricts repeats to named gaps. The gap is detected, but no role is specialised to close it cheaply.",
+  "proposed_change": "Project-only pilot: add a read-only research-scout assurance agent to the pilot project's own .claude/ (project registry resolves first). Modes: (1) brainstorm, which returns at least three materially different options with tradeoffs and sources; (2) gap, which takes named UNKNOWN or CONFLICTED MUST claims and returns SUPPORTED/CONFLICTED/UNKNOWN with URL, quote and retrieval date. Engine: the host's built-in web search by default (no extra cost); Perplexity Sonar only after a recorded readiness probe, an owner-approved spend cap and an egress decision. Each pack records the engine actually used. A different-family premise-auditor (Codex when Claude researched) labels the final verdict. Core CLAUDE.md, topology, schemas and the global registry are not changed during the pilot.",
+  "scope": "project",
+  "expected_effect": "Named UNKNOWN MUST claims are resolved in one targeted spawn rather than a full dimension re-run, and alternative options are visible before architecture.",
+  "measurement": "Per pilot project: count of named UNKNOWN MUST claims entering gap mode versus leaving SUPPORTED or CONFLICTED; citation validity rate as judged by premise-auditor (URL exists, quote present, supports the claim, applies); spawns and wall time spent on discovery repeats compared with the bandia-project-conversations baseline; count of auditor rejections of scout claims.",
+  "seeded_failure_eval": "Seed A (RED before): a discovery pack with one MUST claim UNKNOWN and no source. Without research-scout, premise-auditor must return EVIDENCE_BLOCKED and the only legal repeat re-runs the owning dimension. GREEN after: one research-scout gap-mode spawn returns the claim as SUPPORTED or CONFLICTED with a verifiable source, and the auditor accepts it. Seed B (must stay RED): a scout pack citing a non-existent URL or a quote absent from the source must be rejected by premise-auditor. Seed C: a pack that omits the engine-used field fails schema or auditor review.",
+  "cost": "One agent definition and one pilot-project registry entry. Zero extra spend while the built-in search is used; Perplexity Sonar costs about $1 per million tokens plus $5-14 per 1,000 requests (pricing checked 2026-10-10), and only after owner approval.",
+  "new_risks": [
+    "Research volume inflates spawn use without improving decisions; mitigated by gap mode accepting only named claims.",
+    "Scout output treated as authoritative; mitigated by keeping premise-auditor as the only evidence verdict.",
+    "Paid-API egress of project details; owner approved a $25 prepaid cap (a $50 monthly cap was discussed first), and scout queries exclude secrets and private data.",
+    "Same-family bias if Claude both researches and audits; mitigated by assigning the audit to a different model family."
+  ],
+  "rollback": "Delete the pilot project's research-scout agent file and its project-registry entry. No global file changes need reverting.",
+  "warrant": "prediction",
+  "review_date": "2026-11-10",
+  "human_decision": {
+    "status": "PROJECT_PILOT",
+    "by": "owner (chat request 2026-10-10)",
+    "at": "2026-10-10T00:00:00Z",
+    "notes": "The owner asked to add Perplexity research to the workflow. Promotion policy allows a project pilot on this warrant; a global change needs measured pilot evidence. Later on 2026-10-10 the owner approved Perplexity Sonar spend with a $25 cap enforced as prepaid credit with auto-reload off (a $50 monthly cap was discussed first) and approved sending research queries to Perplexity. Queries must not include secrets, credentials or private personal data. The key is read only from the PERPLEXITY_API_KEY environment variable and is never written to project files."
+  },
+  "status": "APPROVED"
+}

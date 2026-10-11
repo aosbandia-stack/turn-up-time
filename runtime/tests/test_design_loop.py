@@ -4,7 +4,8 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from .test_completion_contracts import BUILD, ROOT, edit, make_project, proof, read, write
+from .test_completion_contracts import (BUILD, ROOT, edit, make_project, proof, read, write,
+                                        isolated_provider_home)
 from project_contracts import rubric_digest
 from turn_up_time_graph.topology import Stage
 from turn_up_time_graph.validation import TransitionError, validate_project_for_target

@@ -1,0 +1,61 @@
+{
+  "assembler_sha256": "df361ca5ffc8ef4d13cf6f319ef0ac93787fce088ae0a7059bdeb8dd168da278",
+  "commands": [
+    [
+      "C:\\Users\\Bandi\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+      "C:\\Users\\Bandi\\turn-up-time-gauntlet-20261010\\.claude\\scripts\\assemble_worker_bundle.py",
+      "assemble",
+      "--project",
+      "C:\\Users\\Bandi\\AppData\\Local\\Temp\\tut-crosslanguage-t3eex1vz\\worker-bundle-crosslanguage",
+      "--authorization",
+      "C:\\Users\\Bandi\\AppData\\Local\\Temp\\tut-crosslanguage-t3eex1vz\\worker-bundle-crosslanguage\\authorization.json",
+      "--home",
+      "C:\\Users\\Bandi\\turn-up-time-gauntlet-20261010\\.claude\\runtime\\provider-candidate",
+      "--role",
+      "implementation-engineer",
+      "--stage",
+      "BUILD",
+      "--build-identity",
+      "fixture-source-gauntlet-20261010-v4",
+      "--capability",
+      "backend-architecture",
+      "--capability",
+      "ponytail-implementation",
+      "--output",
+      "manifest.json"
+    ],
+    [
+      "C:\\Users\\Bandi\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+      "C:\\Users\\Bandi\\turn-up-time-gauntlet-20261010\\.claude\\scripts\\assemble_worker_bundle.py",
+      "export-task",
+      "--project",
+      "C:\\Users\\Bandi\\AppData\\Local\\Temp\\tut-crosslanguage-t3eex1vz\\worker-bundle-crosslanguage",
+      "--authorization",
+      "C:\\Users\\Bandi\\AppData\\Local\\Temp\\tut-crosslanguage-t3eex1vz\\worker-bundle-crosslanguage\\authorization.json",
+      "--worktree",
+      "C:\\Users\\Bandi\\AppData\\Local\\Temp\\tut-crosslanguage-t3eex1vz",
+      "--manifest",
+      "manifest.json",
+      "--manifest-sha256",
+      "9e5fa00b0fed1f3659fc2a22b6bb918b0e5009bf7367c577e583b46b7708dfd5",
+      "--brief-file",
+      "brief.txt",
+      "--output",
+      "export.json"
+    ]
+  ],
+  "export": {
+    "path": "export.json",
+    "sha256": "4863d87cfa8d6126898bccf2aa015f8775d5983af7fca52f0ffbd4aa01b1d93b"
+  },
+  "generation_id": "gauntlet-20261010-v4",
+  "generation_manifest_sha256": "97238ccdcfac90c5b805241c1bf84f573ed9a99c1a3b08c7697eb18f0016791f",
+  "kind": "actual-python-cli-source-fixture",
+  "limitations": "Fixture task identity; no actual worker, external provider use, owner approval, or activation.",
+  "lock_sha256": "c63d1e093f7a7ae6be6e64c66d0b051982c79503f3474c9b12c895200ee40c7c",
+  "manifest": {
+    "path": "manifest.json",
+    "sha256": "9e5fa00b0fed1f3659fc2a22b6bb918b0e5009bf7367c577e583b46b7708dfd5"
+  },
+  "registry_sha256": "20517ab54d190fcdc2f1435decc3aaa80e2d04cd0db0950b173a1dc1de7379bb"
+}

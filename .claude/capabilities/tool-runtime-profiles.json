@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "rea-javascript-v1": {
+    "server_name": "tut_rea",
+    "capability": "reference-app-analysis",
+    "transport": "stdio",
+    "enabled_tools": [
+      "analyze_javascript_application",
+      "inspect_analysis_view"
+    ],
+    "startup_timeout_sec": 120,
+    "tool_timeout_sec": 90,
+    "required": true,
+    "stages": [
+      "DISCOVERY"
+    ]
+  },
+  "serena-readonly-v1": {
+    "server_name": "tut_serena",
+    "capability": "code-symbol-analysis",
+    "transport": "stdio",
+    "enabled_tools": [
+      "get_symbols_overview",
+      "find_symbol",
+      "find_referencing_symbols"
+    ],
+    "startup_timeout_sec": 120,
+    "tool_timeout_sec": 60,
+    "required": true,
+    "qualified_languages": [
+      "typescript",
+      "javascript"
+    ],
+    "stages": [
+      "DISCOVERY",
+      "BUILD",
+      "CLOSEOUT"
+    ]
+  },
+  "context7-public-v1": {
+    "server_name": "tut_context7",
+    "capability": "dependency-docs",
+    "transport": "streamable-http",
+    "enabled_tools": [
+      "resolve-library-id",
+      "query-docs"
+    ],
+    "startup_timeout_sec": 45,
+    "tool_timeout_sec": 60,
+    "required": true,
+    "endpoint": "https://mcp.context7.com/mcp",
+    "auth": "anonymous",
+    "egress": "Public dependency documentation queries only; no source or secrets",
+    "stages": [
+      "DISCOVERY",
+      "BUILD"
+    ]
+  }
+}

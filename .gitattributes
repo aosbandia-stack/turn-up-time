@@ -1,0 +1,3 @@
+# Core skills are pinned by byte hash in .claude/capabilities/provider-lock.json,
+# so every checkout must hold the committed LF bytes regardless of core.autocrlf.
+.claude/skills/** text eol=lf

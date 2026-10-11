@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "project_id": "synthetic",
+  "build_identity": "candidate",
+  "finding_ids": [
+    "F1"
+  ],
+  "owner_roles": [
+    "implementation-engineer"
+  ],
+  "requirement_ids": [
+    "R1"
+  ],
+  "status": "APPROVED",
+  "approval_ref": "triage/SYNTHETIC-AUTHORITY.json"
+}

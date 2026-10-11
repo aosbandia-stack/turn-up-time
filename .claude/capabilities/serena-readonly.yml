@@ -1,0 +1,8 @@
+description: Bound project read-only symbol and caller analysis
+prompt: Use the three read-only symbol tools for the authenticated project. Report uncertainty and affected callers. Do not switch projects or run commands.
+single_project: true
+fixed_tools:
+  - get_symbols_overview
+  - find_symbol
+  - find_referencing_symbols
+tool_description_overrides: {}

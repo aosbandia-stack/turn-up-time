@@ -47,6 +47,14 @@ The root requests closeout bookkeeping through the runtime; specialists do not e
 
 ## Round loop
 
+For a project whose approved Definition of Good includes `acceptance.check=gauntlet-contract`,
+apply `docs/GAUNTLET.md`. Preserve the independently pinned matrix, current finding-v2 inventory,
+shared round history and original repair acceptance. After targeted repairs, require an independent
+original-failure replay and affected journey proofs on the final candidate. Add the standard
+`gauntlet/verification.json` receipt to terminal `evidence_refs`; do not add terminal root fields.
+The existing closeout validator recomputes the gauntlet. Required skipped, unknown or blocked checks
+remain incomplete regardless of aggregate scores or budget exhaustion.
+
 For each round up to `max_rounds`:
 
 1. Spawn a fresh audit team with persona, journey, build identity, allowed evidence, and no prior

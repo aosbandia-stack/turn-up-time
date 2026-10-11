@@ -8,6 +8,13 @@ disable-model-invocation: true
 
 Complete vertical depth inside approved tickets, without horizontal scope invention.
 
+For the opt-in gauntlet, use `docs/GAUNTLET.md`. Triage recommendations do not create new repair
+authority. Give the engineer the original finding, unchanged acceptance, affected modules/callers
+and rollback. Resolve `ponytail-implementation` when selected, and `code-symbol-analysis` or
+`dependency-docs` only when the approved capability plan calls for them. Preserve shared round and
+spawn budgets. Return implementation evidence to a separate verifier; never rewrite a failing test
+or required check into a skip to obtain completion.
+
 ## Preconditions and capability resolution
 
 Require approved Definition of Good and tickets, PRE_BUILD SEAMS_SOUND, target-stage validation,

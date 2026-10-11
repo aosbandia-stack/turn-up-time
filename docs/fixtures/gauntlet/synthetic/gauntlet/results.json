@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "project_id": "synthetic",
+  "build_identity": "candidate",
+  "contract_sha256": "5627396fda25e906d3119f2692de6e997244356f808e45f2dde7e1d0f3c571f0",
+  "checks": [
+    {
+      "id": "J1:success:web",
+      "status": "PASS",
+      "proof": {
+        "path": "evidence/journey.json",
+        "sha256": "acea15bde5c36b253e840bd28f714ece16854f942f1776e14494d5a10ac5df93"
+      }
+    }
+  ],
+  "findings": [
+    {
+      "path": "closeout/findings/F1.json",
+      "sha256": "5777c92526c29ae1deec53b815be9e22a0aee562239ce445b9c78c6ef5a1b76a"
+    }
+  ],
+  "repairs": [
+    {
+      "finding_id": "F1",
+      "verifier": "verifier",
+      "replay": {
+        "path": "evidence/replay.json",
+        "sha256": "4436d9cb9f968e4aeca46923a1c12b81454be6b2b862c71bed027e197e43dfa4"
+      }
+    }
+  ],
+  "budget": {
+    "used": 2,
+    "event_ids": [
+      "round-1",
+      "round-2"
+    ]
+  }
+}

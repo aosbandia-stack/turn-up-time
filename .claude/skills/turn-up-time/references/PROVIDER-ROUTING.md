@@ -1,5 +1,7 @@
 # Optional provider routing
 
+For the concrete generation-to-worker sequence, use the [Bandia bundle coordinator runbook](../../../../docs/BANDIA-BUNDLE.md): stage, assemble, export the confined task binding, bind through the authenticated coordinator, launch, and validate independent provider application evidence.
+
 Select capabilities for the approved job, not entire upstream workflows. This reference is the
 provider-specific adaptation layer; the constitution, stage owners, budgets and evidence contracts
 remain authoritative. Mappings in `registry.json` are pinned provenance, not installation, invocation
@@ -117,5 +119,10 @@ not automatically verify upstream pins or supplementary files; independent intak
 Keep upstream packages outside core, do not enable auto-update/hooks, and preserve any required
 license notices with approved copied material. Removal drops optional mappings/installation using
 the existing guard and hash-safe preservation rules; never delete product files or audit evidence.
-REA, Serena, Context7 and selected backend/database specialist profiles remain separate follow-on
-integration work; this routing change neither installs them nor changes Bandia's worker adapter.
+The optional complete provider generation adds REA (`reference-app-analysis`), Serena
+(`code-symbol-analysis`), Context7 (`dependency-docs`), selected backend/database profiles,
+Ponytail implementation/review, and TypeSafe guidance/optional fast triage. Resolve each exact
+capability through the current registry and worker bundle. Installed instructions do not establish
+external runtime readiness or actual use. See `docs/GAUNTLET.md` for bounded triage, immutable
+coverage and targeted repair routing. Activation of the whole bundle still requires actual worker
+and provider-use evidence; this routing text alone is not an installed or live release.

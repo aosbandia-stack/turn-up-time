@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "project_id": "synthetic",
+  "build_identity": "candidate",
+  "check_id": "gauntlet-verifier:verifier",
+  "status": "PASS",
+  "checked_at": "2026-10-10T00:00:00Z",
+  "evidence_refs": [
+    {
+      "path": "evidence/replay.json",
+      "sha256": "4436d9cb9f968e4aeca46923a1c12b81454be6b2b862c71bed027e197e43dfa4"
+    }
+  ]
+}
