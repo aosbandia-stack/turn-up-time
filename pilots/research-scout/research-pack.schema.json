@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "turn-up-time/pilots/research-scout/research-pack.schema.json",
+  "title": "Research Pack (research-scout pilot)",
+  "description": "Scout output for one approved brief. Every claim is untrusted data until guard.filter_pack and premise-auditor accept it.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "brief_id", "claims", "unanswered", "spend"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "brief_id": {"type": "string", "minLength": 1},
+    "claims": {"type": "array", "items": {"$ref": "#/$defs/claim"}},
+    "unanswered": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["question_id", "reason"],
+        "properties": {
+          "question_id": {"type": "string", "minLength": 1},
+          "reason": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "spend": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["calls", "usd"],
+      "properties": {
+        "calls": {"type": "integer", "minimum": 0},
+        "usd": {"type": "number", "minimum": 0}
+      }
+    }
+  },
+  "$defs": {
+    "engine": {"enum": ["builtin-web-search", "perplexity_search", "perplexity_ask", "perplexity_reason", "perplexity_research"]},
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["url", "title", "quote", "retrieved_at"],
+      "properties": {
+        "url": {"type": "string", "pattern": "^https://\\S+$"},
+        "title": {"type": "string"},
+        "quote": {"type": "string", "minLength": 1},
+        "retrieved_at": {"type": "string", "format": "date"}
+      }
+    },
+    "claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["question_id", "claim", "label", "sources", "engine"],
+      "properties": {
+        "question_id": {"type": "string", "minLength": 1},
+        "claim": {"type": "string", "minLength": 1},
+        "label": {"enum": ["SUPPORTED", "CONFLICTED", "UNKNOWN", "NOT_APPLICABLE"]},
+        "sources": {"type": "array", "items": {"$ref": "#/$defs/source"}},
+        "engine": {"$ref": "#/$defs/engine"},
+        "tool_preset": {"type": "string"},
+        "cost_usd": {"type": "number", "minimum": 0},
+        "license": {"type": "string"},
+        "last_release": {"type": "string", "format": "date"}
+      }
+    }
+  }
+}
