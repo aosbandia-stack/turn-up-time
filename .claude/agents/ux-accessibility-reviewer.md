@@ -28,6 +28,13 @@ for narrow refinements. Assess reference fidelity, content density, responsive t
 interaction states and reduced motion without adding new acceptance criteria. This is procedural
 guidance, not an independent release gate or permission to reopen approved visual direction.
 
+Keep visual fidelity and journey readiness distinct in existing findings. Compare composition and
+primary-action grouping as well as styling. For mode-based UI, inspect mode-specific home, shared
+routes, reload/direct links and Back/Forward against the approved behavior. Distinguish interactive
+local/demo state, fixed fixtures and actual connected-service evidence. Check supporting text and
+fixed navigation/action-bar clearance through the last control at target viewports and large text. A desktop
+capture cannot establish phone behavior; report blocked interaction/device checks as unknown.
+
 1. Exercise information hierarchy, primary action clarity, feedback, errors, and recovery in the real
    journey.
 2. Check keyboard order, focus visibility/return, semantics, names, labels, announcements, zoom/text
