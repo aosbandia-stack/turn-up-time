@@ -59,7 +59,7 @@ def main() -> int:
     skills = sorted((CLAUDE_DIR / "skills").glob("*/SKILL.md"))
     agents = sorted((CLAUDE_DIR / "agents").glob("*.md"))
     schemas = sorted((CLAUDE_DIR / "schemas").glob("*.json"))
-    add("skill-count", len(skills) == 11, f"count={len(skills)}")
+    add("skill-count", len(skills) == 12, f"count={len(skills)}")
     add("agent-count", len(agents) == 17, f"count={len(agents)}")
     add("schema-count", len(schemas) == 32, f"count={len(schemas)}")
 

@@ -11,9 +11,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: pip install pyyaml jsonschema
+      - run: pip install pyyaml jsonschema "pytest>=8,<10"
       - name: Validate repository contracts
         run: python .claude/scripts/validate_repo.py
+      - name: Test UI craft routing and Codex installation
+        run: python -m pytest scripts/tests/test_ui_craft_integration.py scripts/tests/test_codex_installer.py -q
       - name: Run seeded process failures
         run: python .claude/scripts/run_seeded_evals.py
       - name: Run cold deterministic review
@@ -86,7 +88,7 @@ jobs:
           .\scripts\install.ps1
           if (Test-Path (Join-Path $env:TURN_UP_TIME_CLAUDE_HOME 'turn-up-time-install-manifest.json')) { throw 'Dry-run created a manifest' }
           .\scripts\install.ps1 -Apply -EnableNotifications -EnableAutoAccept -ReplaceGlobalConstitution
-          foreach ($required in @('skills\swiper-dont-swpe-me\SKILL.md', 'scripts\contract_evidence.py', 'scripts\project_contracts.py', 'schemas\terminal-state.schema.json')) {
+          foreach ($required in @('skills\swiper-dont-swpe-me\SKILL.md', 'skills\reference-to-reality\SKILL.md', 'skills\reference-to-reality\references\design-contract.md', 'skills\reference-to-reality\references\verification.md', 'scripts\contract_evidence.py', 'scripts\project_contracts.py', 'schemas\terminal-state.schema.json')) {
             if (-not (Test-Path (Join-Path $env:TURN_UP_TIME_CLAUDE_HOME $required))) { throw "Required installed contract missing: $required" }
           }
           $manifest = Join-Path $env:TURN_UP_TIME_CLAUDE_HOME 'turn-up-time-install-manifest.json'

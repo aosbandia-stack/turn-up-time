@@ -51,7 +51,7 @@ executive reviews, compact progress snapshots and honest completion status. The 
 
 ## What ships
 
-- 10 user-facing skills plus 1 internal eval provider.
+- 10 workflow skills, 1 bundled product UI craft skill, and 1 internal eval provider.
 - 17 role-specific agents, with assurance roles mechanically read-only.
 - One prompt router that sends ordinary software work to `/turn-up-time`.
 - A plug-and-play capability registry for optional specialist providers.
@@ -61,6 +61,19 @@ executive reviews, compact progress snapshots and honest completion status. The 
 - A pinned LangGraph runtime with local SQLite checkpointing.
 - A dry-run-first installer with backup, ownership manifest, modified-file protection, and reversible
   uninstall.
+
+## Reference to Reality: repeatable product UI craft
+
+[Reference to Reality](.claude/skills/reference-to-reality/SKILL.md) carries approved visual references
+through a working first screen, shared tokens/components, realistic test data, purposeful motion,
+rendered comparison and one bounded refinement pass. It preserves what the user liked instead of
+letting a mockup become a generic dashboard during implementation. It adapts to the product; scenic
+photographs, purple accents and serif headings are an Adams example, not mandatory styling.
+
+Turn Up Time loads it for material product UI work and reuses only affected checks for narrow edits.
+Non-UI tasks skip it. It supplements the existing Impeccable baseline and stage owners; Taste, Stitch
+and REA stay optional and require their own availability/permission/evidence checks. Installed
+instructions do not prove rendered quality or device testing. See [installation](docs/INSTALL.md).
 
 ## Task shapes
 

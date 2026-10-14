@@ -17,6 +17,19 @@ instruction packages and `/plug-it-in` for their scoped qualification pilot. Ful
 actual environment readiness/use proof. Source-only audit and isolated target execution are different
 modes; a worktree is not an OS sandbox.
 
+### Bundled UI craft procedure
+
+Normal core installation includes [Reference to Reality](../.claude/skills/reference-to-reality/SKILL.md)
+and its relative references. Claude receives `skills/reference-to-reality/`; Codex generates
+`$tut-reference-to-reality`, which reads the procedure from its installed source snapshot. No optional
+provider install is needed for this procedure. Update through the existing installer rather than
+copying only the top-level SKILL.md. Existing installations need an update to receive this change.
+
+TUT intake, definition, build and relevant specialist instructions load the procedure for material UI
+work. Narrow refinements reuse the guide; non-UI work skips it. This is instruction routing, not an
+automatic code classifier or proof that an agent applied the procedure. It does not install Taste,
+Stitch, REA or any new dependency, or replace Impeccable and assurance/release gates.
+
 ## Install the selected provider packages
 
 The provider installer now copies real pinned packages, companion references/assets and licenses.

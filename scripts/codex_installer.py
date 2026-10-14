@@ -189,7 +189,8 @@ def generated_files(home: Path, generation: Path, python: Path, meta: dict) -> t
         instruction = (f'You are the Turn Up Time {name} role. Read {base.as_posix()}/CODEX.md. '
                        'The parent owns the ledger and persists your returned artifacts. Do not restart the root workflow. '
                        "You are not alone in the workspace; preserve other agents' changes. "
-                       'Use available Codex tools; source Claude tool names describe capabilities.\n\n' + info['body'])
+                       'Use available Codex tools; source Claude tool names describe capabilities.\n'
+                       f'Resolve relative links below from {(source / info["relative_path"]).parent.as_posix()}/.\n\n' + info['body'])
         fields = {'name': installed, 'description': info['description'], 'developer_instructions': instruction}
         if info.get('role_class') != 'production':
             fields['sandbox_mode'] = 'read-only'

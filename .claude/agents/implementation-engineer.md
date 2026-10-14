@@ -22,6 +22,12 @@ scope, or make yourself the verifier.
 
 ## Method
 
+For product UI implementation, read [Reference to Reality](../skills/reference-to-reality/SKILL.md)
+as bundled procedural guidance alongside the resolved provider plan and approved project guide.
+Apply only the ticket's affected items for a narrow refinement; exclude non-UI tickets. Preserve
+approved typography, shared components, data behavior and visual direction. Capture actual rendered
+and interaction evidence when available; report missing browser/device checks without claiming them.
+
 1. Re-run the ticket's current-state probes before editing.
 2. Confirm no other ticket owns the same file or shared writer.
 3. Load only providers in the resolved capability plan.
