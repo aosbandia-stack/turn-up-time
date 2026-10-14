@@ -52,7 +52,8 @@ Use [the guide prompts](references/design-contract.md) to capture:
 - the primary user task and one critical journey;
 - exact reference assets and which traits are adopted, adapted, or rejected;
 - typography roles, spacing rhythm, surface hierarchy, imagery crops/scrims, and shared components;
-- responsive layout, content density, states, accessibility, and motion;
+- responsive composition, which information and primary action appear together, states, accessibility,
+  and motion; preserve useful action density when adapting a phone reference to a wider screen;
 - demo versus live data, integration seams, and an observable finish line.
 
 Specify what makes this app distinctive in one sentence. Avoid adjectives without implementation
@@ -77,6 +78,14 @@ A visible control must work, have a real destination, or explicitly explain why 
 Separate fixture dates, estimates and illustrative goals from real calculations. Never make a fixed
 promise look like a calculated date or a browser-local record look like synchronized household data.
 
+For apps with modes or workspaces, keep mode, route and shared state consistent. Define what each
+mode's Home/Today means, how shared routes retain their originating mode, and the intended behavior
+of direct links, reload, and Back/Forward. Exercise those transitions within the scoped journey;
+an intentional mode switch must be explicit rather than a side effect of a shared route name.
+Distinguish interactive local/demo behavior, fixed illustrative outputs, and connected services.
+A working button does not prove a recommendation responds to its inputs or that an external service
+was used. Verify those claims with input/output or actual integration evidence, as applicable.
+
 Before route fanout, verify the first journey with the approved browser/native tool when available.
 If verification is blocked, record the exact missing capability and do not claim it passed. Under TUT,
 required assurance remains a gate: code checks or a user's visual preference do not replace it.
@@ -88,6 +97,8 @@ budget; use a longer design loop only through the project's approved mechanism.
 
 1. **Hierarchy and space:** make the main answer obvious, align related content, remove redundant
    containers, reduce oversized working-screen headers, and leave enough space for reading and touch.
+   Compare the reference's information grouping and distance to the primary action, not only its
+   palette. Wider layouts should not scatter one decision across unrelated areas.
 2. **Typography:** usually two complementary families at most; use distinct display, body, label,
    and number roles. Keep supporting text readable, use tabular figures for money, test long values,
    large text and wrap behavior. On mobile web, use 16px form inputs where appropriate to avoid zoom.
@@ -115,10 +126,13 @@ do not install tools, trigger paid calls, or export private designs without appl
 Compare rendered output with the reference at the approved target viewport(s). For responsive UI,
 include a phone size and another relevant width; do not add mobile support to desktop-only scope.
 Use the existing project's permitted browser/native tooling. Check font loading, image crops,
-contrast, text scaling, long labels and amounts, safe areas, fixed-navigation clearance, keyboard and
+contrast, text scaling, long labels and amounts, safe areas, fixed navigation/action-bar clearance, keyboard and
 focus behavior, scrolling, reduced motion, and the critical journey's success/error states.
 
 Capture deciding evidence and concrete differences, then fix the highest-impact ones within budget.
+Report visual fidelity and journey readiness separately in existing evidence. A matching screenshot
+can support composition at its captured viewport; it cannot prove navigation, responsive behavior,
+or mobile readability. A passing interaction check cannot establish visual fidelity either.
 Do not assign a visual score from source code. Source/DOM-stub checks are useful but do not prove
 rendering or on-device behavior. Read [verification and handoff](references/verification.md) before
 claiming completion. Keep independent evaluation when the governing workflow requires it.

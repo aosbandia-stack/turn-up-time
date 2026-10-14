@@ -25,14 +25,26 @@ who has not seen the original conversation.
 | Components | Shared header, nav, cards, lists, inputs, dialogs, owner and reuse location |
 | Motion | Triggers, duration/easing, prior-value behavior, interruption and reduced-motion fallback |
 
+Name the information that must remain grouped with the next action at each approved viewport.
+For example, a preparation screen may keep a status summary, proposed task and start/adapt action
+together. Preserve that decision structure when adapting the reference; do not require an identical
+above-the-fold layout across devices or shrink supporting text to force everything into one screen.
+Specify readable supporting labels and reserved space for fixed navigation or action bars, including large text,
+safe areas and the last scrollable control. A desktop capture does not establish phone clearance.
+
 Prefer native scrolling and stable geometry. Do not introduce scroll interception or persistent
 background animation merely to make the product feel expensive. Use motion to communicate state.
 
 ## Behavior and integration
 
 - Each visible control's action and loading/empty/error/success states.
+- For mode-based apps: mode-specific Home/Today destinations, shared-route ownership, explicit mode
+  switching, and the intended direct-link, reload and Back/Forward behavior.
 - Which views share a source of truth, which scopes are separate, and what recalculates on mutation.
-- Fixture versus real data; date/timezone assumptions; estimate assumptions and units.
+- Per claimed behavior: interactive local/demo state, fixed illustrative fixture, or connected service;
+  expected input/output changes and required integration evidence. Label fixed adaptation examples
+  honestly; do not imply AI or wearable use from the presence of an action button.
+- Date/timezone assumptions; estimate assumptions and units.
 - Storage/persistence, existing-data migration, reset/undo boundaries and integration adapter points.
 - Keyboard, focus, large text, safe-area and long-content behavior.
 - Required proof, permitted tools, candidate/build identity and known verification limitations.
