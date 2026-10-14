@@ -37,6 +37,12 @@ Use Definition of Good schema version 2. Declare UI applicability and its reason
 environment, deployment scope, and maintainability owner/layout/entry points/generated and temporary
 paths. Non-UI work declares command or integration proof.
 
+For material product UI work, read [Reference to Reality](../reference-to-reality/SKILL.md)
+and compile its relevant decisions into the existing project design guide and ticket acceptance.
+Keep approved references, realistic content, page roles, typography/spacing tokens, photo treatment,
+motion limits and the first usable journey concrete. Reuse the guide for narrow refinements. This
+procedure adds no artifact schema, provider requirement, graph stage or parallel approval flow.
+
 For UI work choose one authoritative design reference before implementation. Reuse an existing
 system; when a new direction is genuinely needed, compare a small set using the same real content
 and have the human decide. Name shared tokens/components and their owner, route loading/empty/error/

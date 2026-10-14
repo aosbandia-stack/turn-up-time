@@ -22,6 +22,11 @@ of discovering the product late.
 
 ## Method
 
+For material product UI discovery, read [Reference to Reality](../skills/reference-to-reality/SKILL.md).
+Use its reference/content questions within the existing source budget and evidence pack. Propose
+concrete craft decisions for the project guide; do not impose its Adams example as a universal theme.
+Narrow UI refinements reuse the approved guide, and non-UI work does not load this procedure.
+
 1. Define each critical journey: start state, user action, system feedback, success, failure, recovery.
 2. Define information architecture and primary/secondary/dangerous action hierarchy.
 3. Build the required state matrix: first-use, empty, loading, partial, error, denied, offline,

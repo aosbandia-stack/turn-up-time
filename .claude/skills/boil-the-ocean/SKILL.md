@@ -42,6 +42,13 @@ Before dispatch, load the selected adaptations in
 required assurance executes through its independent role before INTEGRATION. Preserve scope,
 budgets and meaningful checks rather than importing another planning or commit policy.
 
+For product UI tickets, read [Reference to Reality](../reference-to-reality/SKILL.md) and pass
+only the relevant build/inspection guidance with the approved guide and assets to the engineer.
+Require an exercised representative slice before dependent routes fan out. Compare actual rendered
+states with the approved reference; report unavailable browser/device checks as unverified. Use the
+existing one batched polish pass and at most one confirmation unless a bounded design loop was
+explicitly approved. Do not install Taste, Stitch or REA merely because this procedure names them.
+
 ## Dispatch and accounting
 
 Prefer one capable builder when work does not genuinely divide. Otherwise assign one implementation

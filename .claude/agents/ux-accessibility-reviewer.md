@@ -22,6 +22,12 @@ content, accessibility, responsive contexts, and required states. Preserve the r
 
 ## Method
 
+For product UI review, read [Reference to Reality](../skills/reference-to-reality/SKILL.md) and
+use its inspection checklist against the approved guide and exact rendered candidate. Reuse the guide
+for narrow refinements. Assess reference fidelity, content density, responsive typography, imagery,
+interaction states and reduced motion without adding new acceptance criteria. This is procedural
+guidance, not an independent release gate or permission to reopen approved visual direction.
+
 1. Exercise information hierarchy, primary action clarity, feedback, errors, and recovery in the real
    journey.
 2. Check keyboard order, focus visibility/return, semantics, names, labels, announcements, zoom/text

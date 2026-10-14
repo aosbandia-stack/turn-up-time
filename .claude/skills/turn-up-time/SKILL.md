@@ -39,6 +39,19 @@ File count and a desired minimum number of spawns do not classify the task. Unce
 real dependencies do. Preserve in-flight work when Tier B escalates; freeze further writes, capture
 checks/dirty state, and later mark the work KEEP, ADAPT, or REPLACE. It is not automatically approved.
 
+## Product UI craft
+
+For material product UI work, read [Reference to Reality](../reference-to-reality/SKILL.md)
+after classification and pass its relevant procedure to the existing stage owner. It turns approved
+visual references into an implemented, exercised first slice before expanding routes. It is bundled
+procedural guidance, not a provider, competing orchestrator, or extra stage. Impeccable remains the
+resolved default design baseline. Preserve all capability, readiness/use, approval and release gates.
+
+For a narrow UI refinement, reuse the approved guide and apply only the affected checklist items;
+Tier B stays bounded and does not create discovery agents or a new design loop. Exclude non-UI work.
+Record what was loaded and applied in existing task evidence. A linked skill is not proof of use.
+If the installed procedure is missing, report the missing resource instead of claiming it ran.
+
 ## Optional specialist selection
 
 Load [provider routing](references/PROVIDER-ROUTING.md) at intake when the request involves executive

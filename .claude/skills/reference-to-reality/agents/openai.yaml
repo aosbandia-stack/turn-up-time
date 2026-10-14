@@ -1,0 +1,4 @@
+interface:
+  display_name: "Reference to Reality"
+  short_description: "Turn approved app references into working interfaces"
+  default_prompt: "Use $reference-to-reality to turn my app references into a polished working interface, preserving the approved direction and verifying the result."

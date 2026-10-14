@@ -14,7 +14,9 @@ only the mechanisms needed by the evidence-to-ship gauntlet and its executable g
 7. `its-not-you-its-me`
 8. `plug-it-in`
 9. `guard-before-write`
-10. `eval-harness` (internal provider)
+10. `swiper-dont-swpe-me`
+11. `reference-to-reality` (bundled product UI procedure, not a capability provider)
+12. `eval-harness` (internal provider)
 
 ## Core roles
 

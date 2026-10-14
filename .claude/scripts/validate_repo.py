@@ -19,6 +19,7 @@ ERRORS: list[str] = []
 CORE_SKILLS = {
     "turn-up-time", "grill-me", "omnidex", "boil-the-ocean", "easily-irritated",
     "production-audit", "swiper-dont-swpe-me", "its-not-you-its-me", "plug-it-in", "guard-before-write", "eval-harness",
+    "reference-to-reality",
 }
 EXPECTED_AGENTS = {
     "architect", "backend-systems-researcher", "combined-engineering-researcher",
@@ -109,6 +110,29 @@ def markdown_link_errors(root: Path) -> list[str]:
     return errors
 
 
+# Instruction routing is distinct from capability/runtime execution. Keep the procedure reachable
+# at each owning stage, including installed role bodies. Missing links must not silently drop it.
+UI_CRAFT_ROUTES = {
+    ".claude/skills/turn-up-time/SKILL.md": "../reference-to-reality/SKILL.md",
+    ".claude/skills/omnidex/SKILL.md": "../reference-to-reality/SKILL.md",
+    ".claude/skills/boil-the-ocean/SKILL.md": "../reference-to-reality/SKILL.md",
+    ".claude/agents/frontend-experience-researcher.md": "../skills/reference-to-reality/SKILL.md",
+    ".claude/agents/implementation-engineer.md": "../skills/reference-to-reality/SKILL.md",
+    ".claude/agents/ux-accessibility-reviewer.md": "../skills/reference-to-reality/SKILL.md",
+}
+
+
+def ui_craft_routing_errors(root: Path) -> list[str]:
+    errors = []
+    for relative, target in UI_CRAFT_ROUTES.items():
+        path = root / relative
+        if not path.is_file() or f"]({target})" not in path.read_text(encoding="utf-8"):
+            errors.append(f"UI_CRAFT_ROUTE_MISSING: {relative}")
+        elif not (path.parent / target).is_file():
+            errors.append(f"UI_CRAFT_PROCEDURE_MISSING: {relative} -> {target}")
+    return errors
+
+
 def main() -> int:
     skills = {path.parent.name for path in (CLAUDE_DIR / "skills").glob("*/SKILL.md")}
     agents = {path.stem for path in (CLAUDE_DIR / "agents").glob("*.md")}
@@ -183,6 +207,7 @@ def main() -> int:
         if phrase not in constitution:
             ERRORS.append(f"CLAUDE.md missing marker: {phrase}")
 
+    ERRORS.extend(ui_craft_routing_errors(ROOT))
     ERRORS.extend(markdown_link_errors(ROOT))
 
     if ERRORS:
