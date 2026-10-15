@@ -31,7 +31,8 @@ def _amend_budget(project: Path, ledger: dict[str, Any], data: dict[str, Any]) -
     _required(data, "reason")
     reference, expected = _required(data, "owner_decision_ref"), _required(data, "owner_decision_sha256")
     path = project_file(project, reference)
-    if reference.startswith((".runtime/", "approvals/")) or reference == "project-ledger.json":
+    canonical = path.resolve(strict=True).relative_to(project.resolve(strict=True))
+    if canonical.parts[0] in {".runtime", "approvals"} or canonical.as_posix() == "project-ledger.json":
         raise TurnUpTimeGraphError("budget amendment requires a controlling owner decision artifact")
     actual = hashlib.sha256(path.read_bytes()).hexdigest()
     registered = ledger["artifacts"].get(reference, {})

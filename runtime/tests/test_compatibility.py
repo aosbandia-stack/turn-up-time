@@ -171,6 +171,29 @@ def test_budget_amendment_preserves_every_other_field(legacy):
     assert result["spawn_budget"]["used"] == 75
 
 
+@pytest.mark.parametrize("alias", ["dot-runtime", "dot-approvals", "dot-ledger", "symlink-runtime", "symlink-approvals", "symlink-ledger"])
+def test_budget_owner_artifact_rejects_canonical_internal_paths(legacy, alias):
+    repo, project, value = legacy
+    data = decision(project, value)
+    destination = {"runtime": ".runtime/owner.json", "approvals": "approvals/owner.json", "ledger": "project-ledger.json"}[alias.split("-")[1]]
+    if not destination.endswith("project-ledger.json"):
+        target = project / destination
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes((project / "owner.json").read_bytes())
+    if alias.startswith("dot"):
+        reference = "./" + destination
+    else:
+        (project / "owner-alias.json").symlink_to(project / destination)
+        reference = "owner-alias.json"
+    data["owner_decision_ref"] = reference
+    data["owner_decision_sha256"] = tx.file_sha(project / reference)
+    value["artifacts"][reference] = {"path": reference, "status": "CURRENT", "sha256": data["owner_decision_sha256"], "schema": None}
+    before = copy.deepcopy(value)
+    with pytest.raises(TurnUpTimeGraphError, match="controlling owner decision artifact"):
+        apply_operation(repo, project, value, "amend_spawn_budget", data)
+    assert value == before
+
+
 @pytest.mark.parametrize("bad", ["unregistered", "not-current", "changed-bytes", "wrong-hash", "no-authorization",
                                   "pending", "wrong-project", "wrong-operation", "wrong-new", "wrong-old", "blank-message",
                                   "bool", "decrease", "same", "huge", "extra-field", "missing-field"])
