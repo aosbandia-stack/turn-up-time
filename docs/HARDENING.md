@@ -134,6 +134,8 @@ location for those payloads. Each operation accepts only its documented fields.
 | `reserve_spawn` | `{"spawn_id":"T1-builder","role":"implementation-engineer","role_class":"production","reason":"Implement approved T1"}` | Reserve one spawn before dispatch; reject exhausted budget, duplicate ID, or production outside BUILD/CLOSEOUT. |
 | `complete_spawn` | `{"spawn_id":"T1-builder","outcome":"SUCCEEDED","artifact_refs":["receipts/T1.json"]}` | Record completion or FAILED/CANCELLED/TIMED_OUT/INTERRUPTED; never refund consumed work. |
 | `set_build_identity` | `{}` | Compute assembled Git/workspace identity; never accept a caller-invented identity. |
+| `amend_spawn_budget` | `{"expected_limit":75,"new_limit":85,"reason":"Owner-approved continuation","owner_decision_ref":"receipts/owner-budget.json","owner_decision_sha256":"<actual SHA-256>"}` | Strictly increase the exact old limit; keep used/spawn history intact. Requires the registered CURRENT owner receipt described below. Records old/new/used/reason/decision hash in the event and durable journal. |
+| `migrate_ledger_compatibility` | `{"profile":"ledger-v2-risk-severity-v1","expected_ledger_sha256":"<current SHA-256>","backup_ref":".runtime/backups/before-repair/manifest.json","backup_sha256":"<actual SHA-256>"}` | Normalize only known uppercase risk severity labels in ledger v2. Requires a complete current runtime backup. Records every changed field; never changes a decision, approval, stage, definition or evidence artifact. |
 
 Example with `requests/reserve.json` containing the reserve payload above:
 
@@ -148,6 +150,31 @@ supervisor must reserve first, launch within isolation, and record the real run
 outcome. The project spawn ceiling covers ALL roles and repair attempts. Plan a
 sufficient explicitly approved total during intake; do not edit an initialized
 ledger to silently raise the ceiling or reset consumption.
+
+For a budget amendment the owner must already have explicitly approved the exact increase. Record
+the actual conversation evidence and its provenance in a new receipt, without rewriting historical
+proposals or pretending it is cryptographically signed:
+
+```json
+{
+  "status": "OWNER_APPROVED_IN_CONVERSATION",
+  "ownerMessage": "Approved!",
+  "authorization": {
+    "project_id": "pilot",
+    "operation": "amend_spawn_budget",
+    "old_limit": 75,
+    "new_limit": 85
+  }
+}
+```
+
+Additional top-level provenance is allowed; the `authorization` object must match these exact keys,
+types, project and old/new limits. Register the receipt through `record_artifact` first. The operation
+checks CURRENT status and both registered/actual hashes under the writer lock, and accepts only
+integer increases through 2147483647. The caller cannot supply a new used count. A metadata receipt
+is an auditable assertion of already-obtained owner authority, not an identity or signature verifier;
+the operator remains responsible for truthful transcription. It cannot authorize any human-gated
+stage transition. Approval signature provisioning and verification are unchanged.
 
 ## Evidence that can advance a stage
 
@@ -183,6 +210,36 @@ the identical event. Preserve both `.claude/runtime/turn-up-time-checkpoints.sql
 and project `.runtime/operations.sqlite` with the ledger and event log. Take
 backups while the controller is stopped. Never delete the journal to reset loop
 counts, or restore a ledger alone and call it a consistent recovery.
+
+For the bounded ledger-v2 compatibility repair, first quiesce other controllers and run `recover`.
+Use `compatibility-plan --repo-root ... --project-dir ...` for a pure read-only list of exact field
+changes and the current raw ledger hash. `backup-project --repo-root ... --project-dir ...
+--backup-id before-repair` then creates read-only, fsynced copies and a hash manifest under project
+`.runtime/backups/before-repair/`. It never overwrites an existing capture. The capture includes the
+ledger, event log, all project artifacts and runtime files except nested backups/writer.lock, plus
+the repository checkpoint database when present. SQLite uses its online backup API so committed WAL
+contents are retained; its sidecars are represented by that database snapshot. Before migration the
+runtime checks the exact inventory and all copied hashes, current non-SQLite source hashes, and the
+current logical SQLite contents against the snapshot. A partial, stale, modified or incomplete
+capture fails closed. Keep runtime backups out of Git; they may contain sensitive project state.
+
+Immediately submit `migrate_ledger_compatibility` with the returned ledger/manifest hashes. Do not
+write request files or record other artifacts between capture and migration: the complete inventory
+and source checks deliberately reject such changes. Use `--data-json` prepared before capture or
+an already-existing request file. Its one profile changes only HIGH/MEDIUM/LOW/CRITICAL to their
+lowercase spelling; unknown values and no-op migrations fail. Decision status WITHDRAWN is now
+represented directly in the ledger schema and means retracted, non-authoritative history. It is
+distinct from RESOLVED and has no effect on signed stage approvals. Re-run the real target validator
+after repair; incompatible definitions and evidence must still be authored and reapproved normally.
+
+Exact migration/amendment event retries use the existing durable idempotency journal, including
+projection-interruption recovery. A fresh event ID is not a substitute for retry/recover. Backups
+are recovery evidence, not an automatic rollback command: restore an entire coherent capture at its
+original paths only through an explicitly authorized recovery that preserves later consumed work.
+Persisted checkpoints bind absolute repository/project paths. CLI resume/recover rejects a copied
+checkpoint whose paths differ, before invoking graph nodes that could write the original workspace.
+For a disposable test copy, retain the original checkpoint as evidence and create a fresh isolated
+checkpoint from the copied project's retained operation journal. Never rewrite checkpoint paths.
 
 Back up an existing installation and active project state before upgrading.
 Existing stage names/topology and ledger schema remain unchanged. Event history

@@ -50,7 +50,7 @@
           "id": {"type": "string"},
           "owner": {"enum": ["human", "architect", "pm"]},
           "question": {"type": "string"},
-          "status": {"enum": ["OPEN", "RESOLVED", "DEFERRED"]},
+          "status": {"enum": ["OPEN", "RESOLVED", "DEFERRED", "WITHDRAWN"], "description": "WITHDRAWN preserves retracted history and is never approval or resolution authority."},
           "resolution": {"type": ["string", "null"]},
           "decided_at": {"type": ["string", "null"], "format": "date-time"},
           "artifact_refs": {"type": "array", "items": {"type": "string"}}

@@ -212,6 +212,88 @@ def test_rejected_bookkeeping_does_not_poison_resume(installed_project):
         "--data-json", json.dumps({"path": "intake-readiness.json"}))
 
 
+def test_copied_checkpoint_cannot_control_original_workspace(installed_project, tmp_path):
+    repo, project, private, env = installed_project
+    cli(installed_project, "recover")
+    original = (project / "project-ledger.json").read_bytes()
+    copy_repo = tmp_path / "copied-repo"
+    shutil.copytree(repo, copy_repo)
+    copied = (copy_repo, copy_repo / ".claude/projects/pilot", private, env)
+    result = cli(copied, "signal", "--event", "reserve_spawn", "--event-id", "copied-control",
+                 "--data-json", json.dumps({"spawn_id": "wrong-path", "role": "researcher",
+                                           "role_class": "assurance", "reason": "must not write original"}), success=False)
+    assert "checkpoint workspace binding differs" in result.stdout
+    assert (project / "project-ledger.json").read_bytes() == original
+    assert (copied[1] / "project-ledger.json").read_bytes() == original
+
+
+def test_real_cli_budget_amendment_audit_and_no_unsigned_stage_authority(installed_project):
+    from jsonschema import Draft202012Validator
+    repo, project, _, _ = installed_project
+    before = json.loads((project / "project-ledger.json").read_text())
+    old = before["spawn_budget"]["limit"]
+    decision = {"status": "OWNER_APPROVED_IN_CONVERSATION", "ownerMessage": "Approved!",
+                "authorization": {"project_id": "pilot", "operation": "amend_spawn_budget",
+                                  "old_limit": old, "new_limit": old + 10}}
+    (project / "owner-budget.json").write_text(json.dumps(decision))
+    cli(installed_project, "signal", "--event", "record_artifact", "--event-id", "record-budget-owner",
+        "--data-json", json.dumps({"path": "owner-budget.json"}))
+    registered = json.loads((project / "project-ledger.json").read_text())
+    data = {"expected_limit": old, "new_limit": old + 10, "reason": "explicit owner continuation",
+            "owner_decision_ref": "owner-budget.json", "owner_decision_sha256": registered["artifacts"]["owner-budget.json"]["sha256"]}
+    args = ["--event", "amend_spawn_budget", "--event-id", "budget-amend", "--data-json", json.dumps(data)]
+    cli(installed_project, "signal", *args)
+    assert json.loads(cli(installed_project, "signal", *args).stdout)["status"] == "ALREADY_APPLIED"
+    after = json.loads((project / "project-ledger.json").read_text())
+    expected = json.loads(json.dumps(registered))
+    expected["spawn_budget"]["limit"] = old + 10
+    assert after == expected
+    assert after["approvals"] == before["approvals"]
+    rows = [json.loads(line) for line in (project / "events.jsonl").read_text().splitlines()]
+    event = next(row for row in rows if row["event_id"] == "budget-amend")
+    assert event["operation_details"]["used"] == before["spawn_budget"]["used"]
+    assert event["operation_details"]["old_limit"] == old
+    schema = json.loads((SOURCE / ".claude/schemas/graph-event.schema.json").read_text())
+    assert not list(Draft202012Validator(schema).iter_errors(event))
+    rejected = cli(installed_project, "signal", "--event", "intake_ready", "--event-id", "unsigned-after-amend",
+                   "--approved-by", "Fixture Owner", success=False)
+    assert "owner-signed" in rejected.stdout
+
+
+def test_real_cli_legacy_migration_replay_preserves_other_contract_failures(installed_project):
+    from jsonschema import Draft202012Validator
+    _, project, _, _ = installed_project
+    path = project / "project-ledger.json"
+    value = json.loads(path.read_text())
+    value["risks"] = [{"id": "legacy", "description": "retained", "severity": "HIGH", "owner": "human",
+                       "status": "OPEN", "mitigation": None}]
+    value["decisions"] = [{"id": "HD-82", "owner": "human", "question": "withdrawn authority", "status": "WITHDRAWN",
+                           "resolution": "withdrawn", "decided_at": None, "artifact_refs": []}]
+    path.write_text(json.dumps(value))
+    original = path.read_bytes()
+    cli(installed_project, "compatibility-plan")
+    assert path.read_bytes() == original
+    cli(installed_project, "recover")
+    backup = json.loads(cli(installed_project, "backup-project", "--backup-id", "legacy").stdout)
+    data = {"profile": "ledger-v2-risk-severity-v1", "expected_ledger_sha256": backup["ledger_sha256"],
+            "backup_ref": backup["backup_ref"], "backup_sha256": backup["backup_sha256"]}
+    args = ["--event", "migrate_ledger_compatibility", "--event-id", "legacy-migration", "--data-json", json.dumps(data)]
+    cli(installed_project, "signal", *args)
+    assert json.loads(cli(installed_project, "signal", *args).stdout)["status"] == "ALREADY_APPLIED"
+    after = json.loads(path.read_text())
+    expected = json.loads(json.dumps(value))
+    expected["risks"][0]["severity"] = "high"
+    assert after == expected
+    rows = [json.loads(line) for line in (project / "events.jsonl").read_text().splitlines()]
+    schema = json.loads((SOURCE / ".claude/schemas/graph-event.schema.json").read_text())
+    assert not list(Draft202012Validator(schema).iter_errors(rows[-1]))
+    assert rows[-1]["operation_details"]["changes"] == [{"path": "/risks/0/severity", "before": "HIGH", "after": "high"}]
+    failed_build = subprocess.run([sys.executable, str(SOURCE / ".claude/scripts/validate_project.py"), str(project), "--stage", "BUILD"],
+                                  capture_output=True, text=True, timeout=60)
+    assert failed_build.returncode != 0
+    assert "MISSING" in failed_build.stdout
+
+
 @pytest.mark.parametrize("filename", ["capability-readiness.json", "capability-registry.json"])
 def test_project_capability_files_are_bound_to_signed_approval(installed_project, filename):
     _, project, _, _ = installed_project

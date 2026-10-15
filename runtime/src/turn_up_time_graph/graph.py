@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 from pathlib import Path
 from typing import Any
 
@@ -68,7 +69,8 @@ def _transition_update(state: GauntletState, transition, payload: dict[str, Any]
 def _operation_update(state: GauntletState, payload: dict[str, Any]) -> dict[str, Any]:
     repo, project = _project_paths(state)
     def prepare():
-        ledger = apply_operation(repo, project, load_ledger(project), payload["event"], payload["data"])
+        before = load_ledger(project)
+        ledger = apply_operation(repo, project, copy.deepcopy(before), payload["event"], payload["data"])
         event = {
             "schema_version": 1, "event_id": payload["event_id"], "event_type": "CONTROL_OPERATION",
             "project_id": state["project_id"], "thread_id": state["thread_id"],
@@ -76,6 +78,19 @@ def _operation_update(state: GauntletState, payload: dict[str, Any]) -> dict[str
             "verdict": "RECORDED", "loop_id": None, "iteration": None, "approved_by": None,
             "evidence_delta": [], "receipt_refs": [], "occurred_at": utc_now(),
         }
+        if payload["event"] == "amend_spawn_budget":
+            event["operation_details"] = {
+                "old_limit": before["spawn_budget"]["limit"], "new_limit": ledger["spawn_budget"]["limit"],
+                "used": ledger["spawn_budget"]["used"], "reason": payload["data"]["reason"],
+                "owner_decision_ref": payload["data"]["owner_decision_ref"],
+                "owner_decision_sha256": payload["data"]["owner_decision_sha256"],
+                "authority_kind": "CONVERSATION_EVIDENCE_NOT_SIGNED_STAGE_APPROVAL",
+            }
+            event["receipt_refs"] = [payload["data"]["owner_decision_ref"]]
+        elif payload["event"] == "migrate_ledger_compatibility":
+            from .compatibility import compatibility_plan
+            event["operation_details"] = dict(payload["data"], changes=compatibility_plan(project)["changes"])
+            event["receipt_refs"] = [payload["data"]["backup_ref"]]
         return ledger, event, {"stage": state["stage"], "status": ledger["status"],
                                "loop_counts": dict(state.get("loop_counts") or {}),
                                "last_event": payload["event"], "messages": [f"recorded:{payload['event']}"]}
