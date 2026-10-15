@@ -9,6 +9,7 @@ from typing import Any
 from langgraph.types import Command
 
 from .approvals import approval_request, verify_approval
+from .compatibility import backup_project, compatibility_plan
 from .exceptions import TurnUpTimeGraphError
 from .graph import build_graph, initial_state
 from .ledger import load_ledger
@@ -58,6 +59,10 @@ def _payload(args) -> dict[str, Any]:
 
 async def _ensure_started(graph, state, config):
     snapshot = await graph.aget_state(config)
+    if snapshot.values:
+        for name in ("repo_root", "project_dir"):
+            if Path(snapshot.values.get(name, "")).resolve() != Path(state[name]).resolve():
+                raise TurnUpTimeGraphError("checkpoint workspace binding differs; copied checkpoints may not control another workspace")
     if not snapshot.values:
         await graph.ainvoke(state, config)
         snapshot = await graph.aget_state(config)
@@ -161,6 +166,18 @@ def command_validate_topology(args) -> int:
     return 0
 
 
+def command_compatibility_plan(args) -> int:
+    _, project = _paths(args)
+    _print(compatibility_plan(project))
+    return 0
+
+
+def command_backup_project(args) -> int:
+    repo, project = _paths(args)
+    _print(backup_project(repo, project, args.backup_id))
+    return 0
+
+
 def command_render(args) -> int:
     paths = render(Path(args.repo_root or Path.cwd()).resolve())
     _print({"status": "GREEN", "files": [str(path) for path in paths]})
@@ -174,7 +191,7 @@ def build_parser() -> argparse.ArgumentParser:
     render_parser = subparsers.add_parser("render")
     render_parser.add_argument("--repo-root")
     render_parser.set_defaults(handler=command_render)
-    for name in ("signal", "request-approval", "recover", "status", "history"):
+    for name in ("signal", "request-approval", "recover", "status", "history", "compatibility-plan", "backup-project"):
         command = subparsers.add_parser(name)
         command.add_argument("--repo-root")
         command.add_argument("--project-dir", required=True)
@@ -192,6 +209,11 @@ def build_parser() -> argparse.ArgumentParser:
             command.set_defaults(handler=command_recover)
         elif name == "status":
             command.set_defaults(handler=command_status)
+        elif name == "compatibility-plan":
+            command.set_defaults(handler=command_compatibility_plan)
+        elif name == "backup-project":
+            command.add_argument("--backup-id", required=True)
+            command.set_defaults(handler=command_backup_project)
         else:
             command.add_argument("--limit", type=int, default=20)
             command.set_defaults(handler=command_history)

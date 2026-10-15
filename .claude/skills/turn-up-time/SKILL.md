@@ -129,6 +129,13 @@ with `--data-file` (project-relative JSON, recommended for PowerShell) or `--dat
 advance a stage. After metadata/artifacts are complete, use `request-approval` for a gated transition;
 the owner signs outside worker authority. Submit the matching `signal` with `--approval-ref`.
 
+An explicitly owner-approved ceiling increase uses `amend_spawn_budget` with a registered CURRENT,
+hash-bound decision approving that exact project's old/new limits. It never refunds consumption,
+signs a stage, or waives another gate. Legacy uppercase risk severities may use the single documented
+`migrate_ledger_compatibility` profile after a complete verified backup and pure plan; WITHDRAWN
+decisions remain withdrawn history. See `docs/HARDENING.md` for payloads and limitations. These
+operations do not migrate definitions, evidence or approvals, and cannot make a blocked build green.
+
 The runtime validates prerequisites, verifies the signature, locks the project, persists the intent,
 and updates ledger, events, and checkpoint. Missing validators fail closed. Repeat an interrupted
 operation with its SAME event ID and payload; use `recover` when required. Do not manufacture a new

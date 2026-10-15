@@ -145,7 +145,9 @@ Tier C state lives under `.claude/projects/<project-id>/`. Before the root signa
 8. verify checkpoint and ledger hashes still align.
 
 Agent prose cannot advance a stage. Use `record_artifact`, `reserve_spawn`, `complete_spawn` and
-`set_build_identity` for metadata without changing a stage. Reserve before dispatch, complete from
+`set_build_identity` for ordinary metadata without changing a stage. Explicit legacy compatibility
+and owner-approved budget amendments use the narrow audited operations in `docs/HARDENING.md`;
+neither supplies stage approval. Reserve before dispatch, complete from
 actual outcomes, and never refund consumed work or silently raise an initialized budget. Derive the
 current assembled identity through the runtime. Direct edits cause drift; recovery must not erase it.
 

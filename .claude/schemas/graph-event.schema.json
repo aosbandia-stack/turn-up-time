@@ -21,6 +21,51 @@
     "receipt_refs": {"type": "array", "items": {"type": "string"}},
     "ledger_sha256_before": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
     "ledger_sha256_after": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
-    "occurred_at": {"type": "string", "format": "date-time"}
-  }
+    "occurred_at": {"type": "string", "format": "date-time"},
+    "operation_details": {
+      "oneOf": [
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["old_limit", "new_limit", "used", "reason", "owner_decision_ref", "owner_decision_sha256", "authority_kind"],
+          "properties": {
+            "old_limit": {"type": "integer", "minimum": 0},
+            "new_limit": {"type": "integer", "minimum": 1},
+            "used": {"type": "integer", "minimum": 0},
+            "reason": {"type": "string", "minLength": 1},
+            "owner_decision_ref": {"type": "string", "minLength": 1},
+            "owner_decision_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+            "authority_kind": {"const": "CONVERSATION_EVIDENCE_NOT_SIGNED_STAGE_APPROVAL"}
+          }
+        },
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["profile", "expected_ledger_sha256", "backup_ref", "backup_sha256", "changes"],
+          "properties": {
+            "profile": {"const": "ledger-v2-risk-severity-v1"},
+            "expected_ledger_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+            "backup_ref": {"type": "string", "minLength": 1},
+            "backup_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+            "changes": {"type": "array", "minItems": 1, "items": {
+              "type": "object", "additionalProperties": false, "required": ["path", "before", "after"],
+              "properties": {
+                "path": {"type": "string", "pattern": "^/risks/[0-9]+/severity$"},
+                "before": {"enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"]},
+                "after": {"enum": ["low", "medium", "high", "critical"]}
+              }
+            }}
+          }
+        }
+      ]
+    }
+  },
+  "allOf": [
+    {"if": {"properties": {"trigger": {"const": "amend_spawn_budget"}}},
+     "then": {"properties": {"operation_details": {"required": ["authority_kind"]}}}},
+    {"if": {"properties": {"trigger": {"const": "migrate_ledger_compatibility"}}},
+     "then": {"properties": {"operation_details": {"required": ["profile"]}}}},
+    {"if": {"properties": {"trigger": {"enum": ["amend_spawn_budget", "migrate_ledger_compatibility"]}}},
+     "then": {"required": ["operation_details"], "properties": {"event_type": {"const": "CONTROL_OPERATION"}}}},
+    {"if": {"required": ["operation_details"]},
+     "then": {"properties": {"trigger": {"enum": ["amend_spawn_budget", "migrate_ledger_compatibility"]}}}}
+  ]
 }
